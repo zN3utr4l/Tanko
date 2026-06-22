@@ -49,7 +49,7 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Tanko',
+      title: 'Carburo',
       theme: appTheme(Brightness.light),
       darkTheme: appTheme(Brightness.dark),
       routerConfig: appRouter,

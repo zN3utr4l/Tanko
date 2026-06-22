@@ -1,4 +1,6 @@
-# Tanko ⛽
+# Carburo ⛽
+
+> App display name: **Carburo**. Repository / package id: `tanko` (`io.github.zn3utr4l.tanko`).
 
 Free, open-source, **local-first** Android app to track fuel/refueling expenses:
 how much you spend, your real price per liter, real consumption (L/100km, km/L),

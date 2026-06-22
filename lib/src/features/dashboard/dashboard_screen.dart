@@ -15,7 +15,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicleAsync = ref.watch(dashboardVehicleProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Tanko')),
+      appBar: AppBar(title: const Text('Carburo')),
       body: vehicleAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Errore: $e')),
