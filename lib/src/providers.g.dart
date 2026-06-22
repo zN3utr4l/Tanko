@@ -231,3 +231,90 @@ final class StatsServiceProvider
 }
 
 String _$statsServiceHash() => r'd51af8a0fb54418ebf0d8a8679d30e2ef01e4cef';
+
+@ProviderFor(catalogDio)
+final catalogDioProvider = CatalogDioProvider._();
+
+final class CatalogDioProvider extends $FunctionalProvider<Dio, Dio, Dio>
+    with $Provider<Dio> {
+  CatalogDioProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'catalogDioProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$catalogDioHash();
+
+  @$internal
+  @override
+  $ProviderElement<Dio> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Dio create(Ref ref) {
+    return catalogDio(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Dio value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Dio>(value),
+    );
+  }
+}
+
+String _$catalogDioHash() => r'01c5cc4deb39c5e186c336ff5d40e2c0d1b57b5c';
+
+@ProviderFor(catalogRepository)
+final catalogRepositoryProvider = CatalogRepositoryProvider._();
+
+final class CatalogRepositoryProvider
+    extends
+        $FunctionalProvider<
+          CatalogRepository,
+          CatalogRepository,
+          CatalogRepository
+        >
+    with $Provider<CatalogRepository> {
+  CatalogRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'catalogRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$catalogRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CatalogRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CatalogRepository create(Ref ref) {
+    return catalogRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CatalogRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CatalogRepository>(value),
+    );
+  }
+}
+
+String _$catalogRepositoryHash() => r'6e30e902ee03290d40317895092f6a83b7ed6dbd';
