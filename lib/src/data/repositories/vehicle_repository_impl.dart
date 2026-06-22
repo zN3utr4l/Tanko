@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart';
 import '../../domain/models/vehicle.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../database/database.dart';

@@ -32,7 +32,7 @@ class ConsumptionCalculator {
         if (isValid) {
           result.add(
             ConsumptionInterval(
-              fromFillUpId: lastFull!.id,
+              fromFillUpId: lastFull.id,
               toFillUpId: f.id,
               distanceKm: f.odometer - lastFull.odometer,
               liters: liters,
