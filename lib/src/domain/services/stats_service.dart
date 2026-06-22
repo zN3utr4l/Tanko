@@ -1,4 +1,7 @@
+import '../models/cost_summary.dart';
+import '../models/expense.dart';
 import '../models/fill_up.dart';
+import '../models/monthly_stacked.dart';
 import '../models/monthly_total.dart';
 import '../models/vehicle_stats.dart';
 import 'consumption_calculator.dart';
@@ -21,7 +24,11 @@ class StatsService {
 
     for (final f in sorted) {
       totalSpend += f.amount;
-      byCategory.update(f.categoryId, (v) => v + f.amount, ifAbsent: () => f.amount);
+      byCategory.update(
+        f.categoryId,
+        (v) => v + f.amount,
+        ifAbsent: () => f.amount,
+      );
       if (f.liters != null) {
         litersWithPrice += f.liters!;
         costWithPrice += f.amount;
@@ -39,7 +46,9 @@ class StatsService {
 
     return VehicleStats(
       totalSpend: totalSpend,
-      avgPricePerLiter: litersWithPrice > 0 ? costWithPrice / litersWithPrice : null,
+      avgPricePerLiter: litersWithPrice > 0
+          ? costWithPrice / litersWithPrice
+          : null,
       avgConsumption: avgConsumption,
       totalKm: sorted.last.odometer - sorted.first.odometer,
       lastFillDate: lastDate,
@@ -61,8 +70,64 @@ class StatsService {
       );
     }
     final list = byKey.values.toList()
-      ..sort((a, b) =>
-          a.year != b.year ? a.year - b.year : a.month - b.month);
+      ..sort((a, b) => a.year != b.year ? a.year - b.year : a.month - b.month);
     return list;
+  }
+
+  /// Cost of ownership over fuel + general expenses.
+  CostSummary costSummary(List<FillUp> fills, List<Expense> expenses) {
+    final fuelCost = fills.fold(0.0, (s, f) => s + f.amount);
+    final expenseCost = expenses.fold(0.0, (s, e) => s + e.amount);
+    var totalKm = 0.0;
+    if (fills.length >= 2) {
+      final od = fills.map((f) => f.odometer).toList()..sort();
+      totalKm = od.last - od.first;
+    }
+    final months = <String>{
+      for (final f in fills) '${f.date.year}-${f.date.month}',
+      for (final e in expenses) '${e.date.year}-${e.date.month}',
+    };
+    return CostSummary(
+      fuelCost: fuelCost,
+      expenseCost: expenseCost,
+      totalKm: totalKm,
+      months: months.length,
+    );
+  }
+
+  /// Total expense amount per expense-category id (for the donut chart).
+  Map<int, double> expenseByCategory(List<Expense> expenses) {
+    final m = <int, double>{};
+    for (final e in expenses) {
+      m.update(e.categoryId, (v) => v + e.amount, ifAbsent: () => e.amount);
+    }
+    return m;
+  }
+
+  /// Per-month fuel vs expense totals, sorted chronologically.
+  List<MonthlyStacked> monthlyStacked(
+    List<FillUp> fills,
+    List<Expense> expenses,
+  ) {
+    final map = <String, MonthlyStacked>{};
+    void add(int year, int month, {double fuel = 0, double expense = 0}) {
+      final key = '$year-$month';
+      final c = map[key];
+      map[key] = MonthlyStacked(
+        year: year,
+        month: month,
+        fuel: (c?.fuel ?? 0) + fuel,
+        expense: (c?.expense ?? 0) + expense,
+      );
+    }
+
+    for (final f in fills) {
+      add(f.date.year, f.date.month, fuel: f.amount);
+    }
+    for (final e in expenses) {
+      add(e.date.year, e.date.month, expense: e.amount);
+    }
+    return map.values.toList()
+      ..sort((a, b) => a.year != b.year ? a.year - b.year : a.month - b.month);
   }
 }

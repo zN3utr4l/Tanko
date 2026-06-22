@@ -1,9 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../domain/models/enums.dart';
+import '../providers.dart';
 import 'router.dart';
 import 'theme.dart';
 
-class App extends StatelessWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
+
+  @override
+  ConsumerState<App> createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> {
+  @override
+  void initState() {
+    super.initState();
+    _initNotifications();
+  }
+
+  /// Best-effort: prepare notifications and (re)schedule date-based reminders.
+  /// Distance-based reminders are surfaced in-app on the Scadenze screen.
+  Future<void> _initNotifications() async {
+    try {
+      final svc = ref.read(notificationServiceProvider);
+      await svc.init();
+      await svc.cancelAll();
+      final reminders = await ref.read(reminderRepositoryProvider).all();
+      for (final r in reminders.where(
+        (r) =>
+            r.active &&
+            r.notify &&
+            r.dueDate != null &&
+            r.triggerMode != TriggerMode.distance,
+      )) {
+        await svc.scheduleAt(
+          id: r.id,
+          title: r.title,
+          body: 'Scadenza in arrivo',
+          when: r.dueDate!.subtract(Duration(days: r.leadDays ?? 0)),
+        );
+      }
+    } catch (_) {
+      /* best-effort */
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

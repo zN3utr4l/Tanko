@@ -30,13 +30,20 @@ fl_chart · dio (CarQuery) · intl.
 **`features/` (UI, Riverpod) → `domain/` (pure) ← `data/` (I/O).**
 
 - **`lib/src/domain/`** — pure models (freezed) + services
-  (`ConsumptionCalculator`, `StatsService`, `RangeComparator`) + repository
-  interfaces. No I/O. Heavily unit-tested.
-- **`lib/src/data/`** — drift database + tables + mappers, repository impls,
-  CarQuery catalog client/parser, Excel importer, backup service.
-- **`lib/src/features/`** — `dashboard`, `fillups`, `vehicles` (incl.
-  Add-Vehicle wizard), `stats`, `settings`. Riverpod `Consumer*` widgets.
+  (`ConsumptionCalculator`, `StatsService`, `RangeComparator`,
+  `ReminderEvaluator`) + repository interfaces. No I/O. Heavily unit-tested.
+- **`lib/src/data/`** — drift database (schemaVersion **2**) + tables + mappers,
+  repository impls, CarQuery catalog client/parser, Excel importer, backup
+  service, `NotificationService` (flutter_local_notifications, best-effort).
+- **`lib/src/features/`** — `dashboard`, `fillups`, `vehicles` (Add-Vehicle
+  wizard), `stats`, `expenses` (costi generali), `reminders` (scadenze, with
+  Italian templates + completion flow), `calendar` (table_calendar), `movimenti`
+  (fuel + expenses), `altro`, `settings`. Riverpod `Consumer*` widgets.
 - **`lib/src/providers.dart`** — composition root (db, repos, services, dio).
+- **Nav:** 5-tab bottom bar (Home · Calendario · Scadenze · Statistiche · Altro).
+- **Reminders:** status is **derived** by `ReminderEvaluator` (today + max
+  odometer), never stored; recurrence is anchored to completion. Categories use
+  a `kind` discriminator (fuel | expense) — filter by kind in every picker/query.
 
 Put new logic in `domain/` as a pure, tested function whenever possible.
 

@@ -84,10 +84,14 @@ final class FillUpsFamily extends $Family
   String toString() => r'fillUpsProvider';
 }
 
-@ProviderFor(categories)
-final categoriesProvider = CategoriesProvider._();
+/// All categories (both kinds) — for id→name/colour lookups in lists/charts.
 
-final class CategoriesProvider
+@ProviderFor(allCategories)
+final allCategoriesProvider = AllCategoriesProvider._();
+
+/// All categories (both kinds) — for id→name/colour lookups in lists/charts.
+
+final class AllCategoriesProvider
     extends
         $FunctionalProvider<
           AsyncValue<List<Category>>,
@@ -95,19 +99,20 @@ final class CategoriesProvider
           FutureOr<List<Category>>
         >
     with $FutureModifier<List<Category>>, $FutureProvider<List<Category>> {
-  CategoriesProvider._()
+  /// All categories (both kinds) — for id→name/colour lookups in lists/charts.
+  AllCategoriesProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'categoriesProvider',
+        name: r'allCategoriesProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$categoriesHash();
+  String debugGetCreateSourceHash() => _$allCategoriesHash();
 
   @$internal
   @override
@@ -117,8 +122,52 @@ final class CategoriesProvider
 
   @override
   FutureOr<List<Category>> create(Ref ref) {
-    return categories(ref);
+    return allCategories(ref);
   }
 }
 
-String _$categoriesHash() => r'ac23bc367a68ecd78ca4fa5f7a78dd4cf6cf0ce9';
+String _$allCategoriesHash() => r'f389692db9bd5151310c43e1cd614481645d692a';
+
+/// Fuel categories only — for the fuel fill-up picker (never expense ones).
+
+@ProviderFor(fuelCategories)
+final fuelCategoriesProvider = FuelCategoriesProvider._();
+
+/// Fuel categories only — for the fuel fill-up picker (never expense ones).
+
+final class FuelCategoriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Category>>,
+          List<Category>,
+          FutureOr<List<Category>>
+        >
+    with $FutureModifier<List<Category>>, $FutureProvider<List<Category>> {
+  /// Fuel categories only — for the fuel fill-up picker (never expense ones).
+  FuelCategoriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'fuelCategoriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$fuelCategoriesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Category>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Category>> create(Ref ref) {
+    return fuelCategories(ref);
+  }
+}
+
+String _$fuelCategoriesHash() => r'e55723052034705def279d1ac1216150bf696a8f';

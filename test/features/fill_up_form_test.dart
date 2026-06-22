@@ -6,8 +6,9 @@ import 'package:tanko/src/providers.dart';
 import '../helpers/test_db.dart';
 
 void main() {
-  testWidgets('shows live price/L when amount and liters are entered',
-      (tester) async {
+  testWidgets('shows live price/L when amount and liters are entered', (
+    tester,
+  ) async {
     final db = makeTestDb();
     addTearDown(db.close);
     await tester.pumpWidget(

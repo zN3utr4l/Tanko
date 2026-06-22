@@ -25,7 +25,8 @@ class ConsumptionCalculator {
         cost += f.amount;
       }
       if (f.isFull) {
-        final isValid = lastFull != null &&
+        final isValid =
+            lastFull != null &&
             f.odometer > lastFull.odometer &&
             !hasNullLiters &&
             liters > 0;

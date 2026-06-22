@@ -58,7 +58,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.initial == null ? 'Nuovo veicolo' : 'Modifica veicolo'),
+        title: Text(
+          widget.initial == null ? 'Nuovo veicolo' : 'Modifica veicolo',
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -89,8 +91,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
             TextFormField(
               controller: _tank,
               keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Capacità serbatoio (L)'),
+              decoration: const InputDecoration(
+                labelText: 'Capacità serbatoio (L)',
+              ),
             ),
             SwitchListTile(
               title: const Text('Veicolo predefinito'),

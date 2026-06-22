@@ -8,19 +8,18 @@ FillUp fill({
   double? liters,
   double amount = 0,
   bool isFull = true,
-}) =>
-    FillUp(
-      id: id,
-      vehicleId: 1,
-      date: DateTime(2026, 1, id),
-      amount: amount,
-      liters: liters,
-      odometer: odometer,
-      isFull: isFull,
-      categoryId: 1,
-      createdAt: DateTime(2026),
-      updatedAt: DateTime(2026),
-    );
+}) => FillUp(
+  id: id,
+  vehicleId: 1,
+  date: DateTime(2026, 1, id),
+  amount: amount,
+  liters: liters,
+  odometer: odometer,
+  isFull: isFull,
+  categoryId: 1,
+  createdAt: DateTime(2026),
+  updatedAt: DateTime(2026),
+);
 
 void main() {
   const calc = ConsumptionCalculator();

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../features/altro/altro_screen.dart';
+import '../features/calendar/calendar_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
-import '../features/settings/settings_screen.dart';
+import '../features/reminders/scadenze_screen.dart';
 import '../features/stats/stats_screen.dart';
-import '../features/vehicles/vehicles_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
@@ -13,7 +14,26 @@ final appRouter = GoRouter(
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/dashboard', builder: (_, _) => const DashboardScreen()),
+            GoRoute(
+              path: '/dashboard',
+              builder: (_, _) => const DashboardScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/calendar',
+              builder: (_, _) => const CalendarScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/scadenze',
+              builder: (_, _) => const ScadenzeScreen(),
+            ),
           ],
         ),
         StatefulShellBranch(
@@ -23,12 +43,7 @@ final appRouter = GoRouter(
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/vehicles', builder: (_, _) => const VehiclesScreen()),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
+            GoRoute(path: '/altro', builder: (_, _) => const AltroScreen()),
           ],
         ),
       ],
@@ -48,10 +63,20 @@ class _HomeShell extends StatelessWidget {
         selectedIndex: shell.currentIndex,
         onDestinationSelected: shell.goBranch,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Statistiche'),
-          NavigationDestination(icon: Icon(Icons.directions_car), label: 'Veicoli'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Impostazioni'),
+          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Home'),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month),
+            label: 'Calendario',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.notifications),
+            label: 'Scadenze',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart),
+            label: 'Statistiche',
+          ),
+          NavigationDestination(icon: Icon(Icons.more_horiz), label: 'Altro'),
         ],
       ),
     );

@@ -10,10 +10,11 @@ class FillUpRepositoryImpl implements FillUpRepository {
 
   @override
   Future<List<FillUp>> forVehicle(int vehicleId) async {
-    final rows = await (_db.select(_db.fillUps)
-          ..where((t) => t.vehicleId.equals(vehicleId))
-          ..orderBy([(t) => OrderingTerm.asc(t.odometer)]))
-        .get();
+    final rows =
+        await (_db.select(_db.fillUps)
+              ..where((t) => t.vehicleId.equals(vehicleId))
+              ..orderBy([(t) => OrderingTerm.asc(t.odometer)]))
+            .get();
     return rows.map((r) => r.toDomain()).toList();
   }
 

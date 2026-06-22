@@ -6,7 +6,13 @@ void main() {
     const Result<int> ok = Ok(42);
     const Result<int> err = Err(Failure('boom'));
 
-    expect(switch (ok) { Ok(:final value) => value, Err() => -1 }, 42);
-    expect(switch (err) { Ok() => '', Err(:final failure) => failure.message }, 'boom');
+    expect(switch (ok) {
+      Ok(:final value) => value,
+      Err() => -1,
+    }, 42);
+    expect(switch (err) {
+      Ok() => '',
+      Err(:final failure) => failure.message,
+    }, 'boom');
   });
 }

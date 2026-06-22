@@ -112,7 +112,9 @@ jobs:
 
   release:
     needs: [version, build-apk]
-    if: needs.version.outputs.released == 'false'
+    # Only publish a release from main — a manual branch dispatch builds the APK
+    # for verification but must not cut a release/tag off an unmerged branch.
+    if: needs.version.outputs.released == 'false' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Download APK artifact

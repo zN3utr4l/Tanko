@@ -36,5 +36,6 @@ abstract class Vehicle with _$Vehicle {
     required DateTime updatedAt,
   }) = _Vehicle;
 
-  factory Vehicle.fromJson(Map<String, Object?> json) => _$VehicleFromJson(json);
+  factory Vehicle.fromJson(Map<String, Object?> json) =>
+      _$VehicleFromJson(json);
 }

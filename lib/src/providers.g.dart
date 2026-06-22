@@ -232,6 +232,196 @@ final class StatsServiceProvider
 
 String _$statsServiceHash() => r'd51af8a0fb54418ebf0d8a8679d30e2ef01e4cef';
 
+@ProviderFor(reminderEvaluator)
+final reminderEvaluatorProvider = ReminderEvaluatorProvider._();
+
+final class ReminderEvaluatorProvider
+    extends
+        $FunctionalProvider<
+          ReminderEvaluator,
+          ReminderEvaluator,
+          ReminderEvaluator
+        >
+    with $Provider<ReminderEvaluator> {
+  ReminderEvaluatorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reminderEvaluatorProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reminderEvaluatorHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReminderEvaluator> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ReminderEvaluator create(Ref ref) {
+    return reminderEvaluator(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReminderEvaluator value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReminderEvaluator>(value),
+    );
+  }
+}
+
+String _$reminderEvaluatorHash() => r'b3b67e1bdd9b77fc79da42edfcbaab1658504e69';
+
+@ProviderFor(expenseRepository)
+final expenseRepositoryProvider = ExpenseRepositoryProvider._();
+
+final class ExpenseRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ExpenseRepository,
+          ExpenseRepository,
+          ExpenseRepository
+        >
+    with $Provider<ExpenseRepository> {
+  ExpenseRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'expenseRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$expenseRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ExpenseRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ExpenseRepository create(Ref ref) {
+    return expenseRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ExpenseRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ExpenseRepository>(value),
+    );
+  }
+}
+
+String _$expenseRepositoryHash() => r'd22e0b0cd9612ccf60f582f18477677adba129c3';
+
+@ProviderFor(reminderRepository)
+final reminderRepositoryProvider = ReminderRepositoryProvider._();
+
+final class ReminderRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ReminderRepository,
+          ReminderRepository,
+          ReminderRepository
+        >
+    with $Provider<ReminderRepository> {
+  ReminderRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reminderRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reminderRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReminderRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ReminderRepository create(Ref ref) {
+    return reminderRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReminderRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReminderRepository>(value),
+    );
+  }
+}
+
+String _$reminderRepositoryHash() =>
+    r'f9d12e5cbb0d710510cb8fd1e0399c2f175fbb3f';
+
+@ProviderFor(notificationService)
+final notificationServiceProvider = NotificationServiceProvider._();
+
+final class NotificationServiceProvider
+    extends
+        $FunctionalProvider<
+          NotificationService,
+          NotificationService,
+          NotificationService
+        >
+    with $Provider<NotificationService> {
+  NotificationServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotificationService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotificationService create(Ref ref) {
+    return notificationService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotificationService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotificationService>(value),
+    );
+  }
+}
+
+String _$notificationServiceHash() =>
+    r'585c1e42ea844e71a2b76b80b165adfe2c5c8529';
+
 @ProviderFor(catalogDio)
 final catalogDioProvider = CatalogDioProvider._();
 

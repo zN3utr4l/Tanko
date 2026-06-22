@@ -22,15 +22,21 @@ class ExcelImporter {
 
   /// Unwraps a drift `CellValue` into a raw `num` / `DateTime` / `String`.
   Object? _raw(CellValue? v) => switch (v) {
-        null => null,
-        IntCellValue() => v.value,
-        DoubleCellValue() => v.value,
-        DateCellValue() => DateTime(v.year, v.month, v.day),
-        DateTimeCellValue() =>
-          DateTime(v.year, v.month, v.day, v.hour, v.minute, v.second),
-        TextCellValue() => v.value.toString(),
-        _ => v.toString(),
-      };
+    null => null,
+    IntCellValue() => v.value,
+    DoubleCellValue() => v.value,
+    DateCellValue() => DateTime(v.year, v.month, v.day),
+    DateTimeCellValue() => DateTime(
+      v.year,
+      v.month,
+      v.day,
+      v.hour,
+      v.minute,
+      v.second,
+    ),
+    TextCellValue() => v.value.toString(),
+    _ => v.toString(),
+  };
 
   /// Maps already-extracted rows. Row 0 = title, row 1 = header, data from row 2.
   /// Columns: 0=date (serial or DateTime), 1=amount, 2=odometer, 3=rangeKm.
@@ -60,7 +66,9 @@ class ExcelImporter {
         continue;
       }
       if (odometer == 0) {
-        warnings.add('Riga ${i + 1}: odometro 0 (anomalia) — importata comunque.');
+        warnings.add(
+          'Riga ${i + 1}: odometro 0 (anomalia) — importata comunque.',
+        );
       }
 
       out.add(

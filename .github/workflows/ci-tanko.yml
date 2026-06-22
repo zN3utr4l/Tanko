@@ -93,3 +93,24 @@ jobs:
             https://github.com/google/osv-scanner/releases/download/v2.3.8/osv-scanner_linux_amd64
           chmod +x osv-scanner
           ./osv-scanner scan source --lockfile=pubspec.lock
+
+  # Verify the Android build on every PR. The app has non-trivial native config
+  # (signing + flutter_local_notifications desugaring/manifest), so a debug APK
+  # build here catches breakage before it can reach main / CD.
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Flutter setup
+        uses: ./.github/actions/flutter-setup
+
+      - name: Build debug APK
+        run: flutter build apk --debug

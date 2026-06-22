@@ -11,8 +11,9 @@ import 'package:tanko/src/providers.dart';
 import '../helpers/test_db.dart';
 
 void main() {
-  testWidgets('dashboard shows total spend for the default vehicle',
-      (tester) async {
+  testWidgets('dashboard shows total spend for the default vehicle', (
+    tester,
+  ) async {
     final db = makeTestDb();
     addTearDown(db.close);
     final vid = await VehicleRepositoryImpl(db).upsert(

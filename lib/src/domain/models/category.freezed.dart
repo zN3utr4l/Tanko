@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Category {
 
- int get id; String get name; int get color; bool get isDefault;
+ int get id; String get name; int get color; bool get isDefault; CategoryKind get kind; int? get iconCode; int get ord;
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CategoryCopyWith<Category> get copyWith => _$CategoryCopyWithImpl<Category>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Category&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.color, color) || other.color == color)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Category&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.color, color) || other.color == color)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.iconCode, iconCode) || other.iconCode == iconCode)&&(identical(other.ord, ord) || other.ord == ord));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,color,isDefault);
+int get hashCode => Object.hash(runtimeType,id,name,color,isDefault,kind,iconCode,ord);
 
 @override
 String toString() {
-  return 'Category(id: $id, name: $name, color: $color, isDefault: $isDefault)';
+  return 'Category(id: $id, name: $name, color: $color, isDefault: $isDefault, kind: $kind, iconCode: $iconCode, ord: $ord)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CategoryCopyWith<$Res>  {
   factory $CategoryCopyWith(Category value, $Res Function(Category) _then) = _$CategoryCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, int color, bool isDefault
+ int id, String name, int color, bool isDefault, CategoryKind kind, int? iconCode, int ord
 });
 
 
@@ -65,13 +65,16 @@ class _$CategoryCopyWithImpl<$Res>
 
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? color = null,Object? isDefault = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? color = null,Object? isDefault = null,Object? kind = null,Object? iconCode = freezed,Object? ord = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as CategoryKind,iconCode: freezed == iconCode ? _self.iconCode : iconCode // ignore: cast_nullable_to_non_nullable
+as int?,ord: null == ord ? _self.ord : ord // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int color,  bool isDefault)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  int color,  bool isDefault,  CategoryKind kind,  int? iconCode,  int ord)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Category() when $default != null:
-return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
+return $default(_that.id,_that.name,_that.color,_that.isDefault,_that.kind,_that.iconCode,_that.ord);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int color,  bool isDefault)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  int color,  bool isDefault,  CategoryKind kind,  int? iconCode,  int ord)  $default,) {final _that = this;
 switch (_that) {
 case _Category():
-return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
+return $default(_that.id,_that.name,_that.color,_that.isDefault,_that.kind,_that.iconCode,_that.ord);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +200,10 @@ return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int color,  bool isDefault)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  int color,  bool isDefault,  CategoryKind kind,  int? iconCode,  int ord)?  $default,) {final _that = this;
 switch (_that) {
 case _Category() when $default != null:
-return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
+return $default(_that.id,_that.name,_that.color,_that.isDefault,_that.kind,_that.iconCode,_that.ord);case _:
   return null;
 
 }
@@ -212,13 +215,16 @@ return $default(_that.id,_that.name,_that.color,_that.isDefault);case _:
 @JsonSerializable()
 
 class _Category implements Category {
-  const _Category({required this.id, required this.name, required this.color, this.isDefault = false});
+  const _Category({required this.id, required this.name, required this.color, this.isDefault = false, this.kind = CategoryKind.fuel, this.iconCode, this.ord = 0});
   factory _Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
 
 @override final  int id;
 @override final  String name;
 @override final  int color;
 @override@JsonKey() final  bool isDefault;
+@override@JsonKey() final  CategoryKind kind;
+@override final  int? iconCode;
+@override@JsonKey() final  int ord;
 
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Category&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.color, color) || other.color == color)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Category&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.color, color) || other.color == color)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.iconCode, iconCode) || other.iconCode == iconCode)&&(identical(other.ord, ord) || other.ord == ord));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,color,isDefault);
+int get hashCode => Object.hash(runtimeType,id,name,color,isDefault,kind,iconCode,ord);
 
 @override
 String toString() {
-  return 'Category(id: $id, name: $name, color: $color, isDefault: $isDefault)';
+  return 'Category(id: $id, name: $name, color: $color, isDefault: $isDefault, kind: $kind, iconCode: $iconCode, ord: $ord)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$CategoryCopyWith<$Res> implements $CategoryCopyWith<$Res>
   factory _$CategoryCopyWith(_Category value, $Res Function(_Category) _then) = __$CategoryCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, int color, bool isDefault
+ int id, String name, int color, bool isDefault, CategoryKind kind, int? iconCode, int ord
 });
 
 
@@ -270,13 +276,16 @@ class __$CategoryCopyWithImpl<$Res>
 
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? color = null,Object? isDefault = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? color = null,Object? isDefault = null,Object? kind = null,Object? iconCode = freezed,Object? ord = null,}) {
   return _then(_Category(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as CategoryKind,iconCode: freezed == iconCode ? _self.iconCode : iconCode // ignore: cast_nullable_to_non_nullable
+as int?,ord: null == ord ? _self.ord : ord // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

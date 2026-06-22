@@ -40,7 +40,15 @@ class _AddVehicleWizardScreenState
 
   @override
   void dispose() {
-    for (final c in [_make, _model, _year, _trimCtrl, _tank, _consumption, _power]) {
+    for (final c in [
+      _make,
+      _model,
+      _year,
+      _trimCtrl,
+      _tank,
+      _consumption,
+      _power,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -137,7 +145,9 @@ class _AddVehicleWizardScreenState
                 Expanded(
                   child: TextFormField(
                     controller: _trimCtrl,
-                    decoration: const InputDecoration(labelText: 'Allestimento'),
+                    decoration: const InputDecoration(
+                      labelText: 'Allestimento',
+                    ),
                   ),
                 ),
               ],
@@ -154,8 +164,9 @@ class _AddVehicleWizardScreenState
             TextFormField(
               controller: _tank,
               keyboardType: TextInputType.number,
-              decoration:
-                  const InputDecoration(labelText: 'Capacità serbatoio (L)'),
+              decoration: const InputDecoration(
+                labelText: 'Capacità serbatoio (L)',
+              ),
             ),
             TextFormField(
               controller: _consumption,
@@ -187,7 +198,8 @@ class _AddVehicleWizardScreenState
     return [
       makesAsync.when(
         loading: () => const LinearProgressIndicator(),
-        error: (e, _) => _CatalogError(onManual: () => setState(() => _manual = true)),
+        error: (e, _) =>
+            _CatalogError(onManual: () => setState(() => _manual = true)),
         data: (makes) => DropdownButtonFormField<String>(
           initialValue: _makeId,
           isExpanded: true,
@@ -205,13 +217,17 @@ class _AddVehicleWizardScreenState
         ),
       ),
       if (_makeId != null)
-        ref.watch(catalogModelsProvider(_makeId!)).when(
+        ref
+            .watch(catalogModelsProvider(_makeId!))
+            .when(
               loading: () => const LinearProgressIndicator(),
               error: (e, _) => const Text('Modelli non disponibili'),
               data: (models) => DropdownButtonFormField<String>(
                 initialValue: _selectedModel,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Modello (catalogo)'),
+                decoration: const InputDecoration(
+                  labelText: 'Modello (catalogo)',
+                ),
                 items: [
                   for (final m in models)
                     DropdownMenuItem(value: m, child: Text(m)),
@@ -223,14 +239,17 @@ class _AddVehicleWizardScreenState
               ),
             ),
       if (_makeId != null && _selectedModel != null)
-        ref.watch(catalogTrimsProvider(_makeId!, _selectedModel!)).when(
+        ref
+            .watch(catalogTrimsProvider(_makeId!, _selectedModel!))
+            .when(
               loading: () => const LinearProgressIndicator(),
               error: (e, _) => const Text('Allestimenti non disponibili'),
               data: (trims) => DropdownButtonFormField<CatalogTrim>(
                 initialValue: _trim,
                 isExpanded: true,
-                decoration:
-                    const InputDecoration(labelText: 'Allestimento (catalogo)'),
+                decoration: const InputDecoration(
+                  labelText: 'Allestimento (catalogo)',
+                ),
                 items: [
                   for (final t in trims)
                     DropdownMenuItem(value: t, child: Text(t.label)),
@@ -253,7 +272,9 @@ class _CatalogError extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Catalogo non raggiungibile (sei offline o il servizio è giù).'),
+        const Text(
+          'Catalogo non raggiungibile (sei offline o il servizio è giù).',
+        ),
         TextButton(onPressed: onManual, child: const Text('Inserisci a mano')),
       ],
     );

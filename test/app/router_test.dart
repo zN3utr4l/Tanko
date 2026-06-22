@@ -15,7 +15,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Dashboard'), findsWidgets);
-    expect(find.text('Veicoli'), findsWidgets);
+    expect(find.text('Home'), findsWidgets);
+    expect(find.text('Calendario'), findsWidgets);
+    expect(find.text('Scadenze'), findsWidgets);
   });
 }

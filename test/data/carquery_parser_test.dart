@@ -25,7 +25,8 @@ void main() {
   });
 
   test('parseTrims parses string numbers and maps fuel', () {
-    const body = '{"Trims":[{'
+    const body =
+        '{"Trims":[{'
         '"model_id":"45123",'
         '"model_make_id":"renault",'
         '"model_name":"Clio",'

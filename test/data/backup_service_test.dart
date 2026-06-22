@@ -3,7 +3,9 @@ import 'package:tanko/src/data/backup/backup_service.dart';
 import 'package:tanko/src/domain/models/backup_data.dart';
 import 'package:tanko/src/domain/models/category.dart';
 import 'package:tanko/src/domain/models/enums.dart';
+import 'package:tanko/src/domain/models/expense.dart';
 import 'package:tanko/src/domain/models/fill_up.dart';
+import 'package:tanko/src/domain/models/reminder.dart';
 import 'package:tanko/src/domain/models/vehicle.dart';
 
 void main() {
@@ -16,12 +18,17 @@ void main() {
         make: 'Renault',
         model: 'Clio',
         fuelType: FuelType.hybrid,
-        specs: const VehicleSpecs(tankCapacityL: 39, source: SpecSource.carquery),
+        specs: const VehicleSpecs(
+          tankCapacityL: 39,
+          source: SpecSource.carquery,
+        ),
         createdAt: DateTime(2026, 1, 1),
         updatedAt: DateTime(2026, 1, 1),
       ),
     ],
-    categories: const [Category(id: 1, name: 'Mine', color: 0xFF4CAF50, isDefault: true)],
+    categories: const [
+      Category(id: 1, name: 'Mine', color: 0xFF4CAF50, isDefault: true),
+    ],
     fillUps: [
       FillUp(
         id: 1,
@@ -35,11 +42,49 @@ void main() {
         updatedAt: DateTime(2026, 1, 2),
       ),
     ],
+    expenses: [
+      Expense(
+        id: 1,
+        vehicleId: 1,
+        date: DateTime(2026, 3, 1),
+        categoryId: 3,
+        amount: 350,
+        description: 'RCA',
+        createdAt: DateTime(2026, 3, 1),
+        updatedAt: DateTime(2026, 3, 1),
+      ),
+    ],
+    reminders: [
+      Reminder(
+        id: 1,
+        vehicleId: 1,
+        type: ReminderType.assicurazione,
+        title: 'RCA',
+        triggerMode: TriggerMode.date,
+        dueDate: DateTime(2027, 1, 1),
+        recurEvery: 1,
+        recurUnit: RecurUnit.year,
+        createdAt: DateTime(2026, 1, 1),
+        updatedAt: DateTime(2026, 1, 1),
+      ),
+    ],
   );
 
-  test('JSON export -> import round-trips losslessly', () {
-    final restored = service.fromJson(service.toJson(data));
-    expect(restored, data);
+  test(
+    'JSON export -> import round-trips losslessly (v2 with expenses+reminders)',
+    () {
+      final restored = service.fromJson(service.toJson(data));
+      expect(restored, data);
+    },
+  );
+
+  test('fromJson accepts a legacy v1 backup (no expenses/reminders)', () {
+    final restored = service.fromJson(
+      '{"schemaVersion": 1, "vehicles": [], "categories": [], "fillUps": []}',
+    );
+    expect(restored.schemaVersion, 1);
+    expect(restored.expenses, isEmpty);
+    expect(restored.reminders, isEmpty);
   });
 
   test('fromJson rejects an unsupported schema version', () {

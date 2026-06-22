@@ -3,15 +3,15 @@ import 'package:tanko/src/domain/models/fill_up.dart';
 import 'package:tanko/src/domain/services/stats_service.dart';
 
 FillUp fill(int year, int month, double amount) => FillUp(
-      id: 0,
-      vehicleId: 1,
-      date: DateTime(year, month, 15),
-      amount: amount,
-      odometer: 0,
-      categoryId: 1,
-      createdAt: DateTime(2026),
-      updatedAt: DateTime(2026),
-    );
+  id: 0,
+  vehicleId: 1,
+  date: DateTime(year, month, 15),
+  amount: amount,
+  odometer: 0,
+  categoryId: 1,
+  createdAt: DateTime(2026),
+  updatedAt: DateTime(2026),
+);
 
 void main() {
   const service = StatsService();

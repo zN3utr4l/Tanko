@@ -31,6 +31,8 @@ class CarQueryClient implements CatalogRepository {
       parser.parseModels(await _get({'cmd': 'getModels', 'make': makeId}));
 
   @override
-  Future<List<CatalogTrim>> trims(String makeId, String model) async => parser
-      .parseTrims(await _get({'cmd': 'getTrims', 'make': makeId, 'model': model}));
+  Future<List<CatalogTrim>> trims(String makeId, String model) async =>
+      parser.parseTrims(
+        await _get({'cmd': 'getTrims', 'make': makeId, 'model': model}),
+      );
 }

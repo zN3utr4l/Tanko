@@ -13,6 +13,11 @@ void main() {
     addTearDown(db.close);
 
     final cats = await container.read(categoryRepositoryProvider).all();
-    expect(cats, hasLength(2));
+    // Seeded fuel categories + the expense categories.
+    expect(
+      cats.where((c) => c.name == 'Mine' || c.name == 'Not mine'),
+      hasLength(2),
+    );
+    expect(cats.length, greaterThan(2));
   });
 }

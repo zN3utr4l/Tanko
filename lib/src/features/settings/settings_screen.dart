@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart' hide XFile;
 import '../../data/backup/backup_service.dart';
 import '../../data/importer/excel_importer.dart';
 import '../../domain/models/backup_data.dart';
@@ -28,10 +28,14 @@ class SettingsScreen extends ConsumerWidget {
     final vehicles = await ref.read(vehicleRepositoryProvider).all();
     final categories = await ref.read(categoryRepositoryProvider).all();
     final fills = await ref.read(fillUpRepositoryProvider).all();
+    final expenses = await ref.read(expenseRepositoryProvider).all();
+    final reminders = await ref.read(reminderRepositoryProvider).all();
     return BackupData(
       vehicles: vehicles,
       categories: categories,
       fillUps: fills,
+      expenses: expenses,
+      reminders: reminders,
     );
   }
 
@@ -45,18 +49,20 @@ class SettingsScreen extends ConsumerWidget {
     await _share(_backup.toCsv(data.fillUps), 'tanko_rifornimenti.csv');
   }
 
+  Future<void> _exportExpensesCsv(WidgetRef ref) async {
+    final data = await _gather(ref);
+    await _share(_backup.expensesCsv(data.expenses), 'tanko_spese.csv');
+  }
+
   Future<void> _restore(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-      withData: true,
-    );
-    final bytes = picked?.files.single.bytes;
-    if (bytes == null) return;
+    const typeGroup = XTypeGroup(label: 'Tanko backup', extensions: ['json']);
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null) return;
+    final content = await file.readAsString();
 
     final BackupData data;
     try {
-      data = _backup.fromJson(String.fromCharCodes(bytes));
+      data = _backup.fromJson(content);
     } on FormatException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,17 +72,38 @@ class SettingsScreen extends ConsumerWidget {
       return;
     }
 
+    // Atomic restore: a malformed/FK-violating backup must not half-overwrite
+    // the only local copy. Insert in FK order inside one transaction.
     final cats = ref.read(categoryRepositoryProvider);
     final vehicles = ref.read(vehicleRepositoryProvider);
     final fills = ref.read(fillUpRepositoryProvider);
-    for (final c in data.categories) {
-      await cats.upsert(c);
-    }
-    for (final v in data.vehicles) {
-      await vehicles.upsert(v);
-    }
-    for (final f in data.fillUps) {
-      await fills.upsert(f);
+    final expenses = ref.read(expenseRepositoryProvider);
+    final reminders = ref.read(reminderRepositoryProvider);
+    try {
+      await ref.read(appDatabaseProvider).transaction(() async {
+        for (final c in data.categories) {
+          await cats.upsert(c);
+        }
+        for (final v in data.vehicles) {
+          await vehicles.upsert(v);
+        }
+        for (final r in data.reminders) {
+          await reminders.upsert(r);
+        }
+        for (final f in data.fillUps) {
+          await fills.upsert(f);
+        }
+        for (final e in data.expenses) {
+          await expenses.upsert(e);
+        }
+      });
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ripristino fallito (annullato): $e')),
+        );
+      }
+      return;
     }
     ref.invalidate(vehiclesProvider);
     ref.invalidate(dashboardVehicleProvider);
@@ -85,8 +112,9 @@ class SettingsScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Ripristinati ${data.vehicles.length} veicoli e '
-            '${data.fillUps.length} rifornimenti.',
+            'Ripristinati ${data.vehicles.length} veicoli, '
+            '${data.fillUps.length} rifornimenti, '
+            '${data.expenses.length} spese.',
           ),
         ),
       );
@@ -94,26 +122,25 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _importExcel(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      withData: true,
-    );
-    final bytes = picked?.files.single.bytes;
-    if (bytes == null) return;
+    const typeGroup = XTypeGroup(label: 'Excel', extensions: ['xlsx']);
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
 
     final vehicles = await ref.read(vehicleRepositoryProvider).all();
     final categories = await ref.read(categoryRepositoryProvider).all();
     if (vehicles.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Crea prima un veicolo.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Crea prima un veicolo.')));
       }
       return;
     }
-    final defaultCat =
-        categories.firstWhere((c) => c.isDefault, orElse: () => categories.first);
+    final defaultCat = categories.firstWhere(
+      (c) => c.isDefault,
+      orElse: () => categories.first,
+    );
     final result = const ExcelImporter().parseBytes(
       bytes,
       vehicleId: vehicles.first.id,
@@ -170,6 +197,11 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.table_chart),
             title: const Text('Esporta rifornimenti (CSV)'),
             onTap: () => _exportCsv(ref),
+          ),
+          ListTile(
+            leading: const Icon(Icons.table_chart_outlined),
+            title: const Text('Esporta spese (CSV)'),
+            onTap: () => _exportExpensesCsv(ref),
           ),
           ListTile(
             leading: const Icon(Icons.restore),

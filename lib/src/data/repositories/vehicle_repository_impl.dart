@@ -15,8 +15,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   @override
   Future<Vehicle> getById(int id) async {
-    final row = await (_db.select(_db.vehicles)..where((t) => t.id.equals(id)))
-        .getSingle();
+    final row = await (_db.select(
+      _db.vehicles,
+    )..where((t) => t.id.equals(id))).getSingle();
     return row.toDomain();
   }
 
@@ -32,10 +33,11 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   @override
   Future<Vehicle?> defaultVehicle() async {
-    final row = await (_db.select(_db.vehicles)
-          ..where((t) => t.isDefault.equals(true))
-          ..limit(1))
-        .getSingleOrNull();
+    final row =
+        await (_db.select(_db.vehicles)
+              ..where((t) => t.isDefault.equals(true))
+              ..limit(1))
+            .getSingleOrNull();
     return row?.toDomain();
   }
 }

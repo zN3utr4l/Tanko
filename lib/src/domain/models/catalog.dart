@@ -6,10 +6,8 @@ part 'catalog.freezed.dart';
 /// A vehicle make from the online catalog (e.g. Renault).
 @freezed
 abstract class CatalogMake with _$CatalogMake {
-  const factory CatalogMake({
-    required String id,
-    required String name,
-  }) = _CatalogMake;
+  const factory CatalogMake({required String id, required String name}) =
+      _CatalogMake;
 }
 
 /// A specific trim/version of a model, with the specs we can pre-fill.
