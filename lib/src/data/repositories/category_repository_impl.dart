@@ -12,4 +12,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
     final rows = await _db.select(_db.categories).get();
     return rows.map((r) => r.toDomain()).toList();
   }
+
+  @override
+  Future<int> upsert(Category category) =>
+      _db.into(_db.categories).insertOnConflictUpdate(category.toCompanion());
 }

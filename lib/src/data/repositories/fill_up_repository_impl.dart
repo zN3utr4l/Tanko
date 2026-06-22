@@ -18,6 +18,12 @@ class FillUpRepositoryImpl implements FillUpRepository {
   }
 
   @override
+  Future<List<FillUp>> all() async {
+    final rows = await _db.select(_db.fillUps).get();
+    return rows.map((r) => r.toDomain()).toList();
+  }
+
+  @override
   Future<int> upsert(FillUp fillUp) {
     return _db.into(_db.fillUps).insertOnConflictUpdate(fillUp.toCompanion());
   }
