@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/reminder.dart';
+import '../../domain/services/reminder_evaluator.dart';
 
 /// Pre-seeded Italian scadenze. Picking one pre-fills an editable reminder form.
 class ReminderTemplate {
@@ -42,17 +43,12 @@ class ReminderTemplate {
       }
     } else if (triggerMode != TriggerMode.distance) {
       due = switch (recurUnit) {
-        RecurUnit.year => DateTime(
-          now.year + (recurEvery ?? 1),
-          now.month,
-          now.day,
+        RecurUnit.year => ReminderEvaluator.addMonths(
+          now,
+          12 * (recurEvery ?? 1),
         ),
-        RecurUnit.month => DateTime(
-          now.year,
-          now.month + (recurEvery ?? 1),
-          now.day,
-        ),
-        _ => DateTime(now.year + 1, now.month, now.day),
+        RecurUnit.month => ReminderEvaluator.addMonths(now, recurEvery ?? 1),
+        _ => ReminderEvaluator.addMonths(now, 12),
       };
     }
     return Reminder(

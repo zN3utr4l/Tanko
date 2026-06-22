@@ -20,7 +20,7 @@ Future<Map<DateTime, List<CalendarEvent>>> calendarEvents(
   final reminders = await ref
       .watch(reminderRepositoryProvider)
       .forVehicle(vehicleId);
-  final cats = await ref.watch(categoriesProvider.future);
+  final cats = await ref.watch(allCategoriesProvider.future);
   final catName = {for (final c in cats) c.id: c.name};
   final today = DateTime.now();
 

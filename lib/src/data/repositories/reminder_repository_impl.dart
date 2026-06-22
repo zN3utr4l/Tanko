@@ -60,7 +60,7 @@ class ReminderRepositoryImpl implements ReminderRepository {
               id: 0,
               vehicleId: reminder.vehicleId,
               date: date,
-              odometer: odometer,
+              odometer: odometer ?? reminder.dueOdometer,
               categoryId: reminder.linkedExpenseCategoryId!,
               amount: expenseAmount,
               reminderId: reminder.id,

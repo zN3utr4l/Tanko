@@ -4,6 +4,7 @@ import '../../core/formatters.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/reminder.dart';
 import '../../providers.dart';
+import '../calendar/calendar_providers.dart';
 import '../expenses/expense_providers.dart';
 import 'reminder_providers.dart';
 
@@ -109,6 +110,7 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
     );
     await ref.read(reminderRepositoryProvider).upsert(r);
     ref.invalidate(reminderEvaluationsProvider(r.vehicleId));
+    ref.invalidate(calendarEventsProvider(r.vehicleId));
     if (mounted) Navigator.of(context).pop();
   }
 

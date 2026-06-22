@@ -66,7 +66,7 @@ final class CalendarEventsProvider
   }
 }
 
-String _$calendarEventsHash() => r'7a4d5119718b5610a32d106c343ae25549ef8fee';
+String _$calendarEventsHash() => r'8f6c37a501e93de9a9cbc48ce6e2344d939001c4';
 
 final class CalendarEventsFamily extends $Family
     with

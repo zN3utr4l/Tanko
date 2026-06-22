@@ -5,7 +5,9 @@ import '../../domain/models/enums.dart';
 import '../../domain/models/reminder.dart';
 import '../../domain/models/reminder_evaluation.dart';
 import '../../providers.dart';
+import '../calendar/calendar_providers.dart';
 import '../dashboard/dashboard_providers.dart';
+import '../expenses/expense_providers.dart';
 import 'reminder_form_screen.dart';
 import 'reminder_providers.dart';
 import 'reminder_templates.dart';
@@ -142,13 +144,10 @@ class _ReminderCard extends ConsumerWidget {
                 ),
               );
             } else if (v == 'delete') {
-              ref
-                  .read(reminderRepositoryProvider)
-                  .delete(r.id)
-                  .then(
-                    (_) =>
-                        ref.invalidate(reminderEvaluationsProvider(vehicleId)),
-                  );
+              ref.read(reminderRepositoryProvider).delete(r.id).then((_) {
+                ref.invalidate(reminderEvaluationsProvider(vehicleId));
+                ref.invalidate(calendarEventsProvider(vehicleId));
+              });
             }
           },
           itemBuilder: (_) => const [
@@ -161,11 +160,27 @@ class _ReminderCard extends ConsumerWidget {
     );
   }
 
-  void _completeSheet(BuildContext context, WidgetRef ref, Reminder r) {
+  Future<void> _completeSheet(
+    BuildContext context,
+    WidgetRef ref,
+    Reminder r,
+  ) async {
     final amount = TextEditingController();
+    final odometer = TextEditingController();
+    final needsOdo = r.triggerMode != TriggerMode.date;
+    if (needsOdo) {
+      final current = await ref.read(currentOdometerProvider(vehicleId).future);
+      if (current > 0) odometer.text = current.toStringAsFixed(0);
+    }
     var createExpense = r.linkedExpenseCategoryId != null;
     var date = DateTime.now();
-    showModalBottomSheet<void>(
+    if (!context.mounted) {
+      amount.dispose();
+      odometer.dispose();
+      return;
+    }
+
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -200,6 +215,14 @@ class _ReminderCard extends ConsumerWidget {
                   if (picked != null) setSheet(() => date = picked);
                 },
               ),
+              if (needsOdo)
+                TextField(
+                  controller: odometer,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Odometro attuale (km)',
+                  ),
+                ),
               if (r.linkedExpenseCategoryId != null) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -222,10 +245,14 @@ class _ReminderCard extends ConsumerWidget {
                       .complete(
                         r.id,
                         date: date,
+                        odometer: _parse(odometer.text),
                         createExpense: createExpense,
                         expenseAmount: _parse(amount.text),
                       );
                   ref.invalidate(reminderEvaluationsProvider(vehicleId));
+                  ref.invalidate(expensesForVehicleProvider(vehicleId));
+                  ref.invalidate(calendarEventsProvider(vehicleId));
+                  ref.invalidate(currentOdometerProvider(vehicleId));
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 },
                 child: const Text('Conferma'),
@@ -236,5 +263,7 @@ class _ReminderCard extends ConsumerWidget {
         ),
       ),
     );
+    amount.dispose();
+    odometer.dispose();
   }
 }

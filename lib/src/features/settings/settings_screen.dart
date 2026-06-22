@@ -72,26 +72,38 @@ class SettingsScreen extends ConsumerWidget {
       return;
     }
 
-    // Insert in FK order: categories -> vehicles -> reminders -> expenses.
+    // Atomic restore: a malformed/FK-violating backup must not half-overwrite
+    // the only local copy. Insert in FK order inside one transaction.
     final cats = ref.read(categoryRepositoryProvider);
     final vehicles = ref.read(vehicleRepositoryProvider);
     final fills = ref.read(fillUpRepositoryProvider);
     final expenses = ref.read(expenseRepositoryProvider);
     final reminders = ref.read(reminderRepositoryProvider);
-    for (final c in data.categories) {
-      await cats.upsert(c);
-    }
-    for (final v in data.vehicles) {
-      await vehicles.upsert(v);
-    }
-    for (final r in data.reminders) {
-      await reminders.upsert(r);
-    }
-    for (final f in data.fillUps) {
-      await fills.upsert(f);
-    }
-    for (final e in data.expenses) {
-      await expenses.upsert(e);
+    try {
+      await ref.read(appDatabaseProvider).transaction(() async {
+        for (final c in data.categories) {
+          await cats.upsert(c);
+        }
+        for (final v in data.vehicles) {
+          await vehicles.upsert(v);
+        }
+        for (final r in data.reminders) {
+          await reminders.upsert(r);
+        }
+        for (final f in data.fillUps) {
+          await fills.upsert(f);
+        }
+        for (final e in data.expenses) {
+          await expenses.upsert(e);
+        }
+      });
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ripristino fallito (annullato): $e')),
+        );
+      }
+      return;
     }
     ref.invalidate(vehiclesProvider);
     ref.invalidate(dashboardVehicleProvider);

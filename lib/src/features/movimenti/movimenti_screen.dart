@@ -37,7 +37,7 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
           }
           final fills = ref.watch(fillUpsProvider(vehicle.id));
           final expenses = ref.watch(expensesForVehicleProvider(vehicle.id));
-          final cats = ref.watch(categoriesProvider);
+          final cats = ref.watch(allCategoriesProvider);
           return Column(
             children: [
               Padding(

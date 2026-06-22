@@ -178,5 +178,47 @@ void main() {
       );
       expect(next, isNull);
     });
+
+    test('monthly recurrence clamps the day (Jan 31 + 1 month -> Feb 28)', () {
+      final next = ev.nextOccurrence(
+        rem(
+          dueDate: DateTime(2026, 1, 31),
+          recurEvery: 1,
+          recurUnit: RecurUnit.month,
+        ),
+        completedDate: DateTime(2026, 1, 31),
+        completedOdometer: 0,
+      );
+      expect(next!.dueDate, DateTime(2026, 2, 28));
+    });
+
+    test('yearly recurrence clamps Feb 29 in a non-leap year', () {
+      final next = ev.nextOccurrence(
+        rem(
+          dueDate: DateTime(2024, 2, 29),
+          recurEvery: 1,
+          recurUnit: RecurUnit.year,
+        ),
+        completedDate: DateTime(2024, 2, 29),
+        completedOdometer: 0,
+      );
+      expect(next!.dueDate, DateTime(2025, 2, 28));
+    });
+
+    test('BOTH with only a date rule drops the stale odometer threshold', () {
+      final next = ev.nextOccurrence(
+        rem(
+          triggerMode: TriggerMode.both,
+          dueDate: DateTime(2026, 1, 1),
+          dueOdometer: 20000,
+          recurEvery: 1,
+          recurUnit: RecurUnit.year,
+        ),
+        completedDate: DateTime(2026, 2, 1),
+        completedOdometer: 25000,
+      );
+      expect(next!.dueDate, DateTime(2027, 2, 1));
+      expect(next.dueOdometer, isNull); // not born already-overdue by km
+    });
   });
 }

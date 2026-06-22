@@ -57,7 +57,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final cats = await ref.read(categoriesProvider.future);
+    final cats = await ref.read(fuelCategoriesProvider.future);
     final categoryId =
         _categoryId ??
         cats.firstWhere((c) => c.isDefault, orElse: () => cats.first).id;
@@ -100,7 +100,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cats = ref.watch(categoriesProvider);
+    final cats = ref.watch(fuelCategoriesProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.initial == null ? 'Nuovo rifornimento' : 'Modifica'),

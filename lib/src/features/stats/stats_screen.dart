@@ -103,7 +103,7 @@ class StatsScreen extends ConsumerWidget {
   ) {
     final fillsAsync = ref.watch(fillUpsProvider(vehicleId));
     final expensesAsync = ref.watch(expensesForVehicleProvider(vehicleId));
-    final catsAsync = ref.watch(categoriesProvider);
+    final catsAsync = ref.watch(allCategoriesProvider);
     final fills = fillsAsync.asData?.value;
     final expenses = expensesAsync.asData?.value;
     final cats = catsAsync.asData?.value;
