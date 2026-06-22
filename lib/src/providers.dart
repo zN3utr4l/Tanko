@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'data/catalog/carquery_client.dart';
 import 'data/database/database.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/fill_up_repository_impl.dart';
 import 'data/repositories/vehicle_repository_impl.dart';
+import 'domain/repositories/catalog_repository.dart';
 import 'domain/repositories/category_repository.dart';
 import 'domain/repositories/fill_up_repository.dart';
 import 'domain/repositories/vehicle_repository.dart';
@@ -31,3 +34,19 @@ FillUpRepository fillUpRepository(Ref ref) =>
 
 @riverpod
 StatsService statsService(Ref ref) => const StatsService();
+
+@Riverpod(keepAlive: true)
+Dio catalogDio(Ref ref) {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 8),
+      receiveTimeout: const Duration(seconds: 8),
+    ),
+  );
+  ref.onDispose(dio.close);
+  return dio;
+}
+
+@Riverpod(keepAlive: true)
+CatalogRepository catalogRepository(Ref ref) =>
+    CarQueryClient(ref.watch(catalogDioProvider));

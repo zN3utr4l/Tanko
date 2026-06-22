@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'vehicle_providers.dart';
 import 'vehicle_form_screen.dart';
+import 'add_vehicle_wizard_screen.dart';
 
 class VehiclesScreen extends ConsumerWidget {
   const VehiclesScreen({super.key});
@@ -13,7 +14,7 @@ class VehiclesScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Veicoli')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const VehicleFormScreen()),
+          MaterialPageRoute(builder: (_) => const AddVehicleWizardScreen()),
         ),
         child: const Icon(Icons.add),
       ),
