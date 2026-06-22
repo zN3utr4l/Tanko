@@ -1,0 +1,131 @@
+name: CD Release
+
+on:
+  push:
+    branches:
+      - main
+    # Only app code makes a release. Docs/workflow-only merges don't trigger a
+    # build (mirrors the path-filtered CD on the sibling repos).
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'android/**'
+      - 'assets/**'
+  # Manual trigger to cut a release on demand (e.g. the first one).
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write # create the GitHub Release and push the v<version> tag
+
+jobs:
+  # Resolve the pubspec version and whether it is already released. No tests in
+  # CD: `main` is gated by the required `build-and-test` check, so the published
+  # tree is always green.
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      released: ${{ steps.v.outputs.released }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Resolve version and release state
+        id: v
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version:[[:space:]]*\([0-9][^+ ]*\).*/\1/p' pubspec.yaml | head -1)
+          if [ -z "$version" ]; then
+            echo "::error file=pubspec.yaml::Unable to resolve version from pubspec.yaml."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+            echo "v$version is already released — build/release skipped."
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            echo "v$version is unreleased — building and releasing."
+          fi
+
+  build-apk:
+    needs: version
+    if: needs.version.outputs.released == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Flutter setup
+        uses: ./.github/actions/flutter-setup
+
+      # Release-sign if the keystore secrets are present; otherwise the release
+      # build falls back to debug signing (still installable for sideload, but
+      # not stable for over-install updates). See README "Release signing".
+      - name: Configure signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KEYSTORE_B64:-}" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > android/app/release.jks
+            cat > android/key.properties <<EOF
+          storeFile=release.jks
+          storePassword=${KEYSTORE_PASSWORD}
+          keyAlias=${KEY_ALIAS}
+          keyPassword=${KEY_PASSWORD}
+          EOF
+            echo "Keystore configured — release APK will be signed."
+          else
+            echo "No keystore secret — release APK will be debug-signed."
+          fi
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            dist/tanko-v${{ needs.version.outputs.version }}.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: tanko-apk
+          path: dist/tanko-*.apk
+
+  release:
+    needs: [version, build-apk]
+    if: needs.version.outputs.released == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: tanko-apk
+          path: dist
+
+      - name: Create release v<version> and tag
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          name: Tanko v${{ needs.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/tanko-*.apk

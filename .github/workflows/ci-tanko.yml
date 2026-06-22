@@ -1,0 +1,95 @@
+name: CI Tanko
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    # Single-OS gate: the suite is platform-agnostic Dart + in-memory SQLite,
+    # and Linux runs it fastest. Kept as a matrix so the required check name
+    # stays "build-and-test (ubuntu-latest)".
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      # drift's NativeDatabase (used by the in-memory test DB) loads the system
+      # libsqlite3 on the Linux host.
+      - name: Install SQLite
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-0
+
+      - name: Flutter setup
+        uses: ./.github/actions/flutter-setup
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        shell: bash
+        # `flutter test` prints a non-JSON "Resolving dependencies…" preamble;
+        # keep only JSON event lines so the reporter can parse it. pipefail keeps
+        # a real failure fatal.
+        run: flutter test --machine --coverage | grep '^{' > test-results.json
+
+      - name: Publish test results
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        if: always()
+        with:
+          name: 'Tanko Tests (${{ matrix.os }})'
+          path: 'test-results.json'
+          reporter: 'flutter-json'
+
+      - name: Convert coverage to Cobertura
+        run: |
+          pip install lcov_cobertura
+          # Drop generated files so coverage reflects hand-written code.
+          awk '/^SF:/{skip = ($0 ~ /\.(g|freezed)\.dart/)} !skip' \
+            coverage/lcov.info > coverage/lcov.clean.info
+          lcov_cobertura coverage/lcov.clean.info -o coverage/cobertura.xml
+
+      - name: Code coverage summary
+        uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
+        with:
+          filename: 'coverage/cobertura.xml'
+          badge: true
+          fail_below_min: false
+          format: 'markdown'
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: 'both'
+          thresholds: '50 75'
+
+      - name: Add coverage comment to PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
+      - name: Scan dependencies for vulnerabilities
+        continue-on-error: true
+        run: |
+          curl -sSfL -o osv-scanner \
+            https://github.com/google/osv-scanner/releases/download/v2.3.8/osv-scanner_linux_amd64
+          chmod +x osv-scanner
+          ./osv-scanner scan source --lockfile=pubspec.lock
