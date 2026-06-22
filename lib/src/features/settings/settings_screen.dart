@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart' hide XFile;
 import '../../data/backup/backup_service.dart';
 import '../../data/importer/excel_importer.dart';
 import '../../domain/models/backup_data.dart';
@@ -46,17 +46,14 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _restore(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-      withData: true,
-    );
-    final bytes = picked?.files.single.bytes;
-    if (bytes == null) return;
+    const typeGroup = XTypeGroup(label: 'Tanko backup', extensions: ['json']);
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null) return;
+    final content = await file.readAsString();
 
     final BackupData data;
     try {
-      data = _backup.fromJson(String.fromCharCodes(bytes));
+      data = _backup.fromJson(content);
     } on FormatException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,13 +91,10 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _importExcel(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      withData: true,
-    );
-    final bytes = picked?.files.single.bytes;
-    if (bytes == null) return;
+    const typeGroup = XTypeGroup(label: 'Excel', extensions: ['xlsx']);
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
 
     final vehicles = await ref.read(vehicleRepositoryProvider).all();
     final categories = await ref.read(categoryRepositoryProvider).all();
