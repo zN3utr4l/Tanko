@@ -1,4 +1,5 @@
 import '../models/fill_up.dart';
+import '../models/monthly_total.dart';
 import '../models/vehicle_stats.dart';
 import 'consumption_calculator.dart';
 
@@ -45,5 +46,23 @@ class StatsService {
       spendByCategory: byCategory,
       fillUpCount: fills.length,
     );
+  }
+
+  /// Spend grouped by calendar month, sorted chronologically.
+  List<MonthlyTotal> monthlySpend(List<FillUp> fills) {
+    final byKey = <String, MonthlyTotal>{};
+    for (final f in fills) {
+      final key = '${f.date.year}-${f.date.month}';
+      final current = byKey[key];
+      byKey[key] = MonthlyTotal(
+        year: f.date.year,
+        month: f.date.month,
+        total: (current?.total ?? 0) + f.amount,
+      );
+    }
+    final list = byKey.values.toList()
+      ..sort((a, b) =>
+          a.year != b.year ? a.year - b.year : a.month - b.month);
+    return list;
   }
 }

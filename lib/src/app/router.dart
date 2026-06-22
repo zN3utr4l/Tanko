@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/stats/stats_screen.dart';
 import '../features/vehicles/vehicles_screen.dart';
 
 final appRouter = GoRouter(
@@ -13,6 +14,11 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(path: '/dashboard', builder: (_, _) => const DashboardScreen()),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/stats', builder: (_, _) => const StatsScreen()),
           ],
         ),
         StatefulShellBranch(
@@ -43,6 +49,7 @@ class _HomeShell extends StatelessWidget {
         onDestinationSelected: shell.goBranch,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Statistiche'),
           NavigationDestination(icon: Icon(Icons.directions_car), label: 'Veicoli'),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Impostazioni'),
         ],
