@@ -468,3 +468,134 @@ final class CatalogRepositoryProvider
 }
 
 String _$catalogRepositoryHash() => r'20f200af1717fa7220a1b13322edb551edd68eb1';
+
+@ProviderFor(locationService)
+final locationServiceProvider = LocationServiceProvider._();
+
+final class LocationServiceProvider
+    extends
+        $FunctionalProvider<LocationService, LocationService, LocationService>
+    with $Provider<LocationService> {
+  LocationServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'locationServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$locationServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<LocationService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  LocationService create(Ref ref) {
+    return locationService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LocationService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LocationService>(value),
+    );
+  }
+}
+
+String _$locationServiceHash() => r'33637312fa510b0662eebf6c32e8e62519b7c7c3';
+
+@ProviderFor(ocrService)
+final ocrServiceProvider = OcrServiceProvider._();
+
+final class OcrServiceProvider
+    extends $FunctionalProvider<OcrService, OcrService, OcrService>
+    with $Provider<OcrService> {
+  OcrServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'ocrServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$ocrServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<OcrService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  OcrService create(Ref ref) {
+    return ocrService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OcrService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OcrService>(value),
+    );
+  }
+}
+
+String _$ocrServiceHash() => r'c90db89812dbb8c66e7e4ef01cbe95b9ab38b2c1';
+
+@ProviderFor(stationLookupService)
+final stationLookupServiceProvider = StationLookupServiceProvider._();
+
+final class StationLookupServiceProvider
+    extends
+        $FunctionalProvider<
+          StationLookupService,
+          StationLookupService,
+          StationLookupService
+        >
+    with $Provider<StationLookupService> {
+  StationLookupServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'stationLookupServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$stationLookupServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<StationLookupService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  StationLookupService create(Ref ref) {
+    return stationLookupService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(StationLookupService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<StationLookupService>(value),
+    );
+  }
+}
+
+String _$stationLookupServiceHash() =>
+    r'afb4d69836a0eb0f3122a29d7fe179b5a2a4e2e9';
