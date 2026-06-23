@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../bollo/bollo_calculator_screen.dart';
 import '../movimenti/movimenti_screen.dart';
 import '../settings/settings_screen.dart';
 import '../vehicles/vehicles_screen.dart';
@@ -24,6 +25,12 @@ class AltroScreen extends StatelessWidget {
             title: const Text('Movimenti'),
             subtitle: const Text('Rifornimenti e spese'),
             onTap: () => go(const MovimentiScreen()),
+          ),
+          ListTile(
+            leading: const Icon(Icons.calculate_outlined),
+            title: const Text('Calcolatore bollo'),
+            subtitle: const Text('Stima offline da kW e classe Euro'),
+            onTap: () => go(const BolloCalculatorScreen()),
           ),
           ListTile(
             leading: const Icon(Icons.settings),
