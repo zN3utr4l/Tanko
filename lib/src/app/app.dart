@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/enums.dart';
+import '../features/updates/update_providers.dart';
 import '../providers.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -17,6 +18,7 @@ class _AppState extends ConsumerState<App> {
   void initState() {
     super.initState();
     _initNotifications();
+    _checkForUpdate();
   }
 
   /// Best-effort: prepare notifications and (re)schedule date-based reminders.
@@ -41,6 +43,14 @@ class _AppState extends ConsumerState<App> {
           when: r.dueDate!.subtract(Duration(days: r.leadDays ?? 0)),
         );
       }
+    } catch (_) {
+      /* best-effort */
+    }
+  }
+
+  Future<void> _checkForUpdate() async {
+    try {
+      await startupUpdateCheck(ref);
     } catch (_) {
       /* best-effort */
     }

@@ -50,6 +50,10 @@ Durable landmines. Read before editing or shipping.
   + `icon_foreground.png` (adaptive bg `#00695C`). Regenerate with
   `dart run flutter_launcher_icons` after changing the source PNGs.
 - Release APK is debug-signed unless `ANDROID_KEYSTORE_*` secrets are set.
+- **In-app updater over-install requires matching signatures.** A release APK
+  signed with the release keystore installs over a release-keystore build and
+  preserves SQLite data; it will not install over a local debug-signed build
+  without uninstalling first.
 - **Station detection** added `ACCESS_COARSE/FINE_LOCATION` to the manifest
   (`geolocator`, when-in-use, requested on demand at fill-up time). OCR is
   on-device via `google_mlkit_text_recognition` (latin model bundled — no Play

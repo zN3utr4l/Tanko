@@ -10,6 +10,7 @@ import '../../data/importer/excel_importer.dart';
 import '../../domain/models/backup_data.dart';
 import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
+import '../updates/update_providers.dart';
 import '../vehicles/vehicle_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -174,8 +175,33 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _checkUpdates(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final current = await ref.read(currentVersionProvider.future);
+      final release = await ref
+          .read(updateServiceProvider)
+          .checkForUpdate(current);
+      if (!context.mounted) return;
+      if (release == null) {
+        messenger.showSnackBar(const SnackBar(content: Text('Sei aggiornato')));
+        return;
+      }
+      ref.read(availableUpdateProvider.notifier).set(release);
+      await showUpdateAvailableDialog(context, ref, release);
+    } catch (error) {
+      if (context.mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Controllo non riuscito: $error')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentVersion = ref.watch(currentVersionProvider).asData?.value;
+    final availableUpdate = ref.watch(availableUpdateProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Impostazioni')),
       body: ListView(
@@ -207,6 +233,25 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.restore),
             title: const Text('Ripristina da backup (JSON)'),
             onTap: () => _restore(context, ref),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.system_update),
+            title: const Text('Aggiornamenti'),
+            subtitle: Text(
+              availableUpdate == null
+                  ? 'Versione attuale: ${currentVersion ?? '...'}'
+                  : 'Carburo v${availableUpdate.version} disponibile',
+            ),
+            trailing: availableUpdate == null
+                ? null
+                : TextButton.icon(
+                    onPressed: () =>
+                        showUpdateDownloadDialog(context, ref, availableUpdate),
+                    icon: const Icon(Icons.download),
+                    label: const Text('Aggiorna'),
+                  ),
+            onTap: () => _checkUpdates(context, ref),
           ),
         ],
       ),

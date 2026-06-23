@@ -599,3 +599,118 @@ final class StationLookupServiceProvider
 
 String _$stationLookupServiceHash() =>
     r'afb4d69836a0eb0f3122a29d7fe179b5a2a4e2e9';
+
+@ProviderFor(updateService)
+final updateServiceProvider = UpdateServiceProvider._();
+
+final class UpdateServiceProvider
+    extends $FunctionalProvider<UpdateService, UpdateService, UpdateService>
+    with $Provider<UpdateService> {
+  UpdateServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updateServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdateService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  UpdateService create(Ref ref) {
+    return updateService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdateService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdateService>(value),
+    );
+  }
+}
+
+String _$updateServiceHash() => r'e1bd354e52e2db1f329a055a68c559399449b35e';
+
+@ProviderFor(updatePrefs)
+final updatePrefsProvider = UpdatePrefsProvider._();
+
+final class UpdatePrefsProvider
+    extends $FunctionalProvider<UpdatePrefs, UpdatePrefs, UpdatePrefs>
+    with $Provider<UpdatePrefs> {
+  UpdatePrefsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updatePrefsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updatePrefsHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdatePrefs> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  UpdatePrefs create(Ref ref) {
+    return updatePrefs(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdatePrefs value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdatePrefs>(value),
+    );
+  }
+}
+
+String _$updatePrefsHash() => r'8380739096205aeeda4d9dcc7812e67c36688cf8';
+
+@ProviderFor(currentVersion)
+final currentVersionProvider = CurrentVersionProvider._();
+
+final class CurrentVersionProvider
+    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
+    with $FutureModifier<String>, $FutureProvider<String> {
+  CurrentVersionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentVersionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentVersionHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String> create(Ref ref) {
+    return currentVersion(ref);
+  }
+}
+
+String _$currentVersionHash() => r'8e4a73ecad231addb63a15cdc8ed104396145107';

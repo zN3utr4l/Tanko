@@ -56,6 +56,11 @@ fl_chart · intl.
   always degrades to manual entry. Network is touched **only** on explicit
   request. Reuses the existing `FillUp.latitude/longitude/station/
   receiptPhotoPath` columns — no migration.
+- **In-app updater:** startup performs a best-effort GitHub Releases check
+  throttled to once/day; Settings can check manually. Updates download the APK
+  in-app with progress (`http`) and launch the Android system installer via
+  `open_filex` (`REQUEST_INSTALL_PACKAGES`). Data is preserved when the
+  installed APK is signed with the same key.
 
 Put new logic in `domain/` as a pure, tested function whenever possible.
 

@@ -1,3 +1,4 @@
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'data/catalog/offline_catalog.dart';
 import 'data/database/database.dart';
@@ -10,6 +11,8 @@ import 'data/repositories/expense_repository_impl.dart';
 import 'data/repositories/fill_up_repository_impl.dart';
 import 'data/repositories/reminder_repository_impl.dart';
 import 'data/repositories/vehicle_repository_impl.dart';
+import 'data/update/github_update_service.dart';
+import 'data/update/update_prefs.dart';
 import 'domain/repositories/catalog_repository.dart';
 import 'domain/repositories/category_repository.dart';
 import 'domain/repositories/expense_repository.dart';
@@ -21,6 +24,7 @@ import 'domain/services/ocr_service.dart';
 import 'domain/services/reminder_evaluator.dart';
 import 'domain/services/station_lookup_service.dart';
 import 'domain/services/stats_service.dart';
+import 'domain/services/update_service.dart';
 
 part 'providers.g.dart';
 
@@ -73,3 +77,15 @@ OcrService ocrService(Ref ref) => MlKitOcrService();
 
 @Riverpod(keepAlive: true)
 StationLookupService stationLookupService(Ref ref) => OverpassStationLookup();
+
+@Riverpod(keepAlive: true)
+UpdateService updateService(Ref ref) => GitHubUpdateService();
+
+@Riverpod(keepAlive: true)
+UpdatePrefs updatePrefs(Ref ref) => const UpdatePrefs();
+
+@Riverpod(keepAlive: true)
+Future<String> currentVersion(Ref ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
+}

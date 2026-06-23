@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/altro/altro_screen.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/reminders/scadenze_screen.dart';
 import '../features/stats/stats_screen.dart';
+import '../features/updates/update_banner.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
@@ -51,14 +53,19 @@ final appRouter = GoRouter(
   ],
 );
 
-class _HomeShell extends StatelessWidget {
+class _HomeShell extends ConsumerWidget {
   const _HomeShell({required this.shell});
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: shell,
+      body: Column(
+        children: [
+          const UpdateBanner(),
+          Expanded(child: shell),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
         onDestinationSelected: shell.goBranch,

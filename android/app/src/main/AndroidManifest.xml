@@ -6,6 +6,8 @@
     <!-- Detect the fuel station at fill-up time (when-in-use, on demand). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Launch the system package installer for downloaded APK updates. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <application
         android:label="Carburo"
