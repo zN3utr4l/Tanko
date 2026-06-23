@@ -1,6 +1,8 @@
 enum FuelType { petrol, diesel, lpg, cng, hybrid, electric }
 
-enum SpecSource { carquery, manual }
+/// Where a vehicle's specs came from. [catalog] = pre-filled from the bundled
+/// offline catalog; [manual] = typed by the user.
+enum SpecSource { catalog, manual }
 
 /// Discriminates fuel vs general-expense categories (they share one table).
 enum CategoryKind { fuel, expense }
@@ -24,3 +26,6 @@ enum RecurUnit { day, month, year, km, fixedDate }
 
 /// Derived (never stored) reminder state.
 enum ReminderStatus { ok, upcoming, overdue, completed }
+
+/// Where an auto-detected station name came from.
+enum StationSource { history, online, receipt, manual }
