@@ -15,5 +15,23 @@ abstract class CatalogModel with _$CatalogModel {
     double? consumptionL100,
     double? tankCapacityL,
     int? powerPs,
+
+    /// Known trims/versions for this model (allestimenti). Optional and never
+    /// exhaustive — a curated shortlist of common variants. Picking one can
+    /// refine the pre-filled specs; free text is always accepted in the wizard.
+    @Default(<CatalogTrim>[]) List<CatalogTrim> trims,
   }) = _CatalogModel;
+}
+
+/// A trim/version (allestimento) of a [CatalogModel]. Spec fields are optional
+/// overrides applied on top of the model's representative specs when picked.
+@freezed
+abstract class CatalogTrim with _$CatalogTrim {
+  const factory CatalogTrim({
+    required String name,
+    FuelType? fuelType,
+    double? consumptionL100,
+    double? tankCapacityL,
+    int? powerPs,
+  }) = _CatalogTrim;
 }

@@ -430,7 +430,16 @@
           "fuel": "petrol",
           "consumption": 5.7,
           "tankL": 37,
-          "powerPs": 70
+          "powerPs": 70,
+          "trims": [
+            {"name": "Pop"},
+            {"name": "Easy"},
+            {"name": "Lounge"},
+            {"name": "City Cross"},
+            {"name": "Cross"},
+            {"name": "Sport"},
+            {"name": "4x4"}
+          ]
         },
         {
           "name": "Panda",
@@ -451,7 +460,15 @@
           "fuel": "petrol",
           "consumption": 5.4,
           "tankL": 35,
-          "powerPs": 70
+          "powerPs": 70,
+          "trims": [
+            {"name": "Pop"},
+            {"name": "Lounge"},
+            {"name": "Sport"},
+            {"name": "Star"},
+            {"name": "Rockstar"},
+            {"name": "Dolcevita"}
+          ]
         },
         {
           "name": "500",
@@ -1810,7 +1827,14 @@
           "fuel": "petrol",
           "consumption": 5.8,
           "tankL": 50,
-          "powerPs": 130
+          "powerPs": 130,
+          "trims": [
+            {"name": "Life"},
+            {"name": "Style"},
+            {"name": "R-Line"},
+            {"name": "GTI", "powerPs": 245},
+            {"name": "GTD", "fuel": "diesel", "powerPs": 200}
+          ]
         },
         {
           "name": "Golf",

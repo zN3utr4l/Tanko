@@ -37,6 +37,18 @@ class OfflineCatalog implements CatalogRepository {
             consumptionL100: (v['consumption'] as num?)?.toDouble(),
             tankCapacityL: (v['tankL'] as num?)?.toDouble(),
             powerPs: (v['powerPs'] as num?)?.toInt(),
+            trims: [
+              for (final t
+                  in (v['trims'] as List?)?.cast<Map<String, dynamic>>() ??
+                      const [])
+                CatalogTrim(
+                  name: t['name'] as String,
+                  fuelType: _fuel(t['fuel'] as String?),
+                  consumptionL100: (t['consumption'] as num?)?.toDouble(),
+                  tankCapacityL: (t['tankL'] as num?)?.toDouble(),
+                  powerPs: (t['powerPs'] as num?)?.toInt(),
+                ),
+            ],
           ),
       ];
     }

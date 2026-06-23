@@ -11,8 +11,10 @@ double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
 /// Add a vehicle with a single smart form. Make and Model are type-ahead fields
 /// backed by the bundled offline catalog: typing suggests matches and picking a
-/// known model pre-fills its specs. Anything not in the catalog can simply be
-/// typed in — every field stays editable and there's no network to fail.
+/// known model pre-fills its specs. Year is a dropdown over a plausible range,
+/// and Allestimento suggests the model's known trims (when curated). Anything
+/// not in the catalog can simply be typed in — every field stays editable and
+/// there's no network to fail.
 class AddVehicleWizardScreen extends ConsumerStatefulWidget {
   const AddVehicleWizardScreen({super.key});
 
@@ -26,12 +28,12 @@ class _AddVehicleWizardScreenState
   final _formKey = GlobalKey<FormState>();
   final _make = TextEditingController();
   final _model = TextEditingController();
-  final _year = TextEditingController();
   final _trimCtrl = TextEditingController();
   final _tank = TextEditingController();
   final _consumption = TextEditingController();
   final _power = TextEditingController();
 
+  int? _year;
   FuelType _fuel = FuelType.petrol;
   bool _isDefault = false;
   bool _fromCatalog = false;
@@ -41,12 +43,15 @@ class _AddVehicleWizardScreenState
   List<CatalogModel> _models = const [];
   String _modelsForMake = '';
 
+  /// Trims (allestimenti) of the currently-selected catalog model. Empty when
+  /// no catalog model is picked or the model has no curated trims.
+  List<CatalogTrim> _trims = const [];
+
   @override
   void dispose() {
     for (final c in [
       _make,
       _model,
-      _year,
       _trimCtrl,
       _tank,
       _consumption,
@@ -72,10 +77,33 @@ class _AddVehicleWizardScreenState
     setState(() {
       _fromCatalog = true;
       _model.text = m.name;
+      // Trims may be curated on any fuel/power variant sharing this model
+      // name (the catalog splits variants into separate entries), so gather
+      // them across all same-named entries and de-duplicate.
+      final seen = <String>{};
+      _trims = [
+        for (final x in _models)
+          if (x.name == m.name)
+            for (final t in x.trims)
+              if (seen.add(t.name.toLowerCase())) t,
+      ];
       if (m.fuelType != null) _fuel = m.fuelType!;
       _tank.text = m.tankCapacityL?.toString() ?? '';
       _consumption.text = m.consumptionL100?.toString() ?? '';
       _power.text = m.powerPs?.toString() ?? '';
+    });
+  }
+
+  void _applyTrim(CatalogTrim t) {
+    setState(() {
+      _fromCatalog = true;
+      _trimCtrl.text = t.name;
+      if (t.fuelType != null) _fuel = t.fuelType!;
+      if (t.tankCapacityL != null) _tank.text = t.tankCapacityL!.toString();
+      if (t.consumptionL100 != null) {
+        _consumption.text = t.consumptionL100!.toString();
+      }
+      if (t.powerPs != null) _power.text = t.powerPs!.toString();
     });
   }
 
@@ -88,7 +116,7 @@ class _AddVehicleWizardScreenState
       id: 0,
       make: _make.text.trim(),
       model: _model.text.trim(),
-      year: int.tryParse(_year.text.trim()),
+      year: _year,
       trim: _trimCtrl.text.trim().isEmpty ? null : _trimCtrl.text.trim(),
       fuelType: _fuel,
       isDefault: _isDefault,
@@ -113,6 +141,7 @@ class _AddVehicleWizardScreenState
   @override
   Widget build(BuildContext context) {
     final makes = ref.watch(catalogMakesProvider).asData?.value ?? const [];
+    final thisYear = DateTime.now().year;
     return Scaffold(
       appBar: AppBar(title: const Text('Nuovo veicolo')),
       body: Form(
@@ -138,19 +167,23 @@ class _AddVehicleWizardScreenState
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: _year,
-                    keyboardType: TextInputType.number,
+                  child: DropdownButtonFormField<int?>(
+                    initialValue: _year,
                     decoration: const InputDecoration(labelText: 'Anno'),
+                    items: [
+                      const DropdownMenuItem<int?>(child: Text('—')),
+                      for (var y = thisYear + 1; y >= 1980; y--)
+                        DropdownMenuItem<int?>(value: y, child: Text('$y')),
+                    ],
+                    onChanged: (y) => setState(() => _year = y),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextFormField(
+                  child: _TrimField(
                     controller: _trimCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Allestimento',
-                    ),
+                    trims: _trims,
+                    onSelected: _applyTrim,
                   ),
                 ),
               ],
@@ -307,6 +340,74 @@ class _ModelField extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Modello'),
           validator: (v) =>
               (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+          onChanged: (t) => controller.text = t,
+        );
+      },
+    );
+  }
+}
+
+/// Type-ahead allestimento (trim) field. Suggests the selected model's curated
+/// trims (with fuel/power to disambiguate); free text is always accepted, and
+/// when no model/trims are loaded it behaves as a plain text field.
+class _TrimField extends StatelessWidget {
+  const _TrimField({
+    required this.controller,
+    required this.trims,
+    required this.onSelected,
+  });
+
+  final TextEditingController controller;
+  final List<CatalogTrim> trims;
+  final ValueChanged<CatalogTrim> onSelected;
+
+  String _label(CatalogTrim t) {
+    final extra = <String>[
+      if (t.fuelType != null) t.fuelType!.name,
+      if (t.powerPs != null) '${t.powerPs} CV',
+    ];
+    return extra.isEmpty ? t.name : '${t.name} · ${extra.join(' · ')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Autocomplete<CatalogTrim>(
+      initialValue: controller.value,
+      displayStringForOption: (t) => t.name,
+      optionsBuilder: (value) {
+        final q = value.text.trim().toLowerCase();
+        if (q.isEmpty) return trims;
+        return trims.where((t) => t.name.toLowerCase().contains(q));
+      },
+      onSelected: onSelected,
+      optionsViewBuilder: (context, onSelectedCb, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 260, maxWidth: 360),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                children: [
+                  for (final t in options)
+                    ListTile(
+                      dense: true,
+                      title: Text(_label(t)),
+                      onTap: () => onSelectedCb(t),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      fieldViewBuilder: (context, fieldController, focusNode, _) {
+        return TextFormField(
+          controller: fieldController,
+          focusNode: focusNode,
+          decoration: const InputDecoration(labelText: 'Allestimento'),
           onChanged: (t) => controller.text = t,
         );
       },
