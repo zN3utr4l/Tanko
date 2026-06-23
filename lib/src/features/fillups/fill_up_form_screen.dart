@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/formatters.dart';
 import '../../domain/models/fill_up.dart';
+import '../../domain/models/geo_point.dart';
 import '../../providers.dart';
 import 'fillup_providers.dart';
+import 'station_detector.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
@@ -39,6 +42,18 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
       widget.initial?.date ?? widget.initialDate ?? DateTime.now();
   late bool _isFull = widget.initial?.isFull ?? true;
   int? _categoryId;
+  late double? _latitude = widget.initial?.latitude;
+  late double? _longitude = widget.initial?.longitude;
+  late String? _receiptPhotoPath = widget.initial?.receiptPhotoPath;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initial == null &&
+        shouldOfferDetection(_date, DateTime.now())) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _offerDetection());
+    }
+  }
 
   @override
   void dispose() {
@@ -53,6 +68,160 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
     final l = _parse(_liters.text);
     if (a == null || l == null || l == 0) return '—';
     return '${fmtEuro(a / l)}/L';
+  }
+
+  Future<void> _offerDetection() async {
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sei al distributore adesso?'),
+        content: const Text(
+          'Posso provare a rilevare il distributore dalla tua posizione, '
+          'oppure leggerlo dallo scontrino.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'later'),
+            child: const Text('Inserisci dopo'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'no'),
+            child: const Text('No'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, 'yes'),
+            child: const Text('Sì'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (choice == 'yes') {
+      await _detectFromGps();
+    } else if (choice == 'no') {
+      await _useReceipt();
+    }
+  }
+
+  Future<void> _detectFromGps() async {
+    final result = await ref.read(stationDetectorProvider).detect();
+    if (!mounted) return;
+    if (result.position == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Posizione non disponibile')),
+      );
+      return;
+    }
+    final match = result.match;
+    if (match != null) {
+      setState(() {
+        _station.text = match.name;
+        _latitude = match.latitude;
+        _longitude = match.longitude;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Rilevato: ${match.name}')),
+      );
+      return;
+    }
+    // No history match — record the coords and offer fallbacks.
+    setState(() {
+      _latitude = result.position!.latitude;
+      _longitude = result.position!.longitude;
+    });
+    await _offerFallback(result.position!);
+  }
+
+  Future<void> _offerFallback(GeoPoint at) async {
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Distributore non riconosciuto'),
+        content: const Text('Come vuoi inserirlo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'manual'),
+            child: const Text('A mano'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'receipt'),
+            child: const Text('Usa scontrino'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, 'online'),
+            child: const Text('Cerca online'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (choice == 'online') {
+      await _lookupOnline(at);
+    } else if (choice == 'receipt') {
+      await _useReceipt();
+    }
+  }
+
+  Future<void> _lookupOnline(GeoPoint at) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cerca online'),
+        content: const Text(
+          'Le coordinate verranno inviate a OpenStreetMap per cercare i '
+          'distributori vicini. Procedere?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Procedi'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final candidates = await ref.read(stationDetectorProvider).lookupOnline(at);
+    if (!mounted) return;
+    if (candidates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nessun distributore trovato')),
+      );
+      return;
+    }
+    final picked = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Distributori vicini'),
+        children: [
+          for (final c in candidates)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, c.name),
+              child: Text('${c.name} · ${c.distanceMeters.round()} m'),
+            ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _station.text = picked);
+  }
+
+  Future<void> _useReceipt() async {
+    final XFile? file = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    if (file == null || !mounted) return;
+    final data = await ref.read(stationDetectorProvider).readReceipt(file.path);
+    if (!mounted) return;
+    setState(() {
+      _receiptPhotoPath = file.path;
+      if (data.station != null) _station.text = data.station!;
+      if (data.amount != null) _amount.text = data.amount!.toString();
+      if (data.liters != null) _liters.text = data.liters!.toString();
+    });
   }
 
   Future<void> _save() async {
@@ -90,6 +259,9 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
             station: _station.text.trim().isEmpty ? null : _station.text.trim(),
             categoryId: categoryId,
             note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+            latitude: _latitude,
+            longitude: _longitude,
+            receiptPhotoPath: _receiptPhotoPath,
             createdAt: base?.createdAt ?? now,
             updatedAt: now,
           ),

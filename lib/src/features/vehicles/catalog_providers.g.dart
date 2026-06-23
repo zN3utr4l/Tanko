@@ -15,13 +15,11 @@ final catalogMakesProvider = CatalogMakesProvider._();
 final class CatalogMakesProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<CatalogMake>>,
-          List<CatalogMake>,
-          FutureOr<List<CatalogMake>>
+          AsyncValue<List<String>>,
+          List<String>,
+          FutureOr<List<String>>
         >
-    with
-        $FutureModifier<List<CatalogMake>>,
-        $FutureProvider<List<CatalogMake>> {
+    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
   CatalogMakesProvider._()
     : super(
         from: null,
@@ -38,17 +36,17 @@ final class CatalogMakesProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<CatalogMake>> $createElement(
+  $FutureProviderElement<List<String>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<CatalogMake>> create(Ref ref) {
+  FutureOr<List<String>> create(Ref ref) {
     return catalogMakes(ref);
   }
 }
 
-String _$catalogMakesHash() => r'a29433a88b433f4ccdf8cd01396ae9932edb1183';
+String _$catalogMakesHash() => r'cca001cf9a965b2cc9d54144d14e43610b7ce317';
 
 @ProviderFor(catalogModels)
 final catalogModelsProvider = CatalogModelsFamily._();
@@ -56,11 +54,13 @@ final catalogModelsProvider = CatalogModelsFamily._();
 final class CatalogModelsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<String>>,
-          List<String>,
-          FutureOr<List<String>>
+          AsyncValue<List<CatalogModel>>,
+          List<CatalogModel>,
+          FutureOr<List<CatalogModel>>
         >
-    with $FutureModifier<List<String>>, $FutureProvider<List<String>> {
+    with
+        $FutureModifier<List<CatalogModel>>,
+        $FutureProvider<List<CatalogModel>> {
   CatalogModelsProvider._({
     required CatalogModelsFamily super.from,
     required String super.argument,
@@ -84,12 +84,12 @@ final class CatalogModelsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<String>> $createElement(
+  $FutureProviderElement<List<CatalogModel>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<String>> create(Ref ref) {
+  FutureOr<List<CatalogModel>> create(Ref ref) {
     final argument = this.argument as String;
     return catalogModels(ref, argument);
   }
@@ -105,10 +105,10 @@ final class CatalogModelsProvider
   }
 }
 
-String _$catalogModelsHash() => r'ed2bd734908d1ec333f2770e6e45ba9025d7c680';
+String _$catalogModelsHash() => r'1bdab4802f7b587e5aedc10fa2aa30178a9e4c30';
 
 final class CatalogModelsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<String>>, String> {
+    with $FunctionalFamilyOverride<FutureOr<List<CatalogModel>>, String> {
   CatalogModelsFamily._()
     : super(
         retry: null,
@@ -118,90 +118,9 @@ final class CatalogModelsFamily extends $Family
         isAutoDispose: true,
       );
 
-  CatalogModelsProvider call(String makeId) =>
-      CatalogModelsProvider._(argument: makeId, from: this);
+  CatalogModelsProvider call(String make) =>
+      CatalogModelsProvider._(argument: make, from: this);
 
   @override
   String toString() => r'catalogModelsProvider';
-}
-
-@ProviderFor(catalogTrims)
-final catalogTrimsProvider = CatalogTrimsFamily._();
-
-final class CatalogTrimsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<CatalogTrim>>,
-          List<CatalogTrim>,
-          FutureOr<List<CatalogTrim>>
-        >
-    with
-        $FutureModifier<List<CatalogTrim>>,
-        $FutureProvider<List<CatalogTrim>> {
-  CatalogTrimsProvider._({
-    required CatalogTrimsFamily super.from,
-    required (String, String) super.argument,
-  }) : super(
-         retry: null,
-         name: r'catalogTrimsProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$catalogTrimsHash();
-
-  @override
-  String toString() {
-    return r'catalogTrimsProvider'
-        ''
-        '$argument';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<List<CatalogTrim>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<CatalogTrim>> create(Ref ref) {
-    final argument = this.argument as (String, String);
-    return catalogTrims(ref, argument.$1, argument.$2);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CatalogTrimsProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$catalogTrimsHash() => r'187b580ab9387120dc99d6ac80c393e9354597e9';
-
-final class CatalogTrimsFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-          FutureOr<List<CatalogTrim>>,
-          (String, String)
-        > {
-  CatalogTrimsFamily._()
-    : super(
-        retry: null,
-        name: r'catalogTrimsProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  CatalogTrimsProvider call(String makeId, String model) =>
-      CatalogTrimsProvider._(argument: (makeId, model), from: this);
-
-  @override
-  String toString() => r'catalogTrimsProvider';
 }

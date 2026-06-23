@@ -20,7 +20,7 @@ void main() {
         fuelType: FuelType.hybrid,
         specs: const VehicleSpecs(
           tankCapacityL: 39,
-          source: SpecSource.carquery,
+          source: SpecSource.catalog,
         ),
         createdAt: DateTime(2026, 1, 1),
         updatedAt: DateTime(2026, 1, 1),

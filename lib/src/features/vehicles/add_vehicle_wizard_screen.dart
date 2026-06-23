@@ -9,9 +9,10 @@ import 'vehicle_providers.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
-/// Add a vehicle by picking Make -> Model -> Trim from the online catalog,
-/// auto-filling specs. Every field stays editable, and a manual fallback is
-/// always available (used when offline or the trim isn't found).
+/// Add a vehicle with a single smart form. Make and Model are type-ahead fields
+/// backed by the bundled offline catalog: typing suggests matches and picking a
+/// known model pre-fills its specs. Anything not in the catalog can simply be
+/// typed in — every field stays editable and there's no network to fail.
 class AddVehicleWizardScreen extends ConsumerStatefulWidget {
   const AddVehicleWizardScreen({super.key});
 
@@ -31,12 +32,14 @@ class _AddVehicleWizardScreenState
   final _consumption = TextEditingController();
   final _power = TextEditingController();
 
-  String? _makeId;
-  String? _selectedModel;
-  CatalogTrim? _trim;
   FuelType _fuel = FuelType.petrol;
   bool _isDefault = false;
-  bool _manual = false;
+  bool _fromCatalog = false;
+
+  /// Models of the currently-typed make, fetched once per make from the
+  /// offline catalog. Empty when the make isn't in the catalog (manual entry).
+  List<CatalogModel> _models = const [];
+  String _modelsForMake = '';
 
   @override
   void dispose() {
@@ -54,21 +57,27 @@ class _AddVehicleWizardScreenState
     super.dispose();
   }
 
-  void _applyTrim(CatalogTrim t) {
+  Future<void> _loadModels(String make) async {
+    final key = make.trim().toLowerCase();
+    if (key == _modelsForMake) return;
+    final models = await ref.read(catalogRepositoryProvider).models(make);
+    if (!mounted) return;
     setState(() {
-      _trim = t;
-      _make.text = _makeName ?? t.make;
-      _model.text = t.model;
-      _year.text = t.year?.toString() ?? '';
-      _trimCtrl.text = t.trim ?? '';
-      _tank.text = t.tankCapacityL?.toString() ?? '';
-      _consumption.text = t.consumptionL100?.toString() ?? '';
-      _power.text = t.powerPs?.toString() ?? '';
-      if (t.fuelType != null) _fuel = t.fuelType!;
+      _modelsForMake = key;
+      _models = models;
     });
   }
 
-  String? _makeName;
+  void _applyModel(CatalogModel m) {
+    setState(() {
+      _fromCatalog = true;
+      _model.text = m.name;
+      if (m.fuelType != null) _fuel = m.fuelType!;
+      _tank.text = m.tankCapacityL?.toString() ?? '';
+      _consumption.text = m.consumptionL100?.toString() ?? '';
+      _power.text = m.powerPs?.toString() ?? '';
+    });
+  }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -90,8 +99,8 @@ class _AddVehicleWizardScreenState
             ? tank * 100 / cons
             : null,
         powerPs: int.tryParse(_power.text.trim()),
-        source: _trim != null ? SpecSource.carquery : SpecSource.manual,
-        catalogRef: _trim?.modelId,
+        source: _fromCatalog ? SpecSource.catalog : SpecSource.manual,
+        catalogRef: null,
       ),
       createdAt: now,
       updatedAt: now,
@@ -103,34 +112,28 @@ class _AddVehicleWizardScreenState
 
   @override
   Widget build(BuildContext context) {
+    final makes = ref.watch(catalogMakesProvider).asData?.value ?? const [];
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nuovo veicolo'),
-        actions: [
-          TextButton(
-            onPressed: () => setState(() => _manual = !_manual),
-            child: Text(_manual ? 'Catalogo' : 'Manuale'),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Nuovo veicolo')),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            if (!_manual) ..._catalogSection(),
-            const Divider(),
-            TextFormField(
+            _MakeField(
               controller: _make,
-              decoration: const InputDecoration(labelText: 'Marca'),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+              makes: makes,
+              onChanged: (text) {
+                _loadModels(text);
+                // typing a new make invalidates a catalog-prefilled model
+                if (_fromCatalog) setState(() => _fromCatalog = false);
+              },
             ),
-            TextFormField(
+            const SizedBox(height: 4),
+            _ModelField(
               controller: _model,
-              decoration: const InputDecoration(labelText: 'Modello'),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+              models: _models,
+              onSelected: _applyModel,
             ),
             Row(
               children: [
@@ -192,91 +195,121 @@ class _AddVehicleWizardScreenState
       ),
     );
   }
-
-  List<Widget> _catalogSection() {
-    final makesAsync = ref.watch(catalogMakesProvider);
-    return [
-      makesAsync.when(
-        loading: () => const LinearProgressIndicator(),
-        error: (e, _) =>
-            _CatalogError(onManual: () => setState(() => _manual = true)),
-        data: (makes) => DropdownButtonFormField<String>(
-          initialValue: _makeId,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: 'Marca (catalogo)'),
-          items: [
-            for (final m in makes)
-              DropdownMenuItem(value: m.id, child: Text(m.name)),
-          ],
-          onChanged: (id) => setState(() {
-            _makeId = id;
-            _makeName = makes.firstWhere((m) => m.id == id).name;
-            _selectedModel = null;
-            _trim = null;
-          }),
-        ),
-      ),
-      if (_makeId != null)
-        ref
-            .watch(catalogModelsProvider(_makeId!))
-            .when(
-              loading: () => const LinearProgressIndicator(),
-              error: (e, _) => const Text('Modelli non disponibili'),
-              data: (models) => DropdownButtonFormField<String>(
-                initialValue: _selectedModel,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Modello (catalogo)',
-                ),
-                items: [
-                  for (final m in models)
-                    DropdownMenuItem(value: m, child: Text(m)),
-                ],
-                onChanged: (m) => setState(() {
-                  _selectedModel = m;
-                  _trim = null;
-                }),
-              ),
-            ),
-      if (_makeId != null && _selectedModel != null)
-        ref
-            .watch(catalogTrimsProvider(_makeId!, _selectedModel!))
-            .when(
-              loading: () => const LinearProgressIndicator(),
-              error: (e, _) => const Text('Allestimenti non disponibili'),
-              data: (trims) => DropdownButtonFormField<CatalogTrim>(
-                initialValue: _trim,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Allestimento (catalogo)',
-                ),
-                items: [
-                  for (final t in trims)
-                    DropdownMenuItem(value: t, child: Text(t.label)),
-                ],
-                onChanged: (t) {
-                  if (t != null) _applyTrim(t);
-                },
-              ),
-            ),
-    ];
-  }
 }
 
-class _CatalogError extends StatelessWidget {
-  const _CatalogError({required this.onManual});
-  final VoidCallback onManual;
+/// Type-ahead make field. Suggests catalog makes as you type; free text is
+/// always accepted for makes not in the catalog.
+class _MakeField extends StatelessWidget {
+  const _MakeField({
+    required this.controller,
+    required this.makes,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final List<String> makes;
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Catalogo non raggiungibile (sei offline o il servizio è giù).',
-        ),
-        TextButton(onPressed: onManual, child: const Text('Inserisci a mano')),
-      ],
+    return Autocomplete<String>(
+      // Seed the field's controller text so it survives rebuilds.
+      initialValue: controller.value,
+      optionsBuilder: (value) {
+        final q = value.text.trim().toLowerCase();
+        if (q.isEmpty) return const Iterable<String>.empty();
+        return makes.where((m) => m.toLowerCase().contains(q));
+      },
+      onSelected: (sel) {
+        controller.text = sel;
+        onChanged(sel);
+      },
+      fieldViewBuilder: (context, fieldController, focusNode, _) {
+        return TextFormField(
+          controller: fieldController,
+          focusNode: focusNode,
+          decoration: const InputDecoration(
+            labelText: 'Marca',
+            hintText: 'Scrivi per cercare nel catalogo',
+            suffixIcon: Icon(Icons.search),
+          ),
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+          onChanged: (t) {
+            controller.text = t;
+            onChanged(t);
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Type-ahead model field. Suggests the selected make's catalog models (with
+/// fuel/power to disambiguate variants); free text is always accepted.
+class _ModelField extends StatelessWidget {
+  const _ModelField({
+    required this.controller,
+    required this.models,
+    required this.onSelected,
+  });
+
+  final TextEditingController controller;
+  final List<CatalogModel> models;
+  final ValueChanged<CatalogModel> onSelected;
+
+  String _label(CatalogModel m) {
+    final extra = <String>[
+      if (m.fuelType != null) m.fuelType!.name,
+      if (m.powerPs != null) '${m.powerPs} CV',
+    ];
+    return extra.isEmpty ? m.name : '${m.name} · ${extra.join(' · ')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Autocomplete<CatalogModel>(
+      initialValue: controller.value,
+      displayStringForOption: (m) => m.name,
+      optionsBuilder: (value) {
+        final q = value.text.trim().toLowerCase();
+        if (q.isEmpty) return models;
+        return models.where((m) => m.name.toLowerCase().contains(q));
+      },
+      onSelected: onSelected,
+      optionsViewBuilder: (context, onSelectedCb, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 260, maxWidth: 360),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                children: [
+                  for (final m in options)
+                    ListTile(
+                      dense: true,
+                      title: Text(_label(m)),
+                      onTap: () => onSelectedCb(m),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      fieldViewBuilder: (context, fieldController, focusNode, _) {
+        return TextFormField(
+          controller: fieldController,
+          focusNode: focusNode,
+          decoration: const InputDecoration(labelText: 'Modello'),
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+          onChanged: (t) => controller.text = t,
+        );
+      },
     );
   }
 }

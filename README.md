@@ -6,9 +6,9 @@ Free, open-source, **local-first** Android app to track fuel/refueling expenses:
 how much you spend, your real price per liter, real consumption (L/100km, km/L),
 and how your real figures compare to the **manufacturer-declared** specs.
 
-All data lives on the device (SQLite) — no account, no server, no cost. Vehicle
-specs are pulled from the free **CarQuery** catalog when adding a car, with a
-manual fallback that always works.
+All data lives on the device (SQLite) — no account, no server, no cost. Adding a
+car uses a **bundled offline catalog** to suggest makes/models and pre-fill
+specs; anything not in the catalog can simply be typed in.
 
 > The UI is in Italian; the codebase and docs are in English.
 
@@ -19,9 +19,10 @@ manual fallback that always works.
   category (mine / not mine), notes.
 - **Real metrics**: price/L, full-to-full consumption (L/100km, km/L, €/100km),
   monthly spend, totals — derived automatically.
-- **Add a vehicle from the catalog**: Make → Model → Trim dropdowns auto-fill
-  tank capacity, declared consumption, power and fuel type (CarQuery). Every
-  field stays editable; works offline via manual entry.
+- **Add a vehicle fast**: type-ahead Make/Model fields backed by a bundled
+  offline catalog auto-fill tank capacity, declared consumption, power and fuel
+  type. Every field stays editable, and anything not in the catalog is just
+  typed in — no network required.
 - **Real vs declared comparison**: measured consumption/range against the
   manufacturer specs.
 - **Charts**: monthly spend, price/L trend.
@@ -31,9 +32,9 @@ manual fallback that always works.
 ## Stack
 
 Flutter · **Riverpod 3** (code-gen) · **drift** (SQLite, local-first) ·
-**freezed** · go_router · fl_chart · dio (CarQuery) · intl. Tests with
-`flutter_test` + in-memory drift. Clean feature-first / layered architecture
-(`domain` is pure and has no I/O).
+**freezed** · go_router · fl_chart · intl. Tests with `flutter_test` + in-memory
+drift. Clean feature-first / layered architecture (`domain` is pure and has no
+I/O).
 
 ## Quick start
 

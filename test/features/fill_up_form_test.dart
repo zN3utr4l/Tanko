@@ -14,7 +14,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: FillUpFormScreen(vehicleId: 1)),
+        child: MaterialApp(
+          home: FillUpFormScreen(vehicleId: 1, initialDate: DateTime(2020)),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -32,7 +34,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: FillUpFormScreen(vehicleId: 1)),
+        child: MaterialApp(
+          home: FillUpFormScreen(vehicleId: 1, initialDate: DateTime(2020)),
+        ),
       ),
     );
     await tester.pumpAndSettle();

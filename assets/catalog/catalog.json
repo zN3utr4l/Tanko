@@ -1,0 +1,1995 @@
+{
+  "version": 1,
+  "note": "Representative EU/Italy specs, editable per vehicle. Not authoritative.",
+  "makes": [
+    {
+      "name": "Abarth",
+      "models": [
+        {
+          "name": "595",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 35,
+          "powerPs": 145
+        },
+        {
+          "name": "695",
+          "fuel": "petrol",
+          "consumption": 6.5,
+          "tankL": 35,
+          "powerPs": 180
+        },
+        {
+          "name": "500e",
+          "fuel": "electric",
+          "powerPs": 155
+        }
+      ]
+    },
+    {
+      "name": "Alfa Romeo",
+      "models": [
+        {
+          "name": "MiTo",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 45,
+          "powerPs": 105
+        },
+        {
+          "name": "Giulietta",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 60,
+          "powerPs": 120
+        },
+        {
+          "name": "Giulia",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 58,
+          "powerPs": 190
+        },
+        {
+          "name": "Giulia",
+          "fuel": "petrol",
+          "consumption": 7.0,
+          "tankL": 58,
+          "powerPs": 200
+        },
+        {
+          "name": "Stelvio",
+          "fuel": "diesel",
+          "consumption": 4.8,
+          "tankL": 64,
+          "powerPs": 190
+        },
+        {
+          "name": "Tonale",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 55,
+          "powerPs": 160
+        },
+        {
+          "name": "Junior",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 44,
+          "powerPs": 136
+        }
+      ]
+    },
+    {
+      "name": "Audi",
+      "models": [
+        {
+          "name": "A1",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 110
+        },
+        {
+          "name": "A3",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 50,
+          "powerPs": 116
+        },
+        {
+          "name": "A3",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 50,
+          "powerPs": 150
+        },
+        {
+          "name": "A4",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 54,
+          "powerPs": 150
+        },
+        {
+          "name": "A4",
+          "fuel": "petrol",
+          "consumption": 6.2,
+          "tankL": 54,
+          "powerPs": 150
+        },
+        {
+          "name": "A6",
+          "fuel": "diesel",
+          "consumption": 4.9,
+          "tankL": 63,
+          "powerPs": 204
+        },
+        {
+          "name": "Q2",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 50,
+          "powerPs": 116
+        },
+        {
+          "name": "Q3",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 58,
+          "powerPs": 150
+        },
+        {
+          "name": "Q5",
+          "fuel": "diesel",
+          "consumption": 5.6,
+          "tankL": 70,
+          "powerPs": 204
+        },
+        {
+          "name": "Q7",
+          "fuel": "diesel",
+          "consumption": 6.6,
+          "tankL": 75,
+          "powerPs": 286
+        },
+        {
+          "name": "A5",
+          "fuel": "diesel",
+          "consumption": 4.8,
+          "tankL": 54,
+          "powerPs": 190
+        },
+        {
+          "name": "e-tron",
+          "fuel": "electric",
+          "powerPs": 313
+        }
+      ]
+    },
+    {
+      "name": "BMW",
+      "models": [
+        {
+          "name": "Serie 1",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 50,
+          "powerPs": 140
+        },
+        {
+          "name": "Serie 1",
+          "fuel": "diesel",
+          "consumption": 4.4,
+          "tankL": 42,
+          "powerPs": 150
+        },
+        {
+          "name": "Serie 2",
+          "fuel": "diesel",
+          "consumption": 4.6,
+          "tankL": 51,
+          "powerPs": 150
+        },
+        {
+          "name": "Serie 3",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 59,
+          "powerPs": 190
+        },
+        {
+          "name": "Serie 3",
+          "fuel": "petrol",
+          "consumption": 6.4,
+          "tankL": 59,
+          "powerPs": 184
+        },
+        {
+          "name": "Serie 5",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 68,
+          "powerPs": 190
+        },
+        {
+          "name": "X1",
+          "fuel": "diesel",
+          "consumption": 4.9,
+          "tankL": 51,
+          "powerPs": 150
+        },
+        {
+          "name": "X2",
+          "fuel": "petrol",
+          "consumption": 6.3,
+          "tankL": 50,
+          "powerPs": 140
+        },
+        {
+          "name": "X3",
+          "fuel": "diesel",
+          "consumption": 5.5,
+          "tankL": 65,
+          "powerPs": 190
+        },
+        {
+          "name": "X5",
+          "fuel": "diesel",
+          "consumption": 6.4,
+          "tankL": 80,
+          "powerPs": 286
+        },
+        {
+          "name": "i3",
+          "fuel": "electric",
+          "powerPs": 170
+        }
+      ]
+    },
+    {
+      "name": "Citroën",
+      "models": [
+        {
+          "name": "C1",
+          "fuel": "petrol",
+          "consumption": 4.7,
+          "tankL": 35,
+          "powerPs": 72
+        },
+        {
+          "name": "C3",
+          "fuel": "petrol",
+          "consumption": 5.5,
+          "tankL": 45,
+          "powerPs": 83
+        },
+        {
+          "name": "C3",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 45,
+          "powerPs": 100
+        },
+        {
+          "name": "C3 Aircross",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 45,
+          "powerPs": 110
+        },
+        {
+          "name": "C4",
+          "fuel": "diesel",
+          "consumption": 4.4,
+          "tankL": 50,
+          "powerPs": 130
+        },
+        {
+          "name": "C4",
+          "fuel": "petrol",
+          "consumption": 5.9,
+          "tankL": 50,
+          "powerPs": 130
+        },
+        {
+          "name": "C5 Aircross",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 53,
+          "powerPs": 130
+        },
+        {
+          "name": "Berlingo",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 50,
+          "powerPs": 100
+        },
+        {
+          "name": "ë-C4",
+          "fuel": "electric",
+          "powerPs": 136
+        }
+      ]
+    },
+    {
+      "name": "Cupra",
+      "models": [
+        {
+          "name": "Formentor",
+          "fuel": "petrol",
+          "consumption": 6.5,
+          "tankL": 50,
+          "powerPs": 150
+        },
+        {
+          "name": "Leon",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 50,
+          "powerPs": 150
+        },
+        {
+          "name": "Born",
+          "fuel": "electric",
+          "powerPs": 204
+        },
+        {
+          "name": "Ateca",
+          "fuel": "petrol",
+          "consumption": 7.2,
+          "tankL": 55,
+          "powerPs": 190
+        }
+      ]
+    },
+    {
+      "name": "DS",
+      "models": [
+        {
+          "name": "DS 3",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 44,
+          "powerPs": 130
+        },
+        {
+          "name": "DS 4",
+          "fuel": "diesel",
+          "consumption": 4.4,
+          "tankL": 52,
+          "powerPs": 130
+        },
+        {
+          "name": "DS 7",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 55,
+          "powerPs": 130
+        }
+      ]
+    },
+    {
+      "name": "Dacia",
+      "models": [
+        {
+          "name": "Sandero",
+          "fuel": "petrol",
+          "consumption": 5.5,
+          "tankL": 50,
+          "powerPs": 90
+        },
+        {
+          "name": "Sandero",
+          "fuel": "lpg",
+          "consumption": 6.8,
+          "tankL": 50,
+          "powerPs": 100
+        },
+        {
+          "name": "Duster",
+          "fuel": "diesel",
+          "consumption": 4.9,
+          "tankL": 50,
+          "powerPs": 115
+        },
+        {
+          "name": "Duster",
+          "fuel": "lpg",
+          "consumption": 7.2,
+          "tankL": 50,
+          "powerPs": 100
+        },
+        {
+          "name": "Spring",
+          "fuel": "electric",
+          "powerPs": 65
+        },
+        {
+          "name": "Jogger",
+          "fuel": "hybrid",
+          "consumption": 4.8,
+          "tankL": 50,
+          "powerPs": 140
+        },
+        {
+          "name": "Logan",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 50,
+          "powerPs": 90
+        }
+      ]
+    },
+    {
+      "name": "Fiat",
+      "models": [
+        {
+          "name": "Panda",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 37,
+          "powerPs": 70
+        },
+        {
+          "name": "Panda",
+          "fuel": "lpg",
+          "consumption": 7.0,
+          "tankL": 37,
+          "powerPs": 70
+        },
+        {
+          "name": "Panda",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 37,
+          "powerPs": 70
+        },
+        {
+          "name": "500",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 35,
+          "powerPs": 70
+        },
+        {
+          "name": "500",
+          "fuel": "hybrid",
+          "consumption": 4.9,
+          "tankL": 35,
+          "powerPs": 70
+        },
+        {
+          "name": "500e",
+          "fuel": "electric",
+          "powerPs": 118
+        },
+        {
+          "name": "Punto",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 45,
+          "powerPs": 77
+        },
+        {
+          "name": "Tipo",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 50,
+          "powerPs": 95
+        },
+        {
+          "name": "Tipo",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 50,
+          "powerPs": 100
+        },
+        {
+          "name": "500X",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 48,
+          "powerPs": 120
+        },
+        {
+          "name": "500L",
+          "fuel": "diesel",
+          "consumption": 4.6,
+          "tankL": 50,
+          "powerPs": 120
+        },
+        {
+          "name": "Doblò",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 50,
+          "powerPs": 130
+        },
+        {
+          "name": "600",
+          "fuel": "hybrid",
+          "consumption": 5.5,
+          "tankL": 44,
+          "powerPs": 136
+        }
+      ]
+    },
+    {
+      "name": "Ford",
+      "models": [
+        {
+          "name": "Fiesta",
+          "fuel": "petrol",
+          "consumption": 5.3,
+          "tankL": 42,
+          "powerPs": 100
+        },
+        {
+          "name": "Fiesta",
+          "fuel": "diesel",
+          "consumption": 4.0,
+          "tankL": 40,
+          "powerPs": 85
+        },
+        {
+          "name": "Focus",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 52,
+          "powerPs": 120
+        },
+        {
+          "name": "Focus",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 52,
+          "powerPs": 125
+        },
+        {
+          "name": "Puma",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 42,
+          "powerPs": 125
+        },
+        {
+          "name": "Kuga",
+          "fuel": "hybrid",
+          "consumption": 5.6,
+          "tankL": 54,
+          "powerPs": 190
+        },
+        {
+          "name": "Kuga",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 54,
+          "powerPs": 150
+        },
+        {
+          "name": "Mondeo",
+          "fuel": "diesel",
+          "consumption": 4.6,
+          "tankL": 62,
+          "powerPs": 150
+        },
+        {
+          "name": "EcoSport",
+          "fuel": "petrol",
+          "consumption": 6.2,
+          "tankL": 52,
+          "powerPs": 125
+        },
+        {
+          "name": "Ka+",
+          "fuel": "petrol",
+          "consumption": 5.5,
+          "tankL": 42,
+          "powerPs": 85
+        }
+      ]
+    },
+    {
+      "name": "Honda",
+      "models": [
+        {
+          "name": "Jazz",
+          "fuel": "hybrid",
+          "consumption": 4.5,
+          "tankL": 40,
+          "powerPs": 109
+        },
+        {
+          "name": "Civic",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 47,
+          "powerPs": 184
+        },
+        {
+          "name": "Civic",
+          "fuel": "diesel",
+          "consumption": 4.0,
+          "tankL": 46,
+          "powerPs": 120
+        },
+        {
+          "name": "CR-V",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 57,
+          "powerPs": 184
+        },
+        {
+          "name": "HR-V",
+          "fuel": "hybrid",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 131
+        },
+        {
+          "name": "e",
+          "fuel": "electric",
+          "powerPs": 154
+        }
+      ]
+    },
+    {
+      "name": "Hyundai",
+      "models": [
+        {
+          "name": "i10",
+          "fuel": "petrol",
+          "consumption": 5.3,
+          "tankL": 36,
+          "powerPs": 67
+        },
+        {
+          "name": "i20",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 100
+        },
+        {
+          "name": "i30",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 50,
+          "powerPs": 116
+        },
+        {
+          "name": "i30",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 50,
+          "powerPs": 120
+        },
+        {
+          "name": "Tucson",
+          "fuel": "hybrid",
+          "consumption": 5.6,
+          "tankL": 52,
+          "powerPs": 150
+        },
+        {
+          "name": "Tucson",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 54,
+          "powerPs": 136
+        },
+        {
+          "name": "Kona",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 50,
+          "powerPs": 120
+        },
+        {
+          "name": "Kona",
+          "fuel": "electric",
+          "powerPs": 136
+        },
+        {
+          "name": "Ioniq",
+          "fuel": "hybrid",
+          "consumption": 4.3,
+          "tankL": 45,
+          "powerPs": 141
+        },
+        {
+          "name": "Ioniq 5",
+          "fuel": "electric",
+          "powerPs": 217
+        }
+      ]
+    },
+    {
+      "name": "Jeep",
+      "models": [
+        {
+          "name": "Renegade",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 48,
+          "powerPs": 120
+        },
+        {
+          "name": "Renegade",
+          "fuel": "hybrid",
+          "consumption": 5.8,
+          "tankL": 48,
+          "powerPs": 130
+        },
+        {
+          "name": "Compass",
+          "fuel": "hybrid",
+          "consumption": 6.2,
+          "tankL": 55,
+          "powerPs": 130
+        },
+        {
+          "name": "Compass",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 60,
+          "powerPs": 130
+        },
+        {
+          "name": "Avenger",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 44,
+          "powerPs": 100
+        },
+        {
+          "name": "Avenger",
+          "fuel": "electric",
+          "powerPs": 156
+        }
+      ]
+    },
+    {
+      "name": "Kia",
+      "models": [
+        {
+          "name": "Picanto",
+          "fuel": "petrol",
+          "consumption": 5.3,
+          "tankL": 35,
+          "powerPs": 67
+        },
+        {
+          "name": "Rio",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 45,
+          "powerPs": 100
+        },
+        {
+          "name": "Ceed",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 50,
+          "powerPs": 116
+        },
+        {
+          "name": "Ceed",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 50,
+          "powerPs": 120
+        },
+        {
+          "name": "Sportage",
+          "fuel": "hybrid",
+          "consumption": 5.6,
+          "tankL": 54,
+          "powerPs": 150
+        },
+        {
+          "name": "Sportage",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 54,
+          "powerPs": 136
+        },
+        {
+          "name": "Niro",
+          "fuel": "hybrid",
+          "consumption": 4.4,
+          "tankL": 42,
+          "powerPs": 141
+        },
+        {
+          "name": "Niro",
+          "fuel": "electric",
+          "powerPs": 204
+        },
+        {
+          "name": "Stonic",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 45,
+          "powerPs": 100
+        },
+        {
+          "name": "EV6",
+          "fuel": "electric",
+          "powerPs": 229
+        }
+      ]
+    },
+    {
+      "name": "Lancia",
+      "models": [
+        {
+          "name": "Ypsilon",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 69
+        },
+        {
+          "name": "Ypsilon",
+          "fuel": "lpg",
+          "consumption": 6.6,
+          "tankL": 40,
+          "powerPs": 69
+        },
+        {
+          "name": "Ypsilon",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 40,
+          "powerPs": 70
+        },
+        {
+          "name": "Ypsilon",
+          "fuel": "electric",
+          "powerPs": 156
+        },
+        {
+          "name": "Delta",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 58,
+          "powerPs": 120
+        }
+      ]
+    },
+    {
+      "name": "Land Rover",
+      "models": [
+        {
+          "name": "Defender",
+          "fuel": "diesel",
+          "consumption": 7.8,
+          "tankL": 90,
+          "powerPs": 250
+        },
+        {
+          "name": "Discovery Sport",
+          "fuel": "diesel",
+          "consumption": 6.0,
+          "tankL": 65,
+          "powerPs": 180
+        },
+        {
+          "name": "Range Rover Evoque",
+          "fuel": "diesel",
+          "consumption": 5.4,
+          "tankL": 65,
+          "powerPs": 163
+        },
+        {
+          "name": "Range Rover Velar",
+          "fuel": "diesel",
+          "consumption": 6.2,
+          "tankL": 60,
+          "powerPs": 204
+        }
+      ]
+    },
+    {
+      "name": "Lexus",
+      "models": [
+        {
+          "name": "CT",
+          "fuel": "hybrid",
+          "consumption": 4.4,
+          "tankL": 45,
+          "powerPs": 136
+        },
+        {
+          "name": "UX",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 47,
+          "powerPs": 184
+        },
+        {
+          "name": "NX",
+          "fuel": "hybrid",
+          "consumption": 5.5,
+          "tankL": 55,
+          "powerPs": 244
+        },
+        {
+          "name": "RX",
+          "fuel": "hybrid",
+          "consumption": 6.3,
+          "tankL": 65,
+          "powerPs": 313
+        },
+        {
+          "name": "IS",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 66,
+          "powerPs": 223
+        }
+      ]
+    },
+    {
+      "name": "MG",
+      "models": [
+        {
+          "name": "ZS",
+          "fuel": "petrol",
+          "consumption": 6.6,
+          "tankL": 48,
+          "powerPs": 106
+        },
+        {
+          "name": "ZS",
+          "fuel": "electric",
+          "powerPs": 177
+        },
+        {
+          "name": "MG3",
+          "fuel": "hybrid",
+          "consumption": 4.4,
+          "tankL": 36,
+          "powerPs": 195
+        },
+        {
+          "name": "HS",
+          "fuel": "petrol",
+          "consumption": 7.0,
+          "tankL": 55,
+          "powerPs": 162
+        },
+        {
+          "name": "MG4",
+          "fuel": "electric",
+          "powerPs": 204
+        },
+        {
+          "name": "MG5",
+          "fuel": "electric",
+          "powerPs": 156
+        }
+      ]
+    },
+    {
+      "name": "Mazda",
+      "models": [
+        {
+          "name": "2",
+          "fuel": "petrol",
+          "consumption": 5.0,
+          "tankL": 44,
+          "powerPs": 90
+        },
+        {
+          "name": "3",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 51,
+          "powerPs": 122
+        },
+        {
+          "name": "CX-3",
+          "fuel": "petrol",
+          "consumption": 6.2,
+          "tankL": 48,
+          "powerPs": 121
+        },
+        {
+          "name": "CX-30",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 51,
+          "powerPs": 122
+        },
+        {
+          "name": "CX-5",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 58,
+          "powerPs": 150
+        },
+        {
+          "name": "MX-5",
+          "fuel": "petrol",
+          "consumption": 6.9,
+          "tankL": 45,
+          "powerPs": 184
+        },
+        {
+          "name": "MX-30",
+          "fuel": "electric",
+          "powerPs": 145
+        }
+      ]
+    },
+    {
+      "name": "Mercedes-Benz",
+      "models": [
+        {
+          "name": "Classe A",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 43,
+          "powerPs": 116
+        },
+        {
+          "name": "Classe A",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 43,
+          "powerPs": 163
+        },
+        {
+          "name": "Classe B",
+          "fuel": "diesel",
+          "consumption": 4.6,
+          "tankL": 43,
+          "powerPs": 116
+        },
+        {
+          "name": "Classe C",
+          "fuel": "diesel",
+          "consumption": 4.7,
+          "tankL": 66,
+          "powerPs": 194
+        },
+        {
+          "name": "Classe C",
+          "fuel": "petrol",
+          "consumption": 6.6,
+          "tankL": 66,
+          "powerPs": 184
+        },
+        {
+          "name": "Classe E",
+          "fuel": "diesel",
+          "consumption": 5.1,
+          "tankL": 66,
+          "powerPs": 194
+        },
+        {
+          "name": "CLA",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 43,
+          "powerPs": 150
+        },
+        {
+          "name": "GLA",
+          "fuel": "diesel",
+          "consumption": 4.9,
+          "tankL": 51,
+          "powerPs": 150
+        },
+        {
+          "name": "GLC",
+          "fuel": "diesel",
+          "consumption": 5.6,
+          "tankL": 50,
+          "powerPs": 194
+        },
+        {
+          "name": "GLE",
+          "fuel": "diesel",
+          "consumption": 6.8,
+          "tankL": 85,
+          "powerPs": 272
+        }
+      ]
+    },
+    {
+      "name": "Mini",
+      "models": [
+        {
+          "name": "Cooper",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 44,
+          "powerPs": 136
+        },
+        {
+          "name": "Cooper",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 44,
+          "powerPs": 116
+        },
+        {
+          "name": "Countryman",
+          "fuel": "petrol",
+          "consumption": 6.3,
+          "tankL": 51,
+          "powerPs": 136
+        },
+        {
+          "name": "Countryman",
+          "fuel": "diesel",
+          "consumption": 4.8,
+          "tankL": 51,
+          "powerPs": 150
+        },
+        {
+          "name": "Cooper SE",
+          "fuel": "electric",
+          "powerPs": 184
+        }
+      ]
+    },
+    {
+      "name": "Mitsubishi",
+      "models": [
+        {
+          "name": "Space Star",
+          "fuel": "petrol",
+          "consumption": 5.0,
+          "tankL": 35,
+          "powerPs": 71
+        },
+        {
+          "name": "ASX",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 48,
+          "powerPs": 140
+        },
+        {
+          "name": "Eclipse Cross",
+          "fuel": "hybrid",
+          "consumption": 6.4,
+          "tankL": 45,
+          "powerPs": 188
+        },
+        {
+          "name": "Outlander",
+          "fuel": "hybrid",
+          "consumption": 6.4,
+          "tankL": 45,
+          "powerPs": 224
+        }
+      ]
+    },
+    {
+      "name": "Nissan",
+      "models": [
+        {
+          "name": "Micra",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 41,
+          "powerPs": 100
+        },
+        {
+          "name": "Juke",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 46,
+          "powerPs": 114
+        },
+        {
+          "name": "Juke",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 46,
+          "powerPs": 143
+        },
+        {
+          "name": "Qashqai",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 55,
+          "powerPs": 140
+        },
+        {
+          "name": "Qashqai",
+          "fuel": "hybrid",
+          "consumption": 5.3,
+          "tankL": 55,
+          "powerPs": 190
+        },
+        {
+          "name": "X-Trail",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 55,
+          "powerPs": 204
+        },
+        {
+          "name": "Leaf",
+          "fuel": "electric",
+          "powerPs": 150
+        }
+      ]
+    },
+    {
+      "name": "Opel",
+      "models": [
+        {
+          "name": "Corsa",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 44,
+          "powerPs": 100
+        },
+        {
+          "name": "Corsa",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 44,
+          "powerPs": 102
+        },
+        {
+          "name": "Corsa",
+          "fuel": "electric",
+          "powerPs": 136
+        },
+        {
+          "name": "Astra",
+          "fuel": "diesel",
+          "consumption": 4.4,
+          "tankL": 52,
+          "powerPs": 130
+        },
+        {
+          "name": "Astra",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 52,
+          "powerPs": 130
+        },
+        {
+          "name": "Astra",
+          "fuel": "hybrid",
+          "consumption": 5.5,
+          "tankL": 43,
+          "powerPs": 180
+        },
+        {
+          "name": "Mokka",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 44,
+          "powerPs": 130
+        },
+        {
+          "name": "Mokka",
+          "fuel": "electric",
+          "powerPs": 136
+        },
+        {
+          "name": "Crossland",
+          "fuel": "petrol",
+          "consumption": 5.9,
+          "tankL": 45,
+          "powerPs": 110
+        },
+        {
+          "name": "Grandland",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 53,
+          "powerPs": 224
+        }
+      ]
+    },
+    {
+      "name": "Peugeot",
+      "models": [
+        {
+          "name": "108",
+          "fuel": "petrol",
+          "consumption": 4.7,
+          "tankL": 35,
+          "powerPs": 72
+        },
+        {
+          "name": "208",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 44,
+          "powerPs": 100
+        },
+        {
+          "name": "208",
+          "fuel": "diesel",
+          "consumption": 4.0,
+          "tankL": 44,
+          "powerPs": 100
+        },
+        {
+          "name": "208",
+          "fuel": "electric",
+          "powerPs": 136
+        },
+        {
+          "name": "308",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 52,
+          "powerPs": 130
+        },
+        {
+          "name": "308",
+          "fuel": "petrol",
+          "consumption": 5.9,
+          "tankL": 52,
+          "powerPs": 130
+        },
+        {
+          "name": "2008",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 44,
+          "powerPs": 130
+        },
+        {
+          "name": "2008",
+          "fuel": "electric",
+          "powerPs": 136
+        },
+        {
+          "name": "3008",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 53,
+          "powerPs": 225
+        },
+        {
+          "name": "3008",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 56,
+          "powerPs": 130
+        },
+        {
+          "name": "5008",
+          "fuel": "diesel",
+          "consumption": 5.3,
+          "tankL": 56,
+          "powerPs": 130
+        },
+        {
+          "name": "508",
+          "fuel": "hybrid",
+          "consumption": 5.8,
+          "tankL": 43,
+          "powerPs": 225
+        }
+      ]
+    },
+    {
+      "name": "Porsche",
+      "models": [
+        {
+          "name": "Macan",
+          "fuel": "petrol",
+          "consumption": 9.5,
+          "tankL": 65,
+          "powerPs": 265
+        },
+        {
+          "name": "Cayenne",
+          "fuel": "diesel",
+          "consumption": 7.4,
+          "tankL": 75,
+          "powerPs": 286
+        },
+        {
+          "name": "Taycan",
+          "fuel": "electric",
+          "powerPs": 408
+        }
+      ]
+    },
+    {
+      "name": "Renault",
+      "models": [
+        {
+          "name": "Clio",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 42,
+          "powerPs": 90
+        },
+        {
+          "name": "Clio",
+          "fuel": "diesel",
+          "consumption": 4.0,
+          "tankL": 42,
+          "powerPs": 100
+        },
+        {
+          "name": "Clio",
+          "fuel": "hybrid",
+          "consumption": 4.3,
+          "tankL": 39,
+          "powerPs": 145
+        },
+        {
+          "name": "Clio",
+          "fuel": "lpg",
+          "consumption": 6.6,
+          "tankL": 42,
+          "powerPs": 100
+        },
+        {
+          "name": "Captur",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 48,
+          "powerPs": 100
+        },
+        {
+          "name": "Captur",
+          "fuel": "hybrid",
+          "consumption": 4.8,
+          "tankL": 39,
+          "powerPs": 145
+        },
+        {
+          "name": "Megane",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 47,
+          "powerPs": 115
+        },
+        {
+          "name": "Megane",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 50,
+          "powerPs": 140
+        },
+        {
+          "name": "Twingo",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 38,
+          "powerPs": 75
+        },
+        {
+          "name": "Twingo",
+          "fuel": "electric",
+          "powerPs": 82
+        },
+        {
+          "name": "Austral",
+          "fuel": "hybrid",
+          "consumption": 4.6,
+          "tankL": 55,
+          "powerPs": 160
+        },
+        {
+          "name": "Scenic",
+          "fuel": "diesel",
+          "consumption": 4.5,
+          "tankL": 50,
+          "powerPs": 120
+        },
+        {
+          "name": "Kadjar",
+          "fuel": "diesel",
+          "consumption": 4.7,
+          "tankL": 65,
+          "powerPs": 115
+        },
+        {
+          "name": "Zoe",
+          "fuel": "electric",
+          "powerPs": 135
+        }
+      ]
+    },
+    {
+      "name": "SEAT",
+      "models": [
+        {
+          "name": "Ibiza",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 110
+        },
+        {
+          "name": "Ibiza",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 40,
+          "powerPs": 95
+        },
+        {
+          "name": "Leon",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 50,
+          "powerPs": 115
+        },
+        {
+          "name": "Leon",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 50,
+          "powerPs": 130
+        },
+        {
+          "name": "Arona",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 40,
+          "powerPs": 110
+        },
+        {
+          "name": "Ateca",
+          "fuel": "petrol",
+          "consumption": 6.5,
+          "tankL": 55,
+          "powerPs": 150
+        },
+        {
+          "name": "Ateca",
+          "fuel": "diesel",
+          "consumption": 5.0,
+          "tankL": 50,
+          "powerPs": 115
+        }
+      ]
+    },
+    {
+      "name": "Smart",
+      "models": [
+        {
+          "name": "ForTwo",
+          "fuel": "petrol",
+          "consumption": 4.8,
+          "tankL": 28,
+          "powerPs": 71
+        },
+        {
+          "name": "ForTwo",
+          "fuel": "electric",
+          "powerPs": 82
+        },
+        {
+          "name": "ForFour",
+          "fuel": "petrol",
+          "consumption": 5.0,
+          "tankL": 28,
+          "powerPs": 71
+        },
+        {
+          "name": "#1",
+          "fuel": "electric",
+          "powerPs": 272
+        }
+      ]
+    },
+    {
+      "name": "Subaru",
+      "models": [
+        {
+          "name": "Impreza",
+          "fuel": "petrol",
+          "consumption": 7.0,
+          "tankL": 50,
+          "powerPs": 136
+        },
+        {
+          "name": "XV",
+          "fuel": "petrol",
+          "consumption": 7.0,
+          "tankL": 48,
+          "powerPs": 156
+        },
+        {
+          "name": "Forester",
+          "fuel": "hybrid",
+          "consumption": 8.0,
+          "tankL": 48,
+          "powerPs": 150
+        },
+        {
+          "name": "Outback",
+          "fuel": "petrol",
+          "consumption": 8.5,
+          "tankL": 63,
+          "powerPs": 169
+        }
+      ]
+    },
+    {
+      "name": "Suzuki",
+      "models": [
+        {
+          "name": "Ignis",
+          "fuel": "hybrid",
+          "consumption": 4.7,
+          "tankL": 32,
+          "powerPs": 83
+        },
+        {
+          "name": "Swift",
+          "fuel": "hybrid",
+          "consumption": 4.6,
+          "tankL": 37,
+          "powerPs": 83
+        },
+        {
+          "name": "Vitara",
+          "fuel": "hybrid",
+          "consumption": 5.4,
+          "tankL": 47,
+          "powerPs": 129
+        },
+        {
+          "name": "S-Cross",
+          "fuel": "hybrid",
+          "consumption": 5.5,
+          "tankL": 47,
+          "powerPs": 129
+        },
+        {
+          "name": "Across",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 55,
+          "powerPs": 306
+        },
+        {
+          "name": "Jimny",
+          "fuel": "petrol",
+          "consumption": 6.8,
+          "tankL": 40,
+          "powerPs": 102
+        }
+      ]
+    },
+    {
+      "name": "Tesla",
+      "models": [
+        {
+          "name": "Model 3",
+          "fuel": "electric",
+          "powerPs": 283
+        },
+        {
+          "name": "Model Y",
+          "fuel": "electric",
+          "powerPs": 299
+        },
+        {
+          "name": "Model S",
+          "fuel": "electric",
+          "powerPs": 670
+        },
+        {
+          "name": "Model X",
+          "fuel": "electric",
+          "powerPs": 670
+        }
+      ]
+    },
+    {
+      "name": "Toyota",
+      "models": [
+        {
+          "name": "Aygo",
+          "fuel": "petrol",
+          "consumption": 4.8,
+          "tankL": 35,
+          "powerPs": 72
+        },
+        {
+          "name": "Aygo X",
+          "fuel": "petrol",
+          "consumption": 4.9,
+          "tankL": 35,
+          "powerPs": 72
+        },
+        {
+          "name": "Yaris",
+          "fuel": "hybrid",
+          "consumption": 3.8,
+          "tankL": 36,
+          "powerPs": 116
+        },
+        {
+          "name": "Yaris Cross",
+          "fuel": "hybrid",
+          "consumption": 4.5,
+          "tankL": 36,
+          "powerPs": 116
+        },
+        {
+          "name": "Corolla",
+          "fuel": "hybrid",
+          "consumption": 4.4,
+          "tankL": 43,
+          "powerPs": 140
+        },
+        {
+          "name": "C-HR",
+          "fuel": "hybrid",
+          "consumption": 4.5,
+          "tankL": 43,
+          "powerPs": 140
+        },
+        {
+          "name": "RAV4",
+          "fuel": "hybrid",
+          "consumption": 5.0,
+          "tankL": 55,
+          "powerPs": 218
+        },
+        {
+          "name": "RAV4",
+          "fuel": "petrol",
+          "consumption": 7.0,
+          "tankL": 55,
+          "powerPs": 175
+        },
+        {
+          "name": "Prius",
+          "fuel": "hybrid",
+          "consumption": 4.6,
+          "tankL": 43,
+          "powerPs": 122
+        },
+        {
+          "name": "Camry",
+          "fuel": "hybrid",
+          "consumption": 4.5,
+          "tankL": 50,
+          "powerPs": 218
+        },
+        {
+          "name": "Proace",
+          "fuel": "diesel",
+          "consumption": 6.0,
+          "tankL": 70,
+          "powerPs": 145
+        }
+      ]
+    },
+    {
+      "name": "Volkswagen",
+      "models": [
+        {
+          "name": "up!",
+          "fuel": "petrol",
+          "consumption": 4.6,
+          "tankL": 35,
+          "powerPs": 65
+        },
+        {
+          "name": "Polo",
+          "fuel": "petrol",
+          "consumption": 5.4,
+          "tankL": 40,
+          "powerPs": 95
+        },
+        {
+          "name": "Polo",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 40,
+          "powerPs": 95
+        },
+        {
+          "name": "Golf",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 50,
+          "powerPs": 115
+        },
+        {
+          "name": "Golf",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 50,
+          "powerPs": 130
+        },
+        {
+          "name": "Golf",
+          "fuel": "cng",
+          "consumption": 3.6,
+          "tankL": 17,
+          "powerPs": 130
+        },
+        {
+          "name": "T-Cross",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 40,
+          "powerPs": 110
+        },
+        {
+          "name": "T-Roc",
+          "fuel": "petrol",
+          "consumption": 6.0,
+          "tankL": 50,
+          "powerPs": 150
+        },
+        {
+          "name": "T-Roc",
+          "fuel": "diesel",
+          "consumption": 4.8,
+          "tankL": 50,
+          "powerPs": 115
+        },
+        {
+          "name": "Tiguan",
+          "fuel": "diesel",
+          "consumption": 5.2,
+          "tankL": 58,
+          "powerPs": 150
+        },
+        {
+          "name": "Tiguan",
+          "fuel": "petrol",
+          "consumption": 6.8,
+          "tankL": 58,
+          "powerPs": 150
+        },
+        {
+          "name": "Passat",
+          "fuel": "diesel",
+          "consumption": 4.7,
+          "tankL": 66,
+          "powerPs": 150
+        },
+        {
+          "name": "ID.3",
+          "fuel": "electric",
+          "powerPs": 204
+        },
+        {
+          "name": "ID.4",
+          "fuel": "electric",
+          "powerPs": 204
+        }
+      ]
+    },
+    {
+      "name": "Volvo",
+      "models": [
+        {
+          "name": "V40",
+          "fuel": "diesel",
+          "consumption": 4.2,
+          "tankL": 60,
+          "powerPs": 120
+        },
+        {
+          "name": "XC40",
+          "fuel": "petrol",
+          "consumption": 6.5,
+          "tankL": 54,
+          "powerPs": 163
+        },
+        {
+          "name": "XC40",
+          "fuel": "electric",
+          "powerPs": 231
+        },
+        {
+          "name": "XC60",
+          "fuel": "hybrid",
+          "consumption": 6.0,
+          "tankL": 71,
+          "powerPs": 250
+        },
+        {
+          "name": "XC60",
+          "fuel": "diesel",
+          "consumption": 5.4,
+          "tankL": 71,
+          "powerPs": 190
+        },
+        {
+          "name": "V60",
+          "fuel": "diesel",
+          "consumption": 4.8,
+          "tankL": 60,
+          "powerPs": 150
+        },
+        {
+          "name": "XC90",
+          "fuel": "hybrid",
+          "consumption": 6.5,
+          "tankL": 71,
+          "powerPs": 303
+        }
+      ]
+    },
+    {
+      "name": "Škoda",
+      "models": [
+        {
+          "name": "Fabia",
+          "fuel": "petrol",
+          "consumption": 5.3,
+          "tankL": 40,
+          "powerPs": 95
+        },
+        {
+          "name": "Scala",
+          "fuel": "petrol",
+          "consumption": 5.6,
+          "tankL": 50,
+          "powerPs": 110
+        },
+        {
+          "name": "Octavia",
+          "fuel": "diesel",
+          "consumption": 4.3,
+          "tankL": 50,
+          "powerPs": 115
+        },
+        {
+          "name": "Octavia",
+          "fuel": "petrol",
+          "consumption": 5.8,
+          "tankL": 50,
+          "powerPs": 150
+        },
+        {
+          "name": "Kamiq",
+          "fuel": "petrol",
+          "consumption": 5.7,
+          "tankL": 50,
+          "powerPs": 110
+        },
+        {
+          "name": "Karoq",
+          "fuel": "diesel",
+          "consumption": 4.9,
+          "tankL": 50,
+          "powerPs": 116
+        },
+        {
+          "name": "Kodiaq",
+          "fuel": "diesel",
+          "consumption": 5.6,
+          "tankL": 60,
+          "powerPs": 150
+        },
+        {
+          "name": "Enyaq",
+          "fuel": "electric",
+          "powerPs": 204
+        },
+        {
+          "name": "Superb",
+          "fuel": "diesel",
+          "consumption": 4.7,
+          "tankL": 66,
+          "powerPs": 150
+        }
+      ]
+    }
+  ]
+}

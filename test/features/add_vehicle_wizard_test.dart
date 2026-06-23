@@ -11,69 +11,66 @@ import '../helpers/test_db.dart';
 
 class _FakeCatalog implements CatalogRepository {
   @override
-  Future<List<CatalogMake>> makes() async => const [
-    CatalogMake(id: 'renault', name: 'Renault'),
-  ];
+  Future<List<String>> makes() async => const ['Fiat', 'Renault'];
 
   @override
-  Future<List<String>> models(String makeId) async => const ['Clio'];
-
-  @override
-  Future<List<CatalogTrim>> trims(String makeId, String model) async => const [
-    CatalogTrim(
-      modelId: '1',
-      make: 'renault',
-      model: 'Clio',
-      year: 2023,
-      trim: 'E-Tech 145',
-      fuelType: FuelType.hybrid,
-      consumptionL100: 4.2,
-      tankCapacityL: 39,
-      powerPs: 145,
-    ),
-  ];
+  Future<List<CatalogModel>> models(String make) async =>
+      make.toLowerCase() == 'fiat'
+      ? const [
+          CatalogModel(
+            make: 'Fiat',
+            name: 'Panda',
+            fuelType: FuelType.petrol,
+            consumptionL100: 5.7,
+            tankCapacityL: 37,
+            powerPs: 70,
+          ),
+        ]
+      : const [];
 }
 
 void main() {
-  testWidgets(
-    'renders catalog make dropdown and saves a manually-typed vehicle',
-    (tester) async {
-      final db = makeTestDb();
-      addTearDown(db.close);
+  testWidgets('saves a typed-in vehicle (not in catalog) as manual', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            appDatabaseProvider.overrideWithValue(db),
-            catalogRepositoryProvider.overrideWithValue(_FakeCatalog()),
-          ],
-          child: const MaterialApp(home: AddVehicleWizardScreen()),
-        ),
-      );
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          catalogRepositoryProvider.overrideWithValue(_FakeCatalog()),
+        ],
+        child: const MaterialApp(home: AddVehicleWizardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      expect(find.text('Marca (catalogo)'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Marca'), findsOneWidget);
 
-      await tester.enterText(
-        find.widgetWithText(TextFormField, 'Marca'),
-        'Fiat',
-      );
-      await tester.enterText(
-        find.widgetWithText(TextFormField, 'Modello'),
-        'Panda',
-      );
-      await tester.scrollUntilVisible(
-        find.text('Salva'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Salva'));
-      await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Marca'),
+      'Tesla',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Modello'),
+      'Model 3',
+    );
+    await tester.pumpAndSettle();
 
-      final vehicles = await VehicleRepositoryImpl(db).all();
-      expect(vehicles, hasLength(1));
-      expect(vehicles.single.make, 'Fiat');
-      expect(vehicles.single.specs.source, SpecSource.manual);
-    },
-  );
+    await tester.scrollUntilVisible(
+      find.text('Salva'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Salva'));
+    await tester.pumpAndSettle();
+
+    final vehicles = await VehicleRepositoryImpl(db).all();
+    expect(vehicles, hasLength(1));
+    expect(vehicles.single.make, 'Tesla');
+    expect(vehicles.single.model, 'Model 3');
+    expect(vehicles.single.specs.source, SpecSource.manual);
+  });
 }

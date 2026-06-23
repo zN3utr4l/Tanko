@@ -3,16 +3,19 @@ import '../../domain/models/vehicle.dart';
 import '../../domain/models/vehicle_stats.dart';
 import '../../providers.dart';
 import '../fillups/fillup_providers.dart';
+import '../vehicles/vehicle_providers.dart';
 
 part 'dashboard_providers.g.dart';
 
+/// The vehicle the dashboard (and every other vehicle-scoped screen) is bound
+/// to: the default one if set, otherwise the first. Derived from
+/// [vehiclesProvider] so adding/removing a vehicle refreshes all screens
+/// through a single invalidation.
 @riverpod
 Future<Vehicle?> dashboardVehicle(Ref ref) async {
-  final repo = ref.watch(vehicleRepositoryProvider);
-  final def = await repo.defaultVehicle();
-  if (def != null) return def;
-  final all = await repo.all();
-  return all.isEmpty ? null : all.first;
+  final all = await ref.watch(vehiclesProvider.future);
+  if (all.isEmpty) return null;
+  return all.firstWhere((v) => v.isDefault, orElse: () => all.first);
 }
 
 @riverpod

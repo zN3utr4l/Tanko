@@ -9,6 +9,7 @@ import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_providers.dart';
 import '../fillups/fillup_providers.dart';
+import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'stats_providers.dart';
 
 class StatsScreen extends ConsumerWidget {
@@ -24,9 +25,7 @@ class StatsScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Errore: $e')),
         data: (vehicle) {
           if (vehicle == null) {
-            return const Center(
-              child: Text('Aggiungi un veicolo per iniziare.'),
-            );
+            return const EmptyVehiclePrompt();
           }
           final months = ref.watch(monthlySpendProvider(vehicle.id));
           final comparison = ref.watch(vehicleComparisonProvider(vehicle.id));

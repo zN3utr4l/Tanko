@@ -1,8 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'data/catalog/carquery_client.dart';
+import 'data/catalog/offline_catalog.dart';
 import 'data/database/database.dart';
+import 'data/location/geolocator_location_service.dart';
+import 'data/lookup/overpass_station_lookup.dart';
 import 'data/notifications/notification_service.dart';
+import 'data/ocr/mlkit_ocr_service.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/expense_repository_impl.dart';
 import 'data/repositories/fill_up_repository_impl.dart';
@@ -14,7 +16,10 @@ import 'domain/repositories/expense_repository.dart';
 import 'domain/repositories/fill_up_repository.dart';
 import 'domain/repositories/reminder_repository.dart';
 import 'domain/repositories/vehicle_repository.dart';
+import 'domain/services/location_service.dart';
+import 'domain/services/ocr_service.dart';
 import 'domain/services/reminder_evaluator.dart';
+import 'domain/services/station_lookup_service.dart';
 import 'domain/services/stats_service.dart';
 
 part 'providers.g.dart';
@@ -58,17 +63,13 @@ ReminderRepository reminderRepository(Ref ref) => ReminderRepositoryImpl(
 NotificationService notificationService(Ref ref) => NotificationService();
 
 @Riverpod(keepAlive: true)
-Dio catalogDio(Ref ref) {
-  final dio = Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 8),
-      receiveTimeout: const Duration(seconds: 8),
-    ),
-  );
-  ref.onDispose(dio.close);
-  return dio;
-}
+CatalogRepository catalogRepository(Ref ref) => OfflineCatalog();
 
 @Riverpod(keepAlive: true)
-CatalogRepository catalogRepository(Ref ref) =>
-    CarQueryClient(ref.watch(catalogDioProvider));
+LocationService locationService(Ref ref) => const GeolocatorLocationService();
+
+@Riverpod(keepAlive: true)
+OcrService ocrService(Ref ref) => MlKitOcrService();
+
+@Riverpod(keepAlive: true)
+StationLookupService stationLookupService(Ref ref) => OverpassStationLookup();

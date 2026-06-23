@@ -1,9 +1,12 @@
 import '../models/catalog.dart';
 
-/// Online vehicle-spec catalog (CarQuery). Implementations may throw on
-/// network errors; callers fall back to manual entry.
+/// Offline vehicle catalog: make names and their known models (with
+/// pre-fillable specs). Backed by a bundled asset, so it never fails on a
+/// network — the wizard always lets the user type anything not in the catalog.
 abstract class CatalogRepository {
-  Future<List<CatalogMake>> makes();
-  Future<List<String>> models(String makeId);
-  Future<List<CatalogTrim>> trims(String makeId, String model);
+  /// All make names, alphabetically.
+  Future<List<String>> makes();
+
+  /// Known models for [make] (case-insensitive). Empty if the make is unknown.
+  Future<List<CatalogModel>> models(String make);
 }

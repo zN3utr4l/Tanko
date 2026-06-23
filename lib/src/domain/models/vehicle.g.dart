@@ -29,7 +29,7 @@ Map<String, dynamic> _$VehicleSpecsToJson(_VehicleSpecs instance) =>
     };
 
 const _$SpecSourceEnumMap = {
-  SpecSource.carquery: 'carquery',
+  SpecSource.catalog: 'catalog',
   SpecSource.manual: 'manual',
 };
 

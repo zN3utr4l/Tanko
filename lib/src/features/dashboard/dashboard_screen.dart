@@ -5,6 +5,7 @@ import '../../domain/models/vehicle.dart';
 import '../expenses/expense_form_screen.dart';
 import '../fillups/fill_up_form_screen.dart';
 import '../stats/stats_providers.dart';
+import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'dashboard_providers.dart';
 import 'widgets/stat_card.dart';
 
@@ -21,9 +22,7 @@ class DashboardScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Errore: $e')),
         data: (vehicle) {
           if (vehicle == null) {
-            return const Center(
-              child: Text('Aggiungi un veicolo per iniziare.'),
-            );
+            return const EmptyVehiclePrompt();
           }
           final stats = ref.watch(vehicleStatsProvider(vehicle.id));
           final cost = ref.watch(costSummaryProvider(vehicle.id));
