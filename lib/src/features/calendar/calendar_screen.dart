@@ -5,6 +5,7 @@ import '../../core/formatters.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_form_screen.dart';
 import '../fillups/fill_up_form_screen.dart';
+import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'calendar_event.dart';
 import 'calendar_providers.dart';
 
@@ -42,9 +43,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         error: (e, _) => Center(child: Text('Errore: $e')),
         data: (vehicle) {
           if (vehicle == null) {
-            return const Center(
-              child: Text('Aggiungi un veicolo per iniziare.'),
-            );
+            return const EmptyVehiclePrompt();
           }
           final eventsAsync = ref.watch(calendarEventsProvider(vehicle.id));
           return eventsAsync.when(

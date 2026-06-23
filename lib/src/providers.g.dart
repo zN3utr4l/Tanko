@@ -422,46 +422,6 @@ final class NotificationServiceProvider
 String _$notificationServiceHash() =>
     r'585c1e42ea844e71a2b76b80b165adfe2c5c8529';
 
-@ProviderFor(catalogDio)
-final catalogDioProvider = CatalogDioProvider._();
-
-final class CatalogDioProvider extends $FunctionalProvider<Dio, Dio, Dio>
-    with $Provider<Dio> {
-  CatalogDioProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'catalogDioProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$catalogDioHash();
-
-  @$internal
-  @override
-  $ProviderElement<Dio> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  Dio create(Ref ref) {
-    return catalogDio(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Dio value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Dio>(value),
-    );
-  }
-}
-
-String _$catalogDioHash() => r'01c5cc4deb39c5e186c336ff5d40e2c0d1b57b5c';
-
 @ProviderFor(catalogRepository)
 final catalogRepositoryProvider = CatalogRepositoryProvider._();
 
@@ -507,4 +467,4 @@ final class CatalogRepositoryProvider
   }
 }
 
-String _$catalogRepositoryHash() => r'6e30e902ee03290d40317895092f6a83b7ed6dbd';
+String _$catalogRepositoryHash() => r'20f200af1717fa7220a1b13322edb551edd68eb1';

@@ -8,6 +8,7 @@ import '../../providers.dart';
 import '../calendar/calendar_providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_providers.dart';
+import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'reminder_form_screen.dart';
 import 'reminder_providers.dart';
 import 'reminder_templates.dart';
@@ -36,9 +37,7 @@ class ScadenzeScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Errore: $e')),
         data: (vehicle) {
           if (vehicle == null) {
-            return const Center(
-              child: Text('Aggiungi un veicolo per iniziare.'),
-            );
+            return const EmptyVehiclePrompt();
           }
           final evals = ref.watch(reminderEvaluationsProvider(vehicle.id));
           return evals.when(

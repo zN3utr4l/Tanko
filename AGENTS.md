@@ -23,7 +23,7 @@ regenerate: `dart run build_runner build --delete-conflicting-outputs`.
 
 Flutter · **Riverpod 3** (code-gen, `@riverpod`) · **drift** (SQLite) ·
 **freezed 3** (data classes are `abstract class … with _$X`) · go_router ·
-fl_chart · dio (CarQuery) · intl.
+fl_chart · intl.
 
 ## Architecture — feature-first + layered (one direction)
 
@@ -33,8 +33,9 @@ fl_chart · dio (CarQuery) · intl.
   (`ConsumptionCalculator`, `StatsService`, `RangeComparator`,
   `ReminderEvaluator`) + repository interfaces. No I/O. Heavily unit-tested.
 - **`lib/src/data/`** — drift database (schemaVersion **2**) + tables + mappers,
-  repository impls, CarQuery catalog client/parser, Excel importer, backup
-  service, `NotificationService` (flutter_local_notifications, best-effort).
+  repository impls, **offline vehicle catalog** (`OfflineCatalog`, backed by the
+  bundled `assets/catalog/catalog.json`), Excel importer, backup service,
+  `NotificationService` (flutter_local_notifications, best-effort).
 - **`lib/src/features/`** — `dashboard`, `fillups`, `vehicles` (Add-Vehicle
   wizard), `stats`, `expenses` (costi generali), `reminders` (scadenze, with
   Italian templates + completion flow), `calendar` (table_calendar), `movimenti`
@@ -54,8 +55,11 @@ Put new logic in `domain/` as a pure, tested function whenever possible.
   `*.freezed.dart` are analyzer-excluded — never hand-edit.
 - **Consumption** is computed **full-to-full** (partial fills accumulate);
   intervals with missing liters are shown as "—", never estimated.
-- **CarQuery** can be down/flaky — the Add-Vehicle wizard always falls back to
-  manual entry, and selected specs are snapshotted into the vehicle row.
+- **Vehicle catalog is offline** (`assets/catalog/catalog.json`, curated EU
+  specs). The Add-Vehicle wizard's Make/Model are type-ahead fields over it that
+  pre-fill specs; anything not in the catalog is just typed in. Specs are
+  snapshotted onto the vehicle row and stay editable (`SpecSource.catalog` vs
+  `.manual`). To extend the catalog, edit the JSON asset.
 - **Tests:** `flutter test`. The in-memory test DB is `makeTestDb()`
   (`test/helpers/test_db.dart`); override `appDatabaseProvider` in widget tests.
 

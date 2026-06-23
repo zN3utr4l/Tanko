@@ -1,0 +1,6 @@
+# Shell scripts and git hooks must keep LF line endings even when checked out
+# on Windows; the release workflow and hooks run on Linux/POSIX shells where
+# CRLF breaks the shebang and command parsing.
+*.sh text eol=lf
+scripts/* text eol=lf
+.githooks/* text eol=lf

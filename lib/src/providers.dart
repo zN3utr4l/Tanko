@@ -1,6 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'data/catalog/carquery_client.dart';
+import 'data/catalog/offline_catalog.dart';
 import 'data/database/database.dart';
 import 'data/notifications/notification_service.dart';
 import 'data/repositories/category_repository_impl.dart';
@@ -58,17 +57,4 @@ ReminderRepository reminderRepository(Ref ref) => ReminderRepositoryImpl(
 NotificationService notificationService(Ref ref) => NotificationService();
 
 @Riverpod(keepAlive: true)
-Dio catalogDio(Ref ref) {
-  final dio = Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 8),
-      receiveTimeout: const Duration(seconds: 8),
-    ),
-  );
-  ref.onDispose(dio.close);
-  return dio;
-}
-
-@Riverpod(keepAlive: true)
-CatalogRepository catalogRepository(Ref ref) =>
-    CarQueryClient(ref.watch(catalogDioProvider));
+CatalogRepository catalogRepository(Ref ref) => OfflineCatalog();

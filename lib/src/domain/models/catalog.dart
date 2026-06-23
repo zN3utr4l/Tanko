@@ -3,36 +3,17 @@ import 'enums.dart';
 
 part 'catalog.freezed.dart';
 
-/// A vehicle make from the online catalog (e.g. Renault).
+/// A model entry from the bundled offline catalog, with the representative
+/// specs we can pre-fill into a new vehicle. Every spec stays editable — these
+/// are sensible defaults for the most common variant, not authoritative data.
 @freezed
-abstract class CatalogMake with _$CatalogMake {
-  const factory CatalogMake({required String id, required String name}) =
-      _CatalogMake;
-}
-
-/// A specific trim/version of a model, with the specs we can pre-fill.
-@freezed
-abstract class CatalogTrim with _$CatalogTrim {
-  const factory CatalogTrim({
-    required String modelId,
+abstract class CatalogModel with _$CatalogModel {
+  const factory CatalogModel({
     required String make,
-    required String model,
-    int? year,
-    String? trim,
+    required String name,
     FuelType? fuelType,
     double? consumptionL100,
     double? tankCapacityL,
     int? powerPs,
-  }) = _CatalogTrim;
-
-  const CatalogTrim._();
-
-  /// Human-friendly label for a dropdown entry.
-  String get label {
-    final parts = <String>[
-      if (year != null) '$year',
-      if (trim != null && trim!.isNotEmpty) trim!,
-    ];
-    return parts.isEmpty ? model : parts.join(' · ');
-  }
+  }) = _CatalogModel;
 }

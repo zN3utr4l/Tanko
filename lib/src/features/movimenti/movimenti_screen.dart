@@ -8,6 +8,7 @@ import '../expenses/expense_form_screen.dart';
 import '../expenses/expense_providers.dart';
 import '../fillups/fill_up_form_screen.dart';
 import '../fillups/fillup_providers.dart';
+import '../vehicles/widgets/empty_vehicle_prompt.dart';
 
 enum _Filter { all, fuel, expense }
 
@@ -31,9 +32,7 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
         error: (e, _) => Center(child: Text('Errore: $e')),
         data: (vehicle) {
           if (vehicle == null) {
-            return const Center(
-              child: Text('Aggiungi un veicolo per iniziare.'),
-            );
+            return const EmptyVehiclePrompt();
           }
           final fills = ref.watch(fillUpsProvider(vehicle.id));
           final expenses = ref.watch(expensesForVehicleProvider(vehicle.id));

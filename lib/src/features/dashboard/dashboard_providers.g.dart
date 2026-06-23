@@ -8,14 +8,27 @@ part of 'dashboard_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The vehicle the dashboard (and every other vehicle-scoped screen) is bound
+/// to: the default one if set, otherwise the first. Derived from
+/// [vehiclesProvider] so adding/removing a vehicle refreshes all screens
+/// through a single invalidation.
 
 @ProviderFor(dashboardVehicle)
 final dashboardVehicleProvider = DashboardVehicleProvider._();
+
+/// The vehicle the dashboard (and every other vehicle-scoped screen) is bound
+/// to: the default one if set, otherwise the first. Derived from
+/// [vehiclesProvider] so adding/removing a vehicle refreshes all screens
+/// through a single invalidation.
 
 final class DashboardVehicleProvider
     extends
         $FunctionalProvider<AsyncValue<Vehicle?>, Vehicle?, FutureOr<Vehicle?>>
     with $FutureModifier<Vehicle?>, $FutureProvider<Vehicle?> {
+  /// The vehicle the dashboard (and every other vehicle-scoped screen) is bound
+  /// to: the default one if set, otherwise the first. Derived from
+  /// [vehiclesProvider] so adding/removing a vehicle refreshes all screens
+  /// through a single invalidation.
   DashboardVehicleProvider._()
     : super(
         from: null,
@@ -41,7 +54,7 @@ final class DashboardVehicleProvider
   }
 }
 
-String _$dashboardVehicleHash() => r'18a4beea6c6cf4546795ce103f753c24eef6a856';
+String _$dashboardVehicleHash() => r'b5762fcd7cd6e42bfdfb7e0886eda66cd8611d7e';
 
 @ProviderFor(vehicleStats)
 final vehicleStatsProvider = VehicleStatsFamily._();
