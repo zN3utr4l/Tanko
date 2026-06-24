@@ -34,6 +34,21 @@ class VehicleLookupData {
       fuelType != null ||
       euroClass != null ||
       powerPs != null;
+
+  bool get hasRecognizedFields => recognizedFieldLabels.isNotEmpty;
+
+  List<String> get recognizedFieldLabels => [
+    if (plate != null) 'Targa',
+    if (make != null) 'Marca',
+    if (model != null) 'Modello',
+    if (trim != null) 'Allestimento',
+    if (year != null) 'Anno',
+    if (fuelType != null) 'Carburante',
+    if (euroClass != null) 'Classe Euro',
+    if (powerPs != null) 'Potenza',
+    if (insuranceCompany != null) 'Compagnia RCA',
+    if (insuranceExpiry != null) 'Scadenza RCA',
+  ];
 }
 
 class VehicleLookupService {
@@ -45,6 +60,8 @@ class VehicleLookupService {
     r'(\d+(?:[,.]\d+)?)\s*(cv|kw)\b',
     caseSensitive: false,
   );
+  static final _twoOrMoreSpaces = RegExp(r'\s{2,}');
+  static final _whitespace = RegExp(r'\s+');
 
   String normalizePlate(String value) =>
       value.replaceAll(_nonPlateChars, '').toUpperCase();
@@ -95,6 +112,17 @@ class VehicleLookupService {
   }
 
   String? _firstValue(String text, List<String> labels) {
+    final inlineValue = _firstInlineValue(text, labels);
+    if (inlineValue != null) return inlineValue;
+
+    final normalizedLabels = labels.map(_normalizeLabel).toList();
+    final twoColumnValue = _firstTwoColumnValue(text, normalizedLabels);
+    if (twoColumnValue != null) return twoColumnValue;
+
+    return _firstHeaderTableValue(text, normalizedLabels);
+  }
+
+  String? _firstInlineValue(String text, List<String> labels) {
     for (final line in text.split(RegExp(r'\r?\n'))) {
       final trimmed = line.trim();
       if (trimmed.isEmpty) continue;
@@ -104,12 +132,95 @@ class VehicleLookupService {
           caseSensitive: false,
         ).firstMatch(trimmed);
         if (match != null) {
-          final value = match.group(1)!.trim();
-          return value.isEmpty ? null : value;
+          final value = _cleanValue(match.group(1)!);
+          if (value != null) return value;
         }
       }
     }
     return null;
+  }
+
+  String? _firstTwoColumnValue(String text, List<String> normalizedLabels) {
+    for (final row in _tableRows(text)) {
+      if (row.length != 2) continue;
+      if (!_labelMatches(row.first, normalizedLabels)) continue;
+      final value = _cleanValue(row.last);
+      if (value != null) return value;
+    }
+    return null;
+  }
+
+  String? _firstHeaderTableValue(String text, List<String> normalizedLabels) {
+    final rows = _tableRows(text);
+    for (var i = 0; i < rows.length - 1; i++) {
+      final headers = rows[i];
+      if (headers.length < 2) continue;
+      final index = headers.indexWhere(
+        (cell) => _labelMatches(cell, normalizedLabels),
+      );
+      if (index == -1) continue;
+
+      for (var j = i + 1; j < rows.length; j++) {
+        final values = rows[j];
+        if (values.length <= index) continue;
+        final value = _cleanValue(values[index]);
+        if (value != null) return value;
+      }
+    }
+    return null;
+  }
+
+  List<List<String>> _tableRows(String text) => [
+    for (final line in text.split(RegExp(r'\r?\n')))
+      if (_splitTableRow(line).length >= 2) _splitTableRow(line),
+  ];
+
+  List<String> _splitTableRow(String line) {
+    final trimmed = line.trim();
+    if (trimmed.isEmpty) return const [];
+
+    late final List<String> cells;
+    if (trimmed.contains('\t')) {
+      cells = trimmed.split('\t');
+    } else if (trimmed.contains(';')) {
+      cells = trimmed.split(';');
+    } else if (trimmed.contains('|')) {
+      cells = trimmed.split('|');
+    } else if (_twoOrMoreSpaces.hasMatch(trimmed)) {
+      cells = trimmed.split(_twoOrMoreSpaces);
+    } else {
+      return const [];
+    }
+
+    return [
+      for (final cell in cells)
+        if (cell.trim().isNotEmpty) cell.trim(),
+    ];
+  }
+
+  bool _labelMatches(String candidate, List<String> normalizedLabels) {
+    final normalized = _normalizeLabel(candidate);
+    if (normalized.isEmpty) return false;
+    return normalizedLabels.any(
+      (label) => normalized == label || normalized.contains(label),
+    );
+  }
+
+  String _normalizeLabel(String value) {
+    final lower = value
+        .toLowerCase()
+        .replaceAll(RegExp('[àáâä]'), 'a')
+        .replaceAll(RegExp('[èéêë]'), 'e')
+        .replaceAll(RegExp('[ìíîï]'), 'i')
+        .replaceAll(RegExp('[òóôö]'), 'o')
+        .replaceAll(RegExp('[ùúûü]'), 'u');
+    return lower.replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
+  }
+
+  String? _cleanValue(String value) {
+    final cleaned = value.trim().replaceAll(_whitespace, ' ');
+    if (cleaned.isEmpty || cleaned == '-' || cleaned == '—') return null;
+    return cleaned;
   }
 
   int? _parseYear(String? value) {

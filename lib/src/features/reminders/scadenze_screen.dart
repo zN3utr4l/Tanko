@@ -146,6 +146,7 @@ class _ReminderCard extends ConsumerWidget {
               );
             } else if (v == 'delete') {
               ref.read(reminderRepositoryProvider).delete(r.id).then((_) {
+                ref.read(reminderNotificationSchedulerProvider).cancel(r.id);
                 ref.invalidate(reminderEvaluationsProvider(vehicleId));
                 ref.invalidate(calendarEventsProvider(vehicleId));
               });
@@ -257,6 +258,9 @@ class _ReminderCard extends ConsumerWidget {
                         createExpense: createExpense,
                         expenseAmount: _parse(amount.text),
                       );
+                  await ref
+                      .read(reminderNotificationSchedulerProvider)
+                      .rescheduleAll();
                   ref.invalidate(reminderEvaluationsProvider(vehicleId));
                   ref.invalidate(expensesForVehicleProvider(vehicleId));
                   ref.invalidate(calendarEventsProvider(vehicleId));

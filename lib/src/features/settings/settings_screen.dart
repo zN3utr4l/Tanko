@@ -14,6 +14,7 @@ import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../updates/update_providers.dart';
 import '../vehicles/vehicle_providers.dart';
+import 'online_diagnostics_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -84,6 +85,29 @@ class SettingsScreen extends ConsumerWidget {
       return;
     }
 
+    if (!context.mounted) return;
+    final preview = _backup.preview(data);
+    final proceed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Anteprima backup'),
+        content: Text(
+          '${preview.summary}\n\nIl ripristino aggiunge o aggiorna i dati locali.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Ripristina'),
+          ),
+        ],
+      ),
+    );
+    if (proceed != true) return;
+
     // Atomic restore: a malformed/FK-violating backup must not half-overwrite
     // the only local copy. Insert in FK order inside one transaction.
     final cats = ref.read(categoryRepositoryProvider);
@@ -109,6 +133,7 @@ class SettingsScreen extends ConsumerWidget {
           await expenses.upsert(e);
         }
       });
+      await ref.read(reminderNotificationSchedulerProvider).rescheduleAll();
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -284,6 +309,16 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _restore(context, ref),
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.health_and_safety_outlined),
+            title: const Text('Diagnostica online'),
+            subtitle: const Text('Verifica servizi esterni e configurazione'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const OnlineDiagnosticsScreen(),
+              ),
+            ),
+          ),
           lookupSettings.maybeWhen(
             data: (settings) => _LookupSettingsSection(
               settings: settings,
@@ -388,11 +423,20 @@ class _LookupSettingsSectionState extends State<_LookupSettingsSection> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
           child: TextField(
             controller: _openApiKey,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Openapi API key',
-              prefixIcon: Icon(Icons.key_outlined),
+              prefixIcon: const Icon(Icons.key_outlined),
+              suffixIcon: IconButton(
+                onPressed: () => _save(
+                  settings.copyWith(openApiKey: _openApiKey.text.trim()),
+                ),
+                icon: const Icon(Icons.save_outlined),
+                tooltip: 'Salva API key',
+              ),
             ),
             obscureText: true,
+            onEditingComplete: () =>
+                _save(settings.copyWith(openApiKey: _openApiKey.text.trim())),
             onSubmitted: (value) =>
                 _save(settings.copyWith(openApiKey: value.trim())),
           ),

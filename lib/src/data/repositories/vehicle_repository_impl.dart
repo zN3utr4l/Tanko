@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import '../../domain/models/vehicle.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../database/database.dart';
@@ -23,7 +24,18 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   @override
   Future<int> upsert(Vehicle vehicle) {
-    return _db.into(_db.vehicles).insertOnConflictUpdate(vehicle.toCompanion());
+    if (!vehicle.isDefault) {
+      return _db
+          .into(_db.vehicles)
+          .insertOnConflictUpdate(vehicle.toCompanion());
+    }
+    return _db.transaction(() async {
+      await (_db.update(_db.vehicles)..where((t) => t.isDefault.equals(true)))
+          .write(const VehiclesCompanion(isDefault: Value(false)));
+      return _db
+          .into(_db.vehicles)
+          .insertOnConflictUpdate(vehicle.toCompanion());
+    });
   }
 
   @override

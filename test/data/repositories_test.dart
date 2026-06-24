@@ -74,6 +74,41 @@ void main() {
     expect((await vehicles.getById(id)).euroClass, EuroClass.euro5);
   });
 
+  test('setting a default vehicle clears previous defaults', () async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+    final vehicles = VehicleRepositoryImpl(db);
+
+    final firstId = await vehicles.upsert(
+      Vehicle(
+        id: 0,
+        make: 'Fiat',
+        model: 'Panda',
+        fuelType: FuelType.petrol,
+        isDefault: true,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+    final secondId = await vehicles.upsert(
+      Vehicle(
+        id: 0,
+        make: 'Renault',
+        model: 'Clio',
+        fuelType: FuelType.diesel,
+        isDefault: true,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+
+    final all = await vehicles.all();
+    expect(all.where((v) => v.isDefault), hasLength(1));
+    expect((await vehicles.getById(firstId)).isDefault, isFalse);
+    expect((await vehicles.getById(secondId)).isDefault, isTrue);
+    expect((await vehicles.defaultVehicle())!.id, secondId);
+  });
+
   test(
     'deleting a vehicle cascades fill-ups, expenses, and reminders',
     () async {

@@ -5,6 +5,7 @@ import 'package:carburo/src/data/repositories/vehicle_repository_impl.dart';
 import 'package:carburo/src/data/settings/lookup_settings.dart';
 import 'package:carburo/src/domain/models/catalog.dart';
 import 'package:carburo/src/domain/models/enums.dart';
+import 'package:carburo/src/domain/models/vehicle.dart';
 import 'package:carburo/src/domain/repositories/catalog_repository.dart';
 import 'package:carburo/src/features/vehicles/add_vehicle_wizard_screen.dart';
 import 'package:carburo/src/providers.dart';
@@ -132,6 +133,59 @@ void main() {
     expect(vehicles.single.trim, '4x4');
     expect(vehicles.single.specs.powerPs, 85);
     expect(vehicles.single.specs.source, SpecSource.catalog);
+  });
+
+  testWidgets('suggests allestimenti already saved for the same model', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+
+    final now = DateTime(2026, 1, 1);
+    await VehicleRepositoryImpl(db).upsert(
+      Vehicle(
+        id: 0,
+        make: 'Fiat',
+        model: 'Panda',
+        trim: 'City Cross',
+        fuelType: FuelType.petrol,
+        specs: const VehicleSpecs(powerPs: 70),
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          catalogRepositoryProvider.overrideWithValue(_FakeCatalog()),
+        ],
+        child: const MaterialApp(home: AddVehicleWizardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Marca'), 'Fi');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Fiat').last);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Modello'),
+      'Pan',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Panda · petrol · 70 CV'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Allestimento'),
+      'City',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('City Cross'), findsOneWidget);
   });
 
   testWidgets('manual edits after catalog selection save specs as manual', (
@@ -266,6 +320,7 @@ Potenza: 70 CV
     await tester.tap(find.text('Applica'));
     await tester.pumpAndSettle();
 
+    expect(find.textContaining('Importati:'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'Marca'), findsOneWidget);
     expect(find.text('Fiat'), findsWidgets);
     expect(find.text('Panda'), findsWidgets);
@@ -287,5 +342,36 @@ Potenza: 70 CV
     expect(vehicles.single.euroClass, EuroClass.euro6);
     expect(vehicles.single.specs.powerPs, 70);
     expect(vehicles.single.specs.source, SpecSource.online);
+  });
+
+  testWidgets('shows paste feedback when lookup text is not recognized', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          catalogRepositoryProvider.overrideWithValue(_FakeCatalog()),
+        ],
+        child: const MaterialApp(home: AddVehicleWizardScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Incolla dati verifica'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Dati copiati dalla verifica'),
+      'Questo testo non contiene campi veicolo',
+    );
+    await tester.tap(find.text('Applica'));
+    await tester.pump();
+
+    expect(find.textContaining('Nessun dato riconosciuto'), findsOneWidget);
+    expect(find.textContaining('Marca: Fiat'), findsOneWidget);
   });
 }
