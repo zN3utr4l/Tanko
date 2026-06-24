@@ -1,8 +1,12 @@
 enum FuelType { petrol, diesel, lpg, cng, hybrid, electric }
 
-/// Where a vehicle's specs came from. [catalog] = pre-filled from the bundled
-/// offline catalog; [manual] = typed by the user.
-enum SpecSource { catalog, manual }
+/// Italian emission class — libretto (carta di circolazione) field **V.9**.
+/// Drives the per-kW bollo rate. Index 0..6 maps to "Euro 0".."Euro 6".
+enum EuroClass { euro0, euro1, euro2, euro3, euro4, euro5, euro6 }
+
+/// Where a vehicle's specs came from. [catalog] = bundled offline catalog,
+/// [online] = user-assisted online lookup, [manual] = typed by the user.
+enum SpecSource { catalog, online, manual }
 
 /// Discriminates fuel vs general-expense categories (they share one table).
 enum CategoryKind { fuel, expense }

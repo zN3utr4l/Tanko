@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ImportResult {
 
- List<FillUp> get rows; int get skipped; List<String> get warnings;
+ List<FillUp> get rows; int get skipped; int get duplicates; List<String> get warnings;
 /// Create a copy of ImportResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ImportResultCopyWith<ImportResult> get copyWith => _$ImportResultCopyWithImpl<I
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportResult&&const DeepCollectionEquality().equals(other.rows, rows)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&const DeepCollectionEquality().equals(other.warnings, warnings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportResult&&const DeepCollectionEquality().equals(other.rows, rows)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.duplicates, duplicates) || other.duplicates == duplicates)&&const DeepCollectionEquality().equals(other.warnings, warnings));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(rows),skipped,const DeepCollectionEquality().hash(warnings));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(rows),skipped,duplicates,const DeepCollectionEquality().hash(warnings));
 
 @override
 String toString() {
-  return 'ImportResult(rows: $rows, skipped: $skipped, warnings: $warnings)';
+  return 'ImportResult(rows: $rows, skipped: $skipped, duplicates: $duplicates, warnings: $warnings)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ImportResultCopyWith<$Res>  {
   factory $ImportResultCopyWith(ImportResult value, $Res Function(ImportResult) _then) = _$ImportResultCopyWithImpl;
 @useResult
 $Res call({
- List<FillUp> rows, int skipped, List<String> warnings
+ List<FillUp> rows, int skipped, int duplicates, List<String> warnings
 });
 
 
@@ -62,10 +62,11 @@ class _$ImportResultCopyWithImpl<$Res>
 
 /// Create a copy of ImportResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rows = null,Object? skipped = null,Object? warnings = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rows = null,Object? skipped = null,Object? duplicates = null,Object? warnings = null,}) {
   return _then(_self.copyWith(
 rows: null == rows ? _self.rows : rows // ignore: cast_nullable_to_non_nullable
 as List<FillUp>,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
+as int,duplicates: null == duplicates ? _self.duplicates : duplicates // ignore: cast_nullable_to_non_nullable
 as int,warnings: null == warnings ? _self.warnings : warnings // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -152,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<FillUp> rows,  int skipped,  List<String> warnings)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<FillUp> rows,  int skipped,  int duplicates,  List<String> warnings)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ImportResult() when $default != null:
-return $default(_that.rows,_that.skipped,_that.warnings);case _:
+return $default(_that.rows,_that.skipped,_that.duplicates,_that.warnings);case _:
   return orElse();
 
 }
@@ -173,10 +174,10 @@ return $default(_that.rows,_that.skipped,_that.warnings);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<FillUp> rows,  int skipped,  List<String> warnings)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<FillUp> rows,  int skipped,  int duplicates,  List<String> warnings)  $default,) {final _that = this;
 switch (_that) {
 case _ImportResult():
-return $default(_that.rows,_that.skipped,_that.warnings);case _:
+return $default(_that.rows,_that.skipped,_that.duplicates,_that.warnings);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +194,10 @@ return $default(_that.rows,_that.skipped,_that.warnings);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<FillUp> rows,  int skipped,  List<String> warnings)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<FillUp> rows,  int skipped,  int duplicates,  List<String> warnings)?  $default,) {final _that = this;
 switch (_that) {
 case _ImportResult() when $default != null:
-return $default(_that.rows,_that.skipped,_that.warnings);case _:
+return $default(_that.rows,_that.skipped,_that.duplicates,_that.warnings);case _:
   return null;
 
 }
@@ -208,7 +209,7 @@ return $default(_that.rows,_that.skipped,_that.warnings);case _:
 
 
 class _ImportResult implements ImportResult {
-  const _ImportResult({final  List<FillUp> rows = const <FillUp>[], this.skipped = 0, final  List<String> warnings = const <String>[]}): _rows = rows,_warnings = warnings;
+  const _ImportResult({final  List<FillUp> rows = const <FillUp>[], this.skipped = 0, this.duplicates = 0, final  List<String> warnings = const <String>[]}): _rows = rows,_warnings = warnings;
   
 
  final  List<FillUp> _rows;
@@ -219,6 +220,7 @@ class _ImportResult implements ImportResult {
 }
 
 @override@JsonKey() final  int skipped;
+@override@JsonKey() final  int duplicates;
  final  List<String> _warnings;
 @override@JsonKey() List<String> get warnings {
   if (_warnings is EqualUnmodifiableListView) return _warnings;
@@ -237,16 +239,16 @@ _$ImportResultCopyWith<_ImportResult> get copyWith => __$ImportResultCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImportResult&&const DeepCollectionEquality().equals(other._rows, _rows)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&const DeepCollectionEquality().equals(other._warnings, _warnings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImportResult&&const DeepCollectionEquality().equals(other._rows, _rows)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.duplicates, duplicates) || other.duplicates == duplicates)&&const DeepCollectionEquality().equals(other._warnings, _warnings));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_rows),skipped,const DeepCollectionEquality().hash(_warnings));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_rows),skipped,duplicates,const DeepCollectionEquality().hash(_warnings));
 
 @override
 String toString() {
-  return 'ImportResult(rows: $rows, skipped: $skipped, warnings: $warnings)';
+  return 'ImportResult(rows: $rows, skipped: $skipped, duplicates: $duplicates, warnings: $warnings)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$ImportResultCopyWith<$Res> implements $ImportResultCopyWi
   factory _$ImportResultCopyWith(_ImportResult value, $Res Function(_ImportResult) _then) = __$ImportResultCopyWithImpl;
 @override @useResult
 $Res call({
- List<FillUp> rows, int skipped, List<String> warnings
+ List<FillUp> rows, int skipped, int duplicates, List<String> warnings
 });
 
 
@@ -274,10 +276,11 @@ class __$ImportResultCopyWithImpl<$Res>
 
 /// Create a copy of ImportResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rows = null,Object? skipped = null,Object? warnings = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rows = null,Object? skipped = null,Object? duplicates = null,Object? warnings = null,}) {
   return _then(_ImportResult(
 rows: null == rows ? _self._rows : rows // ignore: cast_nullable_to_non_nullable
 as List<FillUp>,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
+as int,duplicates: null == duplicates ? _self.duplicates : duplicates // ignore: cast_nullable_to_non_nullable
 as int,warnings: null == warnings ? _self._warnings : warnings // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));

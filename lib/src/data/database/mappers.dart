@@ -33,6 +33,12 @@ RecurUnit? _recurUnit(String? s) => s == null
         (e) => e.name == s,
         orElse: () => RecurUnit.month,
       );
+EuroClass? _euroClass(String? s) => s == null
+    ? null
+    : EuroClass.values.firstWhere(
+        (e) => e.name == s,
+        orElse: () => EuroClass.euro6,
+      );
 
 extension CategoryMapper on Category {
   CategoriesCompanion toCompanion() => CategoriesCompanion(
@@ -67,6 +73,7 @@ extension VehicleMapper on Vehicle {
     trim: Value(trim),
     fuelType: Value(fuelType.name),
     plate: Value(plate),
+    euroClass: Value(euroClass?.name),
     colorTag: Value(colorTag),
     isDefault: Value(isDefault),
     tankCapacityL: Value(specs.tankCapacityL),
@@ -89,6 +96,7 @@ extension VehicleRowMapper on VehicleRow {
     trim: trim,
     fuelType: _fuel(fuelType),
     plate: plate,
+    euroClass: _euroClass(euroClass),
     colorTag: colorTag,
     isDefault: isDefault,
     specs: VehicleSpecs(

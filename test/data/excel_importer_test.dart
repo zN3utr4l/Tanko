@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:carburo/src/data/importer/excel_importer.dart';
+import 'package:carburo/src/domain/models/fill_up.dart';
 
 void main() {
   const importer = ExcelImporter();
@@ -53,5 +54,36 @@ void main() {
     ];
     final result = importer.mapRows(rows, vehicleId: 1, categoryId: 1);
     expect(result.rows.single.date, DateTime(2023, 8, 21));
+  });
+
+  test('skips rows that duplicate existing fill-ups', () {
+    final rows = <List<Object?>>[
+      ['title', null, null, null, null],
+      ['Data', 'Importo', 'Km', 'Aut', 'Diff'],
+      [DateTime(2023, 8, 21), 40, 3963, 590, 4553],
+      [DateTime(2023, 9, 21), 55, 4553, 610, 5163],
+    ];
+    final result = importer.mapRows(
+      rows,
+      vehicleId: 1,
+      categoryId: 1,
+      existing: [
+        FillUp(
+          id: 1,
+          vehicleId: 1,
+          date: DateTime(2023, 8, 21),
+          amount: 40,
+          odometer: 3963,
+          categoryId: 1,
+          createdAt: DateTime(2023, 8, 21),
+          updatedAt: DateTime(2023, 8, 21),
+        ),
+      ],
+    );
+
+    expect(result.rows, hasLength(1));
+    expect(result.rows.single.odometer, 4553);
+    expect(result.duplicates, 1);
+    expect(result.skipped, 1);
   });
 }

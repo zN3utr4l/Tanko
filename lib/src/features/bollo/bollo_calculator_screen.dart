@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/models/enums.dart';
 import '../../domain/models/vehicle.dart';
 import '../../domain/services/bollo_calculator.dart';
 import '../../domain/services/bollo_reminder.dart';
@@ -26,15 +27,6 @@ class BolloCalculatorScreen extends ConsumerStatefulWidget {
 
 class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
   static const _calc = BolloCalculator();
-  static const _euroLabels = {
-    EuroClass.euro0: 'Euro 0',
-    EuroClass.euro1: 'Euro 1',
-    EuroClass.euro2: 'Euro 2',
-    EuroClass.euro3: 'Euro 3',
-    EuroClass.euro4: 'Euro 4',
-    EuroClass.euro5: 'Euro 5',
-    EuroClass.euro6: 'Euro 6',
-  };
 
   final _kw = TextEditingController();
   EuroClass _euro = EuroClass.euro6;
@@ -68,6 +60,8 @@ class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
       }
       final cv = v?.specs.powerPs;
       if (cv != null && cv > 0) _kw.text = cvToKw(cv).toString();
+      if (v?.euroClass != null) _euro = v!.euroClass!;
+      _year = v?.year;
     });
   }
 
@@ -107,7 +101,7 @@ class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
               initialValue: _vehicleId,
               decoration: const InputDecoration(
                 labelText: 'Veicolo (opz.)',
-                helperText: 'Pre-compila i kW dai CV del veicolo',
+                helperText: 'Pre-compila kW, classe Euro e anno',
                 border: OutlineInputBorder(),
               ),
               items: [
@@ -134,6 +128,7 @@ class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<EuroClass>(
+            key: ValueKey(_euro),
             initialValue: _euro,
             decoration: const InputDecoration(
               labelText: 'Classe ambientale',
@@ -142,12 +137,13 @@ class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
             ),
             items: [
               for (final e in EuroClass.values)
-                DropdownMenuItem(value: e, child: Text(_euroLabels[e]!)),
+                DropdownMenuItem(value: e, child: Text('Euro ${e.index}')),
             ],
             onChanged: (e) => setState(() => _euro = e ?? _euro),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<int?>(
+            key: ValueKey(_year),
             initialValue: _year,
             decoration: const InputDecoration(
               labelText: 'Anno immatricolazione (opz.)',

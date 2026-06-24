@@ -515,6 +515,17 @@ class $VehiclesTable extends Vehicles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _euroClassMeta = const VerificationMeta(
+    'euroClass',
+  );
+  @override
+  late final GeneratedColumn<String> euroClass = GeneratedColumn<String>(
+    'euro_class',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _colorTagMeta = const VerificationMeta(
     'colorTag',
   );
@@ -640,6 +651,7 @@ class $VehiclesTable extends Vehicles
     trim,
     fuelType,
     plate,
+    euroClass,
     colorTag,
     isDefault,
     tankCapacityL,
@@ -706,6 +718,12 @@ class $VehiclesTable extends Vehicles
       context.handle(
         _plateMeta,
         plate.isAcceptableOrUnknown(data['plate']!, _plateMeta),
+      );
+    }
+    if (data.containsKey('euro_class')) {
+      context.handle(
+        _euroClassMeta,
+        euroClass.isAcceptableOrUnknown(data['euro_class']!, _euroClassMeta),
       );
     }
     if (data.containsKey('color_tag')) {
@@ -818,6 +836,10 @@ class $VehiclesTable extends Vehicles
         DriftSqlType.string,
         data['${effectivePrefix}plate'],
       ),
+      euroClass: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}euro_class'],
+      ),
       colorTag: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}color_tag'],
@@ -875,6 +897,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
   final String? trim;
   final String fuelType;
   final String? plate;
+  final String? euroClass;
   final int colorTag;
   final bool isDefault;
   final double? tankCapacityL;
@@ -893,6 +916,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     this.trim,
     required this.fuelType,
     this.plate,
+    this.euroClass,
     required this.colorTag,
     required this.isDefault,
     this.tankCapacityL,
@@ -919,6 +943,9 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     map['fuel_type'] = Variable<String>(fuelType);
     if (!nullToAbsent || plate != null) {
       map['plate'] = Variable<String>(plate);
+    }
+    if (!nullToAbsent || euroClass != null) {
+      map['euro_class'] = Variable<String>(euroClass);
     }
     map['color_tag'] = Variable<int>(colorTag);
     map['is_default'] = Variable<bool>(isDefault);
@@ -954,6 +981,9 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       plate: plate == null && nullToAbsent
           ? const Value.absent()
           : Value(plate),
+      euroClass: euroClass == null && nullToAbsent
+          ? const Value.absent()
+          : Value(euroClass),
       colorTag: Value(colorTag),
       isDefault: Value(isDefault),
       tankCapacityL: tankCapacityL == null && nullToAbsent
@@ -990,6 +1020,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       trim: serializer.fromJson<String?>(json['trim']),
       fuelType: serializer.fromJson<String>(json['fuelType']),
       plate: serializer.fromJson<String?>(json['plate']),
+      euroClass: serializer.fromJson<String?>(json['euroClass']),
       colorTag: serializer.fromJson<int>(json['colorTag']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       tankCapacityL: serializer.fromJson<double?>(json['tankCapacityL']),
@@ -1013,6 +1044,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       'trim': serializer.toJson<String?>(trim),
       'fuelType': serializer.toJson<String>(fuelType),
       'plate': serializer.toJson<String?>(plate),
+      'euroClass': serializer.toJson<String?>(euroClass),
       'colorTag': serializer.toJson<int>(colorTag),
       'isDefault': serializer.toJson<bool>(isDefault),
       'tankCapacityL': serializer.toJson<double?>(tankCapacityL),
@@ -1034,6 +1066,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     Value<String?> trim = const Value.absent(),
     String? fuelType,
     Value<String?> plate = const Value.absent(),
+    Value<String?> euroClass = const Value.absent(),
     int? colorTag,
     bool? isDefault,
     Value<double?> tankCapacityL = const Value.absent(),
@@ -1052,6 +1085,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     trim: trim.present ? trim.value : this.trim,
     fuelType: fuelType ?? this.fuelType,
     plate: plate.present ? plate.value : this.plate,
+    euroClass: euroClass.present ? euroClass.value : this.euroClass,
     colorTag: colorTag ?? this.colorTag,
     isDefault: isDefault ?? this.isDefault,
     tankCapacityL: tankCapacityL.present
@@ -1076,6 +1110,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       trim: data.trim.present ? data.trim.value : this.trim,
       fuelType: data.fuelType.present ? data.fuelType.value : this.fuelType,
       plate: data.plate.present ? data.plate.value : this.plate,
+      euroClass: data.euroClass.present ? data.euroClass.value : this.euroClass,
       colorTag: data.colorTag.present ? data.colorTag.value : this.colorTag,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       tankCapacityL: data.tankCapacityL.present
@@ -1109,6 +1144,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           ..write('trim: $trim, ')
           ..write('fuelType: $fuelType, ')
           ..write('plate: $plate, ')
+          ..write('euroClass: $euroClass, ')
           ..write('colorTag: $colorTag, ')
           ..write('isDefault: $isDefault, ')
           ..write('tankCapacityL: $tankCapacityL, ')
@@ -1132,6 +1168,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     trim,
     fuelType,
     plate,
+    euroClass,
     colorTag,
     isDefault,
     tankCapacityL,
@@ -1154,6 +1191,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           other.trim == this.trim &&
           other.fuelType == this.fuelType &&
           other.plate == this.plate &&
+          other.euroClass == this.euroClass &&
           other.colorTag == this.colorTag &&
           other.isDefault == this.isDefault &&
           other.tankCapacityL == this.tankCapacityL &&
@@ -1174,6 +1212,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
   final Value<String?> trim;
   final Value<String> fuelType;
   final Value<String?> plate;
+  final Value<String?> euroClass;
   final Value<int> colorTag;
   final Value<bool> isDefault;
   final Value<double?> tankCapacityL;
@@ -1192,6 +1231,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     this.trim = const Value.absent(),
     this.fuelType = const Value.absent(),
     this.plate = const Value.absent(),
+    this.euroClass = const Value.absent(),
     this.colorTag = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.tankCapacityL = const Value.absent(),
@@ -1211,6 +1251,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     this.trim = const Value.absent(),
     required String fuelType,
     this.plate = const Value.absent(),
+    this.euroClass = const Value.absent(),
     this.colorTag = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.tankCapacityL = const Value.absent(),
@@ -1234,6 +1275,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Expression<String>? trim,
     Expression<String>? fuelType,
     Expression<String>? plate,
+    Expression<String>? euroClass,
     Expression<int>? colorTag,
     Expression<bool>? isDefault,
     Expression<double>? tankCapacityL,
@@ -1253,6 +1295,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       if (trim != null) 'trim': trim,
       if (fuelType != null) 'fuel_type': fuelType,
       if (plate != null) 'plate': plate,
+      if (euroClass != null) 'euro_class': euroClass,
       if (colorTag != null) 'color_tag': colorTag,
       if (isDefault != null) 'is_default': isDefault,
       if (tankCapacityL != null) 'tank_capacity_l': tankCapacityL,
@@ -1274,6 +1317,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Value<String?>? trim,
     Value<String>? fuelType,
     Value<String?>? plate,
+    Value<String?>? euroClass,
     Value<int>? colorTag,
     Value<bool>? isDefault,
     Value<double?>? tankCapacityL,
@@ -1293,6 +1337,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       trim: trim ?? this.trim,
       fuelType: fuelType ?? this.fuelType,
       plate: plate ?? this.plate,
+      euroClass: euroClass ?? this.euroClass,
       colorTag: colorTag ?? this.colorTag,
       isDefault: isDefault ?? this.isDefault,
       tankCapacityL: tankCapacityL ?? this.tankCapacityL,
@@ -1329,6 +1374,9 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     }
     if (plate.present) {
       map['plate'] = Variable<String>(plate.value);
+    }
+    if (euroClass.present) {
+      map['euro_class'] = Variable<String>(euroClass.value);
     }
     if (colorTag.present) {
       map['color_tag'] = Variable<int>(colorTag.value);
@@ -1373,6 +1421,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
           ..write('trim: $trim, ')
           ..write('fuelType: $fuelType, ')
           ..write('plate: $plate, ')
+          ..write('euroClass: $euroClass, ')
           ..write('colorTag: $colorTag, ')
           ..write('isDefault: $isDefault, ')
           ..write('tankCapacityL: $tankCapacityL, ')
@@ -4591,6 +4640,7 @@ typedef $$VehiclesTableCreateCompanionBuilder =
       Value<String?> trim,
       required String fuelType,
       Value<String?> plate,
+      Value<String?> euroClass,
       Value<int> colorTag,
       Value<bool> isDefault,
       Value<double?> tankCapacityL,
@@ -4611,6 +4661,7 @@ typedef $$VehiclesTableUpdateCompanionBuilder =
       Value<String?> trim,
       Value<String> fuelType,
       Value<String?> plate,
+      Value<String?> euroClass,
       Value<int> colorTag,
       Value<bool> isDefault,
       Value<double?> tankCapacityL,
@@ -4724,6 +4775,11 @@ class $$VehiclesTableFilterComposer
 
   ColumnFilters<String> get plate => $composableBuilder(
     column: $table.plate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get euroClass => $composableBuilder(
+    column: $table.euroClass,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4897,6 +4953,11 @@ class $$VehiclesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get euroClass => $composableBuilder(
+    column: $table.euroClass,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get colorTag => $composableBuilder(
     column: $table.colorTag,
     builder: (column) => ColumnOrderings(column),
@@ -4977,6 +5038,9 @@ class $$VehiclesTableAnnotationComposer
 
   GeneratedColumn<String> get plate =>
       $composableBuilder(column: $table.plate, builder: (column) => column);
+
+  GeneratedColumn<String> get euroClass =>
+      $composableBuilder(column: $table.euroClass, builder: (column) => column);
 
   GeneratedColumn<int> get colorTag =>
       $composableBuilder(column: $table.colorTag, builder: (column) => column);
@@ -5133,6 +5197,7 @@ class $$VehiclesTableTableManager
                 Value<String?> trim = const Value.absent(),
                 Value<String> fuelType = const Value.absent(),
                 Value<String?> plate = const Value.absent(),
+                Value<String?> euroClass = const Value.absent(),
                 Value<int> colorTag = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<double?> tankCapacityL = const Value.absent(),
@@ -5151,6 +5216,7 @@ class $$VehiclesTableTableManager
                 trim: trim,
                 fuelType: fuelType,
                 plate: plate,
+                euroClass: euroClass,
                 colorTag: colorTag,
                 isDefault: isDefault,
                 tankCapacityL: tankCapacityL,
@@ -5171,6 +5237,7 @@ class $$VehiclesTableTableManager
                 Value<String?> trim = const Value.absent(),
                 required String fuelType,
                 Value<String?> plate = const Value.absent(),
+                Value<String?> euroClass = const Value.absent(),
                 Value<int> colorTag = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<double?> tankCapacityL = const Value.absent(),
@@ -5189,6 +5256,7 @@ class $$VehiclesTableTableManager
                 trim: trim,
                 fuelType: fuelType,
                 plate: plate,
+                euroClass: euroClass,
                 colorTag: colorTag,
                 isDefault: isDefault,
                 tankCapacityL: tankCapacityL,

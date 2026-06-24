@@ -21,6 +21,7 @@ class Vehicles extends Table {
   TextColumn get trim => text().nullable()();
   TextColumn get fuelType => text()();
   TextColumn get plate => text().nullable()();
+  TextColumn get euroClass => text().nullable()();
   IntColumn get colorTag => integer().withDefault(const Constant(0))();
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   RealColumn get tankCapacityL => real().nullable()();

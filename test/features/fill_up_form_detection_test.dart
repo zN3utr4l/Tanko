@@ -17,35 +17,41 @@ class _FixedLocation implements LocationService {
 }
 
 Future<void> _seed(AppDatabase db) async {
-  await db.into(db.vehicles).insert(
-    VehiclesCompanion.insert(
-      make: 'Fiat',
-      model: 'Panda',
-      fuelType: 'petrol',
-      createdAt: DateTime(2026),
-      updatedAt: DateTime(2026),
-    ),
-  );
+  await db
+      .into(db.vehicles)
+      .insert(
+        VehiclesCompanion.insert(
+          make: 'Fiat',
+          model: 'Panda',
+          fuelType: 'petrol',
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      );
   // A past fill-up with coords + station -> the history match target.
   // categoryId 1 = the seeded default fuel category 'Mine'.
-  await db.into(db.fillUps).insert(
-    FillUpsCompanion.insert(
-      vehicleId: 1,
-      date: DateTime(2026, 1, 1),
-      amount: 50,
-      odometer: 1000,
-      categoryId: 1,
-      latitude: const Value(45.07),
-      longitude: const Value(7.68),
-      station: const Value('Eni Corso Francia'),
-      createdAt: DateTime(2026),
-      updatedAt: DateTime(2026),
-    ),
-  );
+  await db
+      .into(db.fillUps)
+      .insert(
+        FillUpsCompanion.insert(
+          vehicleId: 1,
+          date: DateTime(2026, 1, 1),
+          amount: 50,
+          odometer: 1000,
+          categoryId: 1,
+          latitude: const Value(45.07),
+          longitude: const Value(7.68),
+          station: const Value('Eni Corso Francia'),
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      );
 }
 
 void main() {
-  testWidgets('Si at a known station pre-fills the station field', (tester) async {
+  testWidgets('Si at a known station pre-fills the station field', (
+    tester,
+  ) async {
     final db = makeTestDb();
     addTearDown(db.close);
     await _seed(db);

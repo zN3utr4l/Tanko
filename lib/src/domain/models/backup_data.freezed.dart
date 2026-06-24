@@ -214,7 +214,7 @@ return $default(_that.schemaVersion,_that.vehicles,_that.categories,_that.fillUp
 @JsonSerializable()
 
 class _BackupData implements BackupData {
-  const _BackupData({this.schemaVersion = 2, final  List<Vehicle> vehicles = const <Vehicle>[], final  List<Category> categories = const <Category>[], final  List<FillUp> fillUps = const <FillUp>[], final  List<Expense> expenses = const <Expense>[], final  List<Reminder> reminders = const <Reminder>[]}): _vehicles = vehicles,_categories = categories,_fillUps = fillUps,_expenses = expenses,_reminders = reminders;
+  const _BackupData({this.schemaVersion = 3, final  List<Vehicle> vehicles = const <Vehicle>[], final  List<Category> categories = const <Category>[], final  List<FillUp> fillUps = const <FillUp>[], final  List<Expense> expenses = const <Expense>[], final  List<Reminder> reminders = const <Reminder>[]}): _vehicles = vehicles,_categories = categories,_fillUps = fillUps,_expenses = expenses,_reminders = reminders;
   factory _BackupData.fromJson(Map<String, dynamic> json) => _$BackupDataFromJson(json);
 
 @override@JsonKey() final  int schemaVersion;

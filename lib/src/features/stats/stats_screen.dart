@@ -2,7 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/formatters.dart';
+import '../../domain/models/category.dart';
 import '../../domain/models/comparison.dart';
+import '../../domain/models/expense.dart';
+import '../../domain/models/fill_up.dart';
 import '../../domain/models/monthly_stacked.dart';
 import '../../domain/models/monthly_total.dart';
 import '../../providers.dart';
@@ -12,11 +15,35 @@ import '../fillups/fillup_providers.dart';
 import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'stats_providers.dart';
 
-class StatsScreen extends ConsumerWidget {
+enum _StatsRange { all, twelveMonths, currentYear }
+
+class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends ConsumerState<StatsScreen> {
+  _StatsRange _range = _StatsRange.all;
+
+  DateTime? get _cutoff {
+    final now = DateTime.now();
+    return switch (_range) {
+      _StatsRange.all => null,
+      _StatsRange.twelveMonths => DateTime(now.year, now.month - 11),
+      _StatsRange.currentYear => DateTime(now.year),
+    };
+  }
+
+  List<T> _filterByDate<T>(List<T> items, DateTime Function(T item) dateOf) {
+    final cutoff = _cutoff;
+    if (cutoff == null) return items;
+    return items.where((item) => !dateOf(item).isBefore(cutoff)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final vehicleAsync = ref.watch(dashboardVehicleProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Statistiche')),
@@ -27,12 +54,30 @@ class StatsScreen extends ConsumerWidget {
           if (vehicle == null) {
             return const EmptyVehiclePrompt();
           }
-          final months = ref.watch(monthlySpendProvider(vehicle.id));
           final comparison = ref.watch(vehicleComparisonProvider(vehicle.id));
           final fills = ref.watch(fillUpsProvider(vehicle.id));
+          final expenses = ref.watch(expensesForVehicleProvider(vehicle.id));
+          final cats = ref.watch(allCategoriesProvider);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              SegmentedButton<_StatsRange>(
+                segments: const [
+                  ButtonSegment(value: _StatsRange.all, label: Text('Sempre')),
+                  ButtonSegment(
+                    value: _StatsRange.twelveMonths,
+                    label: Text('12 mesi'),
+                  ),
+                  ButtonSegment(
+                    value: _StatsRange.currentYear,
+                    label: Text('Anno'),
+                  ),
+                ],
+                selected: {_range},
+                onSelectionChanged: (value) =>
+                    setState(() => _range = value.first),
+              ),
+              const SizedBox(height: 16),
               Text(
                 'Confronto reale vs dichiarato',
                 style: Theme.of(context).textTheme.titleMedium,
@@ -40,6 +85,14 @@ class StatsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               comparison.maybeWhen(
                 data: (c) => _ComparisonCard(c),
+                orElse: () => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 12),
+              fills.maybeWhen(
+                data: (list) {
+                  final filtered = _filterByDate(list, (f) => f.date);
+                  return _InsightsCard(filtered);
+                },
                 orElse: () => const SizedBox.shrink(),
               ),
               const SizedBox(height: 24),
@@ -50,10 +103,16 @@ class StatsScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               SizedBox(
                 height: 200,
-                child: months.maybeWhen(
-                  data: (m) => m.isEmpty
-                      ? const Center(child: Text('Nessun dato'))
-                      : _MonthlySpendChart(m),
+                child: fills.maybeWhen(
+                  data: (list) {
+                    final filtered = _filterByDate(list, (f) => f.date);
+                    final m = ref
+                        .watch(statsServiceProvider)
+                        .monthlySpend(filtered);
+                    return m.isEmpty
+                        ? const Center(child: Text('Nessun dato'))
+                        : _MonthlySpendChart(m);
+                  },
                   orElse: () =>
                       const Center(child: CircularProgressIndicator()),
                 ),
@@ -69,7 +128,7 @@ class StatsScreen extends ConsumerWidget {
                 child: fills.maybeWhen(
                   data: (list) {
                     final spots = <FlSpot>[];
-                    final sorted = [...list]
+                    final sorted = _filterByDate(list, (f) => f.date)
                       ..sort((a, b) => a.date.compareTo(b.date));
                     var i = 0;
                     for (final f in sorted) {
@@ -87,7 +146,17 @@ class StatsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              ..._costComposition(context, ref, vehicle.id),
+              ..._costComposition(
+                context,
+                ref,
+                _filterByDate(fills.asData?.value ?? const [], (f) => f.date),
+                _filterByDate(
+                  expenses.asData?.value ?? const [],
+                  (e) => e.date,
+                ),
+                cats.asData?.value,
+                fills.isLoading || expenses.isLoading || cats.isLoading,
+              ),
             ],
           );
         },
@@ -98,15 +167,12 @@ class StatsScreen extends ConsumerWidget {
   List<Widget> _costComposition(
     BuildContext context,
     WidgetRef ref,
-    int vehicleId,
+    List<FillUp> fills,
+    List<Expense> expenses,
+    List<Category>? cats,
+    bool loading,
   ) {
-    final fillsAsync = ref.watch(fillUpsProvider(vehicleId));
-    final expensesAsync = ref.watch(expensesForVehicleProvider(vehicleId));
-    final catsAsync = ref.watch(allCategoriesProvider);
-    final fills = fillsAsync.asData?.value;
-    final expenses = expensesAsync.asData?.value;
-    final cats = catsAsync.asData?.value;
-    if (fills == null || expenses == null || cats == null) {
+    if (loading || cats == null) {
       return const [Center(child: CircularProgressIndicator())];
     }
     final service = ref.watch(statsServiceProvider);
@@ -189,6 +255,66 @@ class StatsScreen extends ConsumerWidget {
             : _StackedChart(stacked),
       ),
     ];
+  }
+}
+
+class _InsightsCard extends StatelessWidget {
+  const _InsightsCard(this.fills);
+
+  final List<FillUp> fills;
+
+  @override
+  Widget build(BuildContext context) {
+    if (fills.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('Nessun dato nel periodo selezionato.'),
+        ),
+      );
+    }
+    final total = fills.fold(0.0, (sum, f) => sum + f.amount);
+    final liters = fills.fold(0.0, (sum, f) => sum + (f.liters ?? 0));
+    final price = liters > 0 ? total / liters : null;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Wrap(
+          spacing: 24,
+          runSpacing: 8,
+          children: [
+            _Metric(label: 'Totale', value: fmtEuro(total)),
+            _Metric(label: 'Rifornimenti', value: fills.length.toString()),
+            _Metric(
+              label: 'Prezzo medio',
+              value: price == null ? '-' : '${fmtEuro(price)}/L',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Metric extends StatelessWidget {
+  const _Metric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 120,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(height: 2),
+          Text(value, style: Theme.of(context).textTheme.titleMedium),
+        ],
+      ),
+    );
   }
 }
 

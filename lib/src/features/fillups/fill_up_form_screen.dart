@@ -38,7 +38,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   );
   late final _station = TextEditingController(text: widget.initial?.station);
   late final _note = TextEditingController(text: widget.initial?.note);
-  late final DateTime _date =
+  late DateTime _date =
       widget.initial?.date ?? widget.initialDate ?? DateTime.now();
   late bool _isFull = widget.initial?.isFull ?? true;
   int? _categoryId;
@@ -49,8 +49,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.initial == null &&
-        shouldOfferDetection(_date, DateTime.now())) {
+    if (widget.initial == null && shouldOfferDetection(_date, DateTime.now())) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _offerDetection());
     }
   }
@@ -68,6 +67,16 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
     final l = _parse(_liters.text);
     if (a == null || l == null || l == 0) return '—';
     return '${fmtEuro(a / l)}/L';
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) setState(() => _date = picked);
   }
 
   Future<void> _offerDetection() async {
@@ -119,9 +128,9 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
         _latitude = match.latitude;
         _longitude = match.longitude;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Rilevato: ${match.name}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Rilevato: ${match.name}')));
       return;
     }
     // No history match — record the coords and offer fallbacks.
@@ -163,6 +172,14 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   }
 
   Future<void> _lookupOnline(GeoPoint at) async {
+    final settings = await ref.read(lookupSettingsProvider.future);
+    if (!mounted) return;
+    if (!settings.stationOnlineLookupEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ricerca online disattivata')),
+      );
+      return;
+    }
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -277,11 +294,25 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
       appBar: AppBar(
         title: Text(widget.initial == null ? 'Nuovo rifornimento' : 'Modifica'),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(onPressed: _save, child: const Text('Salva')),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Data'),
+              subtitle: Text(fmtDate(_date)),
+              trailing: const Icon(Icons.edit),
+              onTap: _pickDate,
+            ),
             TextFormField(
               key: const Key('amount'),
               controller: _amount,
@@ -354,8 +385,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
               controller: _note,
               decoration: const InputDecoration(labelText: 'Note'),
             ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Salva')),
+            const SizedBox(height: 96),
           ],
         ),
       ),

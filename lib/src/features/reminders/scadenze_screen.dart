@@ -4,6 +4,7 @@ import '../../core/formatters.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/reminder.dart';
 import '../../domain/models/reminder_evaluation.dart';
+import '../../domain/services/bollo_calculator.dart';
 import '../../providers.dart';
 import '../calendar/calendar_providers.dart';
 import '../dashboard/dashboard_providers.dart';
@@ -14,6 +15,7 @@ import 'reminder_providers.dart';
 import 'reminder_templates.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
+String _amountText(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
 
 class ScadenzeScreen extends ConsumerWidget {
   const ScadenzeScreen({super.key});
@@ -167,6 +169,13 @@ class _ReminderCard extends ConsumerWidget {
     final amount = TextEditingController();
     final odometer = TextEditingController();
     final needsOdo = r.triggerMode != TriggerMode.date;
+    if (r.type == ReminderType.bollo && r.linkedExpenseCategoryId != null) {
+      final vehicle = await ref
+          .read(vehicleRepositoryProvider)
+          .getById(vehicleId);
+      final result = const BolloCalculator().computeForVehicle(vehicle);
+      if (result != null) amount.text = _amountText(result.total);
+    }
     if (needsOdo) {
       final current = await ref.read(currentOdometerProvider(vehicleId).future);
       if (current > 0) odometer.text = current.toStringAsFixed(0);

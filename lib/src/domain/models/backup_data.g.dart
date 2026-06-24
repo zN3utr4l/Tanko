@@ -7,7 +7,7 @@ part of 'backup_data.dart';
 // **************************************************************************
 
 _BackupData _$BackupDataFromJson(Map<String, dynamic> json) => _BackupData(
-  schemaVersion: (json['schemaVersion'] as num?)?.toInt() ?? 2,
+  schemaVersion: (json['schemaVersion'] as num?)?.toInt() ?? 3,
   vehicles:
       (json['vehicles'] as List<dynamic>?)
           ?.map((e) => Vehicle.fromJson(e as Map<String, dynamic>))

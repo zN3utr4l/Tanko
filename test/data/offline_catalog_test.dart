@@ -19,8 +19,7 @@ const _json = '''
 ''';
 
 void main() {
-  OfflineCatalog build() =>
-      OfflineCatalog(loadAsset: (_) async => _json);
+  OfflineCatalog build() => OfflineCatalog(loadAsset: (_) async => _json);
 
   test('makes are returned alphabetically', () async {
     expect(await build().makes(), ['Fiat', 'Renault']);
@@ -51,14 +50,17 @@ void main() {
     expect(await build().models('DeLorean'), isEmpty);
   });
 
-  test('trims parse with optional spec overrides; absent trims is empty', () async {
-    final models = await build().models('Fiat');
-    final panda = models.firstWhere((m) => m.name == 'Panda');
-    expect(panda.trims.map((t) => t.name), ['Lounge', '4x4']);
-    expect(panda.trims.first.powerPs, isNull);
-    expect(panda.trims[1].powerPs, 85);
+  test(
+    'trims parse with optional spec overrides; absent trims is empty',
+    () async {
+      final models = await build().models('Fiat');
+      final panda = models.firstWhere((m) => m.name == 'Panda');
+      expect(panda.trims.map((t) => t.name), ['Lounge', '4x4']);
+      expect(panda.trims.first.powerPs, isNull);
+      expect(panda.trims[1].powerPs, 85);
 
-    final ev = models.firstWhere((m) => m.name == '500e');
-    expect(ev.trims, isEmpty);
-  });
+      final ev = models.firstWhere((m) => m.name == '500e');
+      expect(ev.trims, isEmpty);
+    },
+  );
 }

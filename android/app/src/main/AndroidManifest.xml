@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Online update checks, station lookup, and optional vehicle lookup. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Local reminder notifications (inexact scheduling — no exact-alarm). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE"/>

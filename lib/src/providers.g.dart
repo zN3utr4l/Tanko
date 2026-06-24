@@ -469,6 +469,141 @@ final class CatalogRepositoryProvider
 
 String _$catalogRepositoryHash() => r'20f200af1717fa7220a1b13322edb551edd68eb1';
 
+@ProviderFor(vehicleLookupService)
+final vehicleLookupServiceProvider = VehicleLookupServiceProvider._();
+
+final class VehicleLookupServiceProvider
+    extends
+        $FunctionalProvider<
+          VehicleLookupService,
+          VehicleLookupService,
+          VehicleLookupService
+        >
+    with $Provider<VehicleLookupService> {
+  VehicleLookupServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'vehicleLookupServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$vehicleLookupServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<VehicleLookupService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  VehicleLookupService create(Ref ref) {
+    return vehicleLookupService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(VehicleLookupService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<VehicleLookupService>(value),
+    );
+  }
+}
+
+String _$vehicleLookupServiceHash() =>
+    r'08731009605083e4ee2b559f5cb8f1b298861a9b';
+
+@ProviderFor(lookupSettingsStore)
+final lookupSettingsStoreProvider = LookupSettingsStoreProvider._();
+
+final class LookupSettingsStoreProvider
+    extends
+        $FunctionalProvider<
+          LookupSettingsStore,
+          LookupSettingsStore,
+          LookupSettingsStore
+        >
+    with $Provider<LookupSettingsStore> {
+  LookupSettingsStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'lookupSettingsStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$lookupSettingsStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<LookupSettingsStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LookupSettingsStore create(Ref ref) {
+    return lookupSettingsStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LookupSettingsStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LookupSettingsStore>(value),
+    );
+  }
+}
+
+String _$lookupSettingsStoreHash() =>
+    r'25608ee819d019da0653e9719bf5d9e682b804e0';
+
+@ProviderFor(lookupSettings)
+final lookupSettingsProvider = LookupSettingsProvider._();
+
+final class LookupSettingsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LookupSettings>,
+          LookupSettings,
+          FutureOr<LookupSettings>
+        >
+    with $FutureModifier<LookupSettings>, $FutureProvider<LookupSettings> {
+  LookupSettingsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'lookupSettingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$lookupSettingsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<LookupSettings> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LookupSettings> create(Ref ref) {
+    return lookupSettings(ref);
+  }
+}
+
+String _$lookupSettingsHash() => r'd3c087d6c69377a74cfed87a06aefab33efae079';
+
 @ProviderFor(locationService)
 final locationServiceProvider = LocationServiceProvider._();
 

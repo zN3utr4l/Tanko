@@ -30,6 +30,7 @@ Map<String, dynamic> _$VehicleSpecsToJson(_VehicleSpecs instance) =>
 
 const _$SpecSourceEnumMap = {
   SpecSource.catalog: 'catalog',
+  SpecSource.online: 'online',
   SpecSource.manual: 'manual',
 };
 
@@ -41,6 +42,7 @@ _Vehicle _$VehicleFromJson(Map<String, dynamic> json) => _Vehicle(
   trim: json['trim'] as String?,
   fuelType: $enumDecode(_$FuelTypeEnumMap, json['fuelType']),
   plate: json['plate'] as String?,
+  euroClass: $enumDecodeNullable(_$EuroClassEnumMap, json['euroClass']),
   colorTag: (json['colorTag'] as num?)?.toInt() ?? 0,
   isDefault: json['isDefault'] as bool? ?? false,
   specs: json['specs'] == null
@@ -58,6 +60,7 @@ Map<String, dynamic> _$VehicleToJson(_Vehicle instance) => <String, dynamic>{
   'trim': instance.trim,
   'fuelType': _$FuelTypeEnumMap[instance.fuelType]!,
   'plate': instance.plate,
+  'euroClass': _$EuroClassEnumMap[instance.euroClass],
   'colorTag': instance.colorTag,
   'isDefault': instance.isDefault,
   'specs': instance.specs.toJson(),
@@ -72,4 +75,14 @@ const _$FuelTypeEnumMap = {
   FuelType.cng: 'cng',
   FuelType.hybrid: 'hybrid',
   FuelType.electric: 'electric',
+};
+
+const _$EuroClassEnumMap = {
+  EuroClass.euro0: 'euro0',
+  EuroClass.euro1: 'euro1',
+  EuroClass.euro2: 'euro2',
+  EuroClass.euro3: 'euro3',
+  EuroClass.euro4: 'euro4',
+  EuroClass.euro5: 'euro5',
+  EuroClass.euro6: 'euro6',
 };

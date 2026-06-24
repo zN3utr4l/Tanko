@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/catalog.dart';
 import '../../domain/models/enums.dart';
+import '../../domain/models/reminder.dart';
 import '../../domain/models/vehicle.dart';
 import '../../providers.dart';
+import '../reminders/reminder_providers.dart';
 import 'catalog_providers.dart';
 import 'vehicle_providers.dart';
+import 'vehicle_lookup_browser_screen.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
@@ -29,14 +32,19 @@ class _AddVehicleWizardScreenState
   final _make = TextEditingController();
   final _model = TextEditingController();
   final _trimCtrl = TextEditingController();
+  final _plate = TextEditingController();
   final _tank = TextEditingController();
   final _consumption = TextEditingController();
   final _power = TextEditingController();
 
   int? _year;
+  EuroClass? _euroClass;
   FuelType _fuel = FuelType.petrol;
   bool _isDefault = false;
-  bool _fromCatalog = false;
+  SpecSource _specSource = SpecSource.manual;
+  String? _insuranceCompany;
+  DateTime? _insuranceExpiry;
+  int _fieldVersion = 0;
 
   /// Models of the currently-typed make, fetched once per make from the
   /// offline catalog. Empty when the make isn't in the catalog (manual entry).
@@ -53,6 +61,7 @@ class _AddVehicleWizardScreenState
       _make,
       _model,
       _trimCtrl,
+      _plate,
       _tank,
       _consumption,
       _power,
@@ -75,7 +84,7 @@ class _AddVehicleWizardScreenState
 
   void _applyModel(CatalogModel m) {
     setState(() {
-      _fromCatalog = true;
+      _specSource = SpecSource.catalog;
       _model.text = m.name;
       // Trims may be curated on any fuel/power variant sharing this model
       // name (the catalog splits variants into separate entries), so gather
@@ -96,7 +105,7 @@ class _AddVehicleWizardScreenState
 
   void _applyTrim(CatalogTrim t) {
     setState(() {
-      _fromCatalog = true;
+      _specSource = SpecSource.catalog;
       _trimCtrl.text = t.name;
       if (t.fuelType != null) _fuel = t.fuelType!;
       if (t.tankCapacityL != null) _tank.text = t.tankCapacityL!.toString();
@@ -107,11 +116,78 @@ class _AddVehicleWizardScreenState
     });
   }
 
+  void _markManual() {
+    if (_specSource != SpecSource.manual) {
+      setState(() => _specSource = SpecSource.manual);
+    }
+  }
+
+  Future<void> _openLookup(String title, Uri uri) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VehicleLookupBrowserScreen(title: title, uri: uri),
+      ),
+    );
+  }
+
+  Future<void> _pasteLookupData() async {
+    final controller = TextEditingController();
+    final pasted = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Incolla dati verifica'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Dati copiati dalla verifica',
+          ),
+          maxLines: 8,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Applica'),
+          ),
+        ],
+      ),
+    );
+    if (pasted == null) return;
+    final data = ref.read(vehicleLookupServiceProvider).parsePastedText(pasted);
+    if (!mounted) return;
+    setState(() {
+      final normalizedPlate = ref
+          .read(vehicleLookupServiceProvider)
+          .normalizePlate(_plate.text);
+      _plate.text = data.plate ?? normalizedPlate;
+      if (data.make != null) _make.text = data.make!;
+      if (data.model != null) _model.text = data.model!;
+      if (data.trim != null) _trimCtrl.text = data.trim!;
+      if (data.year != null) _year = data.year;
+      if (data.fuelType != null) _fuel = data.fuelType!;
+      if (data.euroClass != null) _euroClass = data.euroClass;
+      if (data.powerPs != null) _power.text = data.powerPs!.toString();
+      _insuranceCompany = data.insuranceCompany;
+      _insuranceExpiry = data.insuranceExpiry;
+      _fieldVersion++;
+      if (data.hasVehicleFields) _specSource = SpecSource.online;
+    });
+    if (data.make != null) {
+      await _loadModels(data.make!);
+    }
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final now = DateTime.now();
     final tank = _parse(_tank.text);
     final cons = _parse(_consumption.text);
+    final normalizedPlate = ref
+        .read(vehicleLookupServiceProvider)
+        .normalizePlate(_plate.text);
     final vehicle = Vehicle(
       id: 0,
       make: _make.text.trim(),
@@ -119,6 +195,8 @@ class _AddVehicleWizardScreenState
       year: _year,
       trim: _trimCtrl.text.trim().isEmpty ? null : _trimCtrl.text.trim(),
       fuelType: _fuel,
+      plate: normalizedPlate.isEmpty ? null : normalizedPlate,
+      euroClass: _euroClass,
       isDefault: _isDefault,
       specs: VehicleSpecs(
         tankCapacityL: tank,
@@ -127,13 +205,35 @@ class _AddVehicleWizardScreenState
             ? tank * 100 / cons
             : null,
         powerPs: int.tryParse(_power.text.trim()),
-        source: _fromCatalog ? SpecSource.catalog : SpecSource.manual,
+        source: _specSource,
         catalogRef: null,
       ),
       createdAt: now,
       updatedAt: now,
     );
-    await ref.read(vehicleRepositoryProvider).upsert(vehicle);
+    final vehicleId = await ref.read(vehicleRepositoryProvider).upsert(vehicle);
+    if (_insuranceExpiry != null) {
+      await ref
+          .read(reminderRepositoryProvider)
+          .upsert(
+            Reminder(
+              id: 0,
+              vehicleId: vehicleId,
+              type: ReminderType.assicurazione,
+              title: _insuranceCompany == null
+                  ? 'Assicurazione'
+                  : 'Assicurazione - $_insuranceCompany',
+              triggerMode: TriggerMode.date,
+              dueDate: _insuranceExpiry,
+              recurEvery: 1,
+              recurUnit: RecurUnit.year,
+              leadDays: 30,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      ref.invalidate(reminderEvaluationsProvider(vehicleId));
+    }
     ref.invalidate(vehiclesProvider);
     if (mounted) Navigator.of(context).pop();
   }
@@ -141,6 +241,13 @@ class _AddVehicleWizardScreenState
   @override
   Widget build(BuildContext context) {
     final makes = ref.watch(catalogMakesProvider).asData?.value ?? const [];
+    final onlineLookupEnabled =
+        ref
+            .watch(lookupSettingsProvider)
+            .asData
+            ?.value
+            .vehicleOnlineLookupEnabled ??
+        false;
     final thisYear = DateTime.now().year;
     return Scaffold(
       appBar: AppBar(title: const Text('Nuovo veicolo')),
@@ -149,20 +256,52 @@ class _AddVehicleWizardScreenState
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            TextFormField(
+              controller: _plate,
+              textCapitalization: TextCapitalization.characters,
+              decoration: const InputDecoration(
+                labelText: 'Targa',
+                hintText: 'AB123CD',
+                prefixIcon: Icon(Icons.pin),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _LookupAssistCard(
+              onlineEnabled: onlineLookupEnabled,
+              onPaste: _pasteLookupData,
+              onInsurance: () {
+                final service = ref.read(vehicleLookupServiceProvider);
+                _openLookup(
+                  'Verifica RCA',
+                  service.insuranceVerificationUri(_plate.text),
+                );
+              },
+              onEuroClass: () {
+                final service = ref.read(vehicleLookupServiceProvider);
+                _openLookup(
+                  'Classe ambientale',
+                  service.environmentalClassVerificationUri(_plate.text),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
             _MakeField(
+              key: ValueKey('make-$_fieldVersion'),
               controller: _make,
               makes: makes,
               onChanged: (text) {
                 _loadModels(text);
                 // typing a new make invalidates a catalog-prefilled model
-                if (_fromCatalog) setState(() => _fromCatalog = false);
+                _markManual();
               },
             ),
             const SizedBox(height: 4),
             _ModelField(
+              key: ValueKey('model-$_fieldVersion'),
               controller: _model,
               models: _models,
               onSelected: _applyModel,
+              onChanged: (_) => _markManual(),
             ),
             Row(
               children: [
@@ -175,15 +314,22 @@ class _AddVehicleWizardScreenState
                       for (var y = thisYear + 1; y >= 1980; y--)
                         DropdownMenuItem<int?>(value: y, child: Text('$y')),
                     ],
-                    onChanged: (y) => setState(() => _year = y),
+                    onChanged: (y) => setState(() {
+                      _year = y;
+                      if (_specSource != SpecSource.manual) {
+                        _specSource = SpecSource.manual;
+                      }
+                    }),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TrimField(
+                    key: ValueKey('trim-$_fieldVersion'),
                     controller: _trimCtrl,
                     trims: _trims,
                     onSelected: _applyTrim,
+                    onChanged: (_) => _markManual(),
                   ),
                 ),
               ],
@@ -195,7 +341,33 @@ class _AddVehicleWizardScreenState
                 for (final f in FuelType.values)
                   DropdownMenuItem(value: f, child: Text(f.name)),
               ],
-              onChanged: (f) => setState(() => _fuel = f ?? _fuel),
+              onChanged: (f) => setState(() {
+                _fuel = f ?? _fuel;
+                if (_specSource != SpecSource.manual) {
+                  _specSource = SpecSource.manual;
+                }
+              }),
+            ),
+            DropdownButtonFormField<EuroClass?>(
+              initialValue: _euroClass,
+              decoration: const InputDecoration(
+                labelText: 'Classe ambientale (Euro)',
+                helperText: 'Per il calcolo del bollo · libretto V.9',
+              ),
+              items: [
+                const DropdownMenuItem<EuroClass?>(child: Text('—')),
+                for (final e in EuroClass.values)
+                  DropdownMenuItem<EuroClass?>(
+                    value: e,
+                    child: Text('Euro ${e.index}'),
+                  ),
+              ],
+              onChanged: (e) => setState(() {
+                _euroClass = e;
+                if (_specSource != SpecSource.manual) {
+                  _specSource = SpecSource.manual;
+                }
+              }),
             ),
             TextFormField(
               controller: _tank,
@@ -203,6 +375,7 @@ class _AddVehicleWizardScreenState
               decoration: const InputDecoration(
                 labelText: 'Capacità serbatoio (L)',
               ),
+              onChanged: (_) => _markManual(),
             ),
             TextFormField(
               controller: _consumption,
@@ -210,11 +383,13 @@ class _AddVehicleWizardScreenState
               decoration: const InputDecoration(
                 labelText: 'Consumo dichiarato (L/100km)',
               ),
+              onChanged: (_) => _markManual(),
             ),
             TextFormField(
               controller: _power,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Potenza (CV)'),
+              onChanged: (_) => _markManual(),
             ),
             SwitchListTile(
               title: const Text('Veicolo predefinito'),
@@ -230,10 +405,55 @@ class _AddVehicleWizardScreenState
   }
 }
 
+class _LookupAssistCard extends StatelessWidget {
+  const _LookupAssistCard({
+    required this.onlineEnabled,
+    required this.onPaste,
+    required this.onInsurance,
+    required this.onEuroClass,
+  });
+
+  final bool onlineEnabled;
+  final VoidCallback onPaste;
+  final VoidCallback onInsurance;
+  final VoidCallback onEuroClass;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        OutlinedButton.icon(
+          onPressed: onlineEnabled ? onInsurance : null,
+          icon: const Icon(Icons.verified_user_outlined),
+          label: const Text('Verifica RCA'),
+        ),
+        OutlinedButton.icon(
+          onPressed: onlineEnabled ? onEuroClass : null,
+          icon: const Icon(Icons.eco_outlined),
+          label: const Text('Classe Euro'),
+        ),
+        FilledButton.tonalIcon(
+          onPressed: onPaste,
+          icon: const Icon(Icons.content_paste),
+          label: const Text('Incolla dati verifica'),
+        ),
+        if (!onlineEnabled)
+          Text(
+            'Attiva il lookup veicoli online dalle impostazioni.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+      ],
+    );
+  }
+}
+
 /// Type-ahead make field. Suggests catalog makes as you type; free text is
 /// always accepted for makes not in the catalog.
 class _MakeField extends StatelessWidget {
   const _MakeField({
+    super.key,
     required this.controller,
     required this.makes,
     required this.onChanged,
@@ -282,14 +502,17 @@ class _MakeField extends StatelessWidget {
 /// fuel/power to disambiguate variants); free text is always accepted.
 class _ModelField extends StatelessWidget {
   const _ModelField({
+    super.key,
     required this.controller,
     required this.models,
     required this.onSelected,
+    required this.onChanged,
   });
 
   final TextEditingController controller;
   final List<CatalogModel> models;
   final ValueChanged<CatalogModel> onSelected;
+  final ValueChanged<String> onChanged;
 
   String _label(CatalogModel m) {
     final extra = <String>[
@@ -340,7 +563,10 @@ class _ModelField extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Modello'),
           validator: (v) =>
               (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
-          onChanged: (t) => controller.text = t,
+          onChanged: (t) {
+            controller.text = t;
+            onChanged(t);
+          },
         );
       },
     );
@@ -352,14 +578,17 @@ class _ModelField extends StatelessWidget {
 /// when no model/trims are loaded it behaves as a plain text field.
 class _TrimField extends StatelessWidget {
   const _TrimField({
+    super.key,
     required this.controller,
     required this.trims,
     required this.onSelected,
+    required this.onChanged,
   });
 
   final TextEditingController controller;
   final List<CatalogTrim> trims;
   final ValueChanged<CatalogTrim> onSelected;
+  final ValueChanged<String> onChanged;
 
   String _label(CatalogTrim t) {
     final extra = <String>[
@@ -408,7 +637,10 @@ class _TrimField extends StatelessWidget {
           controller: fieldController,
           focusNode: focusNode,
           decoration: const InputDecoration(labelText: 'Allestimento'),
-          onChanged: (t) => controller.text = t,
+          onChanged: (t) {
+            controller.text = t;
+            onChanged(t);
+          },
         );
       },
     );

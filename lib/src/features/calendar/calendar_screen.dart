@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../core/formatters.dart';
+import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_form_screen.dart';
 import '../fillups/fill_up_form_screen.dart';
+import '../reminders/scadenze_screen.dart';
 import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'calendar_event.dart';
 import 'calendar_providers.dart';
@@ -124,6 +126,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                   trailing: e.amount == null
                                       ? null
                                       : Text(fmtEuro(e.amount!)),
+                                  onTap: () =>
+                                      _openEvent(context, ref, vehicle.id, e),
                                 ),
                               const SizedBox(height: 8),
                               Center(
@@ -190,6 +194,48 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _openEvent(
+    BuildContext context,
+    WidgetRef ref,
+    int vehicleId,
+    CalendarEvent event,
+  ) async {
+    final refId = event.refId;
+    if (refId == null) return;
+    if (event.type == CalendarEventType.fuel) {
+      final fills = await ref
+          .read(fillUpRepositoryProvider)
+          .forVehicle(vehicleId);
+      if (!context.mounted) return;
+      final fill = fills.where((f) => f.id == refId).firstOrNull;
+      if (fill == null) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => FillUpFormScreen(vehicleId: vehicleId, initial: fill),
+        ),
+      );
+      return;
+    }
+    if (event.type == CalendarEventType.expense) {
+      final expenses = await ref
+          .read(expenseRepositoryProvider)
+          .forVehicle(vehicleId);
+      if (!context.mounted) return;
+      final expense = expenses.where((e) => e.id == refId).firstOrNull;
+      if (expense == null) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              ExpenseFormScreen(vehicleId: vehicleId, initial: expense),
+        ),
+      );
+      return;
+    }
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ScadenzeScreen()));
   }
 }
 

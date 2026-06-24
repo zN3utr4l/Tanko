@@ -293,7 +293,7 @@ as String?,
 /// @nodoc
 mixin _$Vehicle {
 
- int get id; String get make; String get model; int? get year; String? get trim; FuelType get fuelType; String? get plate; int get colorTag; bool get isDefault; VehicleSpecs get specs; DateTime get createdAt; DateTime get updatedAt;
+ int get id; String get make; String get model; int? get year; String? get trim; FuelType get fuelType; String? get plate; EuroClass? get euroClass; int get colorTag; bool get isDefault; VehicleSpecs get specs; DateTime get createdAt; DateTime get updatedAt;
 /// Create a copy of Vehicle
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -306,16 +306,16 @@ $VehicleCopyWith<Vehicle> get copyWith => _$VehicleCopyWithImpl<Vehicle>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Vehicle&&(identical(other.id, id) || other.id == id)&&(identical(other.make, make) || other.make == make)&&(identical(other.model, model) || other.model == model)&&(identical(other.year, year) || other.year == year)&&(identical(other.trim, trim) || other.trim == trim)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.plate, plate) || other.plate == plate)&&(identical(other.colorTag, colorTag) || other.colorTag == colorTag)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.specs, specs) || other.specs == specs)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Vehicle&&(identical(other.id, id) || other.id == id)&&(identical(other.make, make) || other.make == make)&&(identical(other.model, model) || other.model == model)&&(identical(other.year, year) || other.year == year)&&(identical(other.trim, trim) || other.trim == trim)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.plate, plate) || other.plate == plate)&&(identical(other.euroClass, euroClass) || other.euroClass == euroClass)&&(identical(other.colorTag, colorTag) || other.colorTag == colorTag)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.specs, specs) || other.specs == specs)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,make,model,year,trim,fuelType,plate,colorTag,isDefault,specs,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,make,model,year,trim,fuelType,plate,euroClass,colorTag,isDefault,specs,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Vehicle(id: $id, make: $make, model: $model, year: $year, trim: $trim, fuelType: $fuelType, plate: $plate, colorTag: $colorTag, isDefault: $isDefault, specs: $specs, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Vehicle(id: $id, make: $make, model: $model, year: $year, trim: $trim, fuelType: $fuelType, plate: $plate, euroClass: $euroClass, colorTag: $colorTag, isDefault: $isDefault, specs: $specs, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -326,7 +326,7 @@ abstract mixin class $VehicleCopyWith<$Res>  {
   factory $VehicleCopyWith(Vehicle value, $Res Function(Vehicle) _then) = _$VehicleCopyWithImpl;
 @useResult
 $Res call({
- int id, String make, String model, int? year, String? trim, FuelType fuelType, String? plate, int colorTag, bool isDefault, VehicleSpecs specs, DateTime createdAt, DateTime updatedAt
+ int id, String make, String model, int? year, String? trim, FuelType fuelType, String? plate, EuroClass? euroClass, int colorTag, bool isDefault, VehicleSpecs specs, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -343,7 +343,7 @@ class _$VehicleCopyWithImpl<$Res>
 
 /// Create a copy of Vehicle
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? make = null,Object? model = null,Object? year = freezed,Object? trim = freezed,Object? fuelType = null,Object? plate = freezed,Object? colorTag = null,Object? isDefault = null,Object? specs = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? make = null,Object? model = null,Object? year = freezed,Object? trim = freezed,Object? fuelType = null,Object? plate = freezed,Object? euroClass = freezed,Object? colorTag = null,Object? isDefault = null,Object? specs = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,make: null == make ? _self.make : make // ignore: cast_nullable_to_non_nullable
@@ -352,7 +352,8 @@ as String,year: freezed == year ? _self.year : year // ignore: cast_nullable_to_
 as int?,trim: freezed == trim ? _self.trim : trim // ignore: cast_nullable_to_non_nullable
 as String?,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
 as FuelType,plate: freezed == plate ? _self.plate : plate // ignore: cast_nullable_to_non_nullable
-as String?,colorTag: null == colorTag ? _self.colorTag : colorTag // ignore: cast_nullable_to_non_nullable
+as String?,euroClass: freezed == euroClass ? _self.euroClass : euroClass // ignore: cast_nullable_to_non_nullable
+as EuroClass?,colorTag: null == colorTag ? _self.colorTag : colorTag // ignore: cast_nullable_to_non_nullable
 as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
 as bool,specs: null == specs ? _self.specs : specs // ignore: cast_nullable_to_non_nullable
 as VehicleSpecs,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -451,10 +452,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  EuroClass? euroClass,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Vehicle() when $default != null:
-return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.euroClass,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -472,10 +473,10 @@ return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuel
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  EuroClass? euroClass,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Vehicle():
-return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.euroClass,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -492,10 +493,10 @@ return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuel
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String make,  String model,  int? year,  String? trim,  FuelType fuelType,  String? plate,  EuroClass? euroClass,  int colorTag,  bool isDefault,  VehicleSpecs specs,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Vehicle() when $default != null:
-return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuelType,_that.plate,_that.euroClass,_that.colorTag,_that.isDefault,_that.specs,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -507,7 +508,7 @@ return $default(_that.id,_that.make,_that.model,_that.year,_that.trim,_that.fuel
 @JsonSerializable()
 
 class _Vehicle implements Vehicle {
-  const _Vehicle({required this.id, required this.make, required this.model, this.year, this.trim, required this.fuelType, this.plate, this.colorTag = 0, this.isDefault = false, this.specs = const VehicleSpecs(), required this.createdAt, required this.updatedAt});
+  const _Vehicle({required this.id, required this.make, required this.model, this.year, this.trim, required this.fuelType, this.plate, this.euroClass, this.colorTag = 0, this.isDefault = false, this.specs = const VehicleSpecs(), required this.createdAt, required this.updatedAt});
   factory _Vehicle.fromJson(Map<String, dynamic> json) => _$VehicleFromJson(json);
 
 @override final  int id;
@@ -517,6 +518,7 @@ class _Vehicle implements Vehicle {
 @override final  String? trim;
 @override final  FuelType fuelType;
 @override final  String? plate;
+@override final  EuroClass? euroClass;
 @override@JsonKey() final  int colorTag;
 @override@JsonKey() final  bool isDefault;
 @override@JsonKey() final  VehicleSpecs specs;
@@ -536,16 +538,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Vehicle&&(identical(other.id, id) || other.id == id)&&(identical(other.make, make) || other.make == make)&&(identical(other.model, model) || other.model == model)&&(identical(other.year, year) || other.year == year)&&(identical(other.trim, trim) || other.trim == trim)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.plate, plate) || other.plate == plate)&&(identical(other.colorTag, colorTag) || other.colorTag == colorTag)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.specs, specs) || other.specs == specs)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Vehicle&&(identical(other.id, id) || other.id == id)&&(identical(other.make, make) || other.make == make)&&(identical(other.model, model) || other.model == model)&&(identical(other.year, year) || other.year == year)&&(identical(other.trim, trim) || other.trim == trim)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.plate, plate) || other.plate == plate)&&(identical(other.euroClass, euroClass) || other.euroClass == euroClass)&&(identical(other.colorTag, colorTag) || other.colorTag == colorTag)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.specs, specs) || other.specs == specs)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,make,model,year,trim,fuelType,plate,colorTag,isDefault,specs,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,make,model,year,trim,fuelType,plate,euroClass,colorTag,isDefault,specs,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Vehicle(id: $id, make: $make, model: $model, year: $year, trim: $trim, fuelType: $fuelType, plate: $plate, colorTag: $colorTag, isDefault: $isDefault, specs: $specs, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Vehicle(id: $id, make: $make, model: $model, year: $year, trim: $trim, fuelType: $fuelType, plate: $plate, euroClass: $euroClass, colorTag: $colorTag, isDefault: $isDefault, specs: $specs, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -556,7 +558,7 @@ abstract mixin class _$VehicleCopyWith<$Res> implements $VehicleCopyWith<$Res> {
   factory _$VehicleCopyWith(_Vehicle value, $Res Function(_Vehicle) _then) = __$VehicleCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String make, String model, int? year, String? trim, FuelType fuelType, String? plate, int colorTag, bool isDefault, VehicleSpecs specs, DateTime createdAt, DateTime updatedAt
+ int id, String make, String model, int? year, String? trim, FuelType fuelType, String? plate, EuroClass? euroClass, int colorTag, bool isDefault, VehicleSpecs specs, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -573,7 +575,7 @@ class __$VehicleCopyWithImpl<$Res>
 
 /// Create a copy of Vehicle
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? make = null,Object? model = null,Object? year = freezed,Object? trim = freezed,Object? fuelType = null,Object? plate = freezed,Object? colorTag = null,Object? isDefault = null,Object? specs = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? make = null,Object? model = null,Object? year = freezed,Object? trim = freezed,Object? fuelType = null,Object? plate = freezed,Object? euroClass = freezed,Object? colorTag = null,Object? isDefault = null,Object? specs = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_Vehicle(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,make: null == make ? _self.make : make // ignore: cast_nullable_to_non_nullable
@@ -582,7 +584,8 @@ as String,year: freezed == year ? _self.year : year // ignore: cast_nullable_to_
 as int?,trim: freezed == trim ? _self.trim : trim // ignore: cast_nullable_to_non_nullable
 as String?,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
 as FuelType,plate: freezed == plate ? _self.plate : plate // ignore: cast_nullable_to_non_nullable
-as String?,colorTag: null == colorTag ? _self.colorTag : colorTag // ignore: cast_nullable_to_non_nullable
+as String?,euroClass: freezed == euroClass ? _self.euroClass : euroClass // ignore: cast_nullable_to_non_nullable
+as EuroClass?,colorTag: null == colorTag ? _self.colorTag : colorTag // ignore: cast_nullable_to_non_nullable
 as int,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
 as bool,specs: null == specs ? _self.specs : specs // ignore: cast_nullable_to_non_nullable
 as VehicleSpecs,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable

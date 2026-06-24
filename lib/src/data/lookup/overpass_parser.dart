@@ -18,7 +18,8 @@ List<DetectedStation> parseOverpassFuelStations(
     final lng = (e['lon'] as num?)?.toDouble();
     if (lat == null || lng == null) continue;
     final tags = (e['tags'] as Map?) ?? const {};
-    final name = (tags['name'] ?? tags['brand'] ?? tags['operator'])?.toString();
+    final name = (tags['name'] ?? tags['brand'] ?? tags['operator'])
+        ?.toString();
     if (name == null || name.trim().isEmpty) continue;
     out.add(
       DetectedStation(

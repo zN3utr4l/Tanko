@@ -11,6 +11,7 @@ import 'data/repositories/expense_repository_impl.dart';
 import 'data/repositories/fill_up_repository_impl.dart';
 import 'data/repositories/reminder_repository_impl.dart';
 import 'data/repositories/vehicle_repository_impl.dart';
+import 'data/settings/lookup_settings.dart';
 import 'data/update/github_update_service.dart';
 import 'data/update/update_prefs.dart';
 import 'domain/repositories/catalog_repository.dart';
@@ -25,6 +26,7 @@ import 'domain/services/reminder_evaluator.dart';
 import 'domain/services/station_lookup_service.dart';
 import 'domain/services/stats_service.dart';
 import 'domain/services/update_service.dart';
+import 'domain/services/vehicle_lookup_service.dart';
 
 part 'providers.g.dart';
 
@@ -68,6 +70,17 @@ NotificationService notificationService(Ref ref) => NotificationService();
 
 @Riverpod(keepAlive: true)
 CatalogRepository catalogRepository(Ref ref) => OfflineCatalog();
+
+@Riverpod(keepAlive: true)
+VehicleLookupService vehicleLookupService(Ref ref) =>
+    const VehicleLookupService();
+
+@Riverpod(keepAlive: true)
+LookupSettingsStore lookupSettingsStore(Ref ref) => const LookupSettingsStore();
+
+@riverpod
+Future<LookupSettings> lookupSettings(Ref ref) =>
+    ref.watch(lookupSettingsStoreProvider).load();
 
 @Riverpod(keepAlive: true)
 LocationService locationService(Ref ref) => const GeolocatorLocationService();

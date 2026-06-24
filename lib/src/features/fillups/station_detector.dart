@@ -65,10 +65,10 @@ class StationDetector {
 
 @riverpod
 StationDetector stationDetector(Ref ref) => StationDetector(
-      location: ref.watch(locationServiceProvider),
-      fillUps: ref.watch(fillUpRepositoryProvider),
-      matcher: const StationMatcher(),
-      lookup: ref.watch(stationLookupServiceProvider),
-      ocr: ref.watch(ocrServiceProvider),
-      receiptParser: const ReceiptParser(),
-    );
+  location: ref.watch(locationServiceProvider),
+  fillUps: ref.watch(fillUpRepositoryProvider),
+  matcher: const StationMatcher(),
+  lookup: ref.watch(stationLookupServiceProvider),
+  ocr: ref.watch(ocrServiceProvider),
+  receiptParser: const ReceiptParser(),
+);

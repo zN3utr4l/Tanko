@@ -8,7 +8,7 @@ import 'overpass_parser.dart';
 /// Called only on explicit user request. Returns an empty list on any failure.
 class OverpassStationLookup implements StationLookupService {
   OverpassStationLookup({http.Client? client})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
   final http.Client _client;
 
   static const _endpoint = 'https://overpass-api.de/api/interpreter';

@@ -7,7 +7,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart' hide XFile;
 import '../../data/backup/backup_service.dart';
 import '../../data/importer/excel_importer.dart';
+import '../../data/settings/lookup_settings.dart';
 import '../../domain/models/backup_data.dart';
+import '../../domain/models/vehicle.dart';
 import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../updates/update_providers.dart';
@@ -156,14 +158,21 @@ class SettingsScreen extends ConsumerWidget {
       }
       return;
     }
+    if (!context.mounted) return;
+    final target = await _chooseImportVehicle(context, vehicles);
+    if (target == null) return;
     final defaultCat = categories.firstWhere(
       (c) => c.isDefault,
       orElse: () => categories.first,
     );
+    final existing = await ref
+        .read(fillUpRepositoryProvider)
+        .forVehicle(target.id);
     final result = const ExcelImporter().parseBytes(
       bytes,
-      vehicleId: vehicles.first.id,
+      vehicleId: target.id,
       categoryId: defaultCat.id,
+      existing: existing,
     );
     final repo = ref.read(fillUpRepositoryProvider);
     for (final f in result.rows) {
@@ -180,6 +189,7 @@ class SettingsScreen extends ConsumerWidget {
           content: Text(
             'Importate: ${result.rows.length}\n'
             'Saltate: ${result.skipped}\n'
+            'Duplicate: ${result.duplicates}\n'
             'Avvisi: ${result.warnings.length}',
           ),
           actions: [
@@ -191,6 +201,26 @@ class SettingsScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  Future<Vehicle?> _chooseImportVehicle(
+    BuildContext context,
+    List<Vehicle> vehicles,
+  ) async {
+    if (vehicles.length == 1) return vehicles.single;
+    return showDialog<Vehicle>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Veicolo import'),
+        children: [
+          for (final v in vehicles)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, v),
+              child: Text('${v.make} ${v.model}'),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _checkUpdates(BuildContext context, WidgetRef ref) async {
@@ -220,6 +250,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentVersion = ref.watch(currentVersionProvider).asData?.value;
     final availableUpdate = ref.watch(availableUpdateProvider);
+    final lookupSettings = ref.watch(lookupSettingsProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Impostazioni')),
       body: ListView(
@@ -253,6 +284,17 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _restore(context, ref),
           ),
           const Divider(),
+          lookupSettings.maybeWhen(
+            data: (settings) => _LookupSettingsSection(
+              settings: settings,
+              onChanged: (next) async {
+                await ref.read(lookupSettingsStoreProvider).save(next);
+                ref.invalidate(lookupSettingsProvider);
+              },
+            ),
+            orElse: () => const LinearProgressIndicator(),
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.system_update),
             title: const Text('Aggiornamenti'),
@@ -273,6 +315,89 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LookupSettingsSection extends StatefulWidget {
+  const _LookupSettingsSection({
+    required this.settings,
+    required this.onChanged,
+  });
+
+  final LookupSettings settings;
+  final ValueChanged<LookupSettings> onChanged;
+
+  @override
+  State<_LookupSettingsSection> createState() => _LookupSettingsSectionState();
+}
+
+class _LookupSettingsSectionState extends State<_LookupSettingsSection> {
+  late final TextEditingController _openApiKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _openApiKey = TextEditingController(text: widget.settings.openApiKey);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LookupSettingsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.settings.openApiKey != widget.settings.openApiKey &&
+        _openApiKey.text != widget.settings.openApiKey) {
+      _openApiKey.text = widget.settings.openApiKey;
+    }
+  }
+
+  @override
+  void dispose() {
+    _openApiKey.dispose();
+    super.dispose();
+  }
+
+  void _save(LookupSettings settings) => widget.onChanged(settings);
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = widget.settings;
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: const Icon(Icons.directions_car_filled_outlined),
+          title: const Text('Lookup veicoli online'),
+          value: settings.vehicleOnlineLookupEnabled,
+          onChanged: (value) =>
+              _save(settings.copyWith(vehicleOnlineLookupEnabled: value)),
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.local_gas_station_outlined),
+          title: const Text('Ricerca distributori online'),
+          value: settings.stationOnlineLookupEnabled,
+          onChanged: (value) =>
+              _save(settings.copyWith(stationOnlineLookupEnabled: value)),
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.system_update_alt_outlined),
+          title: const Text('Controllo aggiornamenti online'),
+          value: settings.updateChecksEnabled,
+          onChanged: (value) =>
+              _save(settings.copyWith(updateChecksEnabled: value)),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          child: TextField(
+            controller: _openApiKey,
+            decoration: const InputDecoration(
+              labelText: 'Openapi API key',
+              prefixIcon: Icon(Icons.key_outlined),
+            ),
+            obscureText: true,
+            onSubmitted: (value) =>
+                _save(settings.copyWith(openApiKey: value.trim())),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:carburo/src/data/database/database.dart';
+import 'package:carburo/src/data/repositories/category_repository_impl.dart';
 import 'package:carburo/src/data/repositories/expense_repository_impl.dart';
 import 'package:carburo/src/data/repositories/reminder_repository_impl.dart';
 import 'package:carburo/src/data/repositories/vehicle_repository_impl.dart';
@@ -81,5 +82,60 @@ void main() {
 
     expect(find.text('Revisione'), findsOneWidget);
     expect(find.textContaining('Scaduto'), findsWidgets);
+  });
+
+  testWidgets('bollo completion pre-fills amount from stored vehicle data', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+    final vid = await VehicleRepositoryImpl(db).upsert(
+      Vehicle(
+        id: 0,
+        make: 'Alfa Romeo',
+        model: 'Giulia',
+        year: 2015,
+        fuelType: FuelType.petrol,
+        euroClass: EuroClass.euro6,
+        isDefault: true,
+        specs: const VehicleSpecs(powerPs: 300),
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+    final bolloCategory = (await CategoryRepositoryImpl(
+      db,
+    ).all()).firstWhere((c) => c.name == 'Bollo');
+    await ReminderRepositoryImpl(db).upsert(
+      Reminder(
+        id: 0,
+        vehicleId: vid,
+        type: ReminderType.bollo,
+        title: 'Bollo',
+        triggerMode: TriggerMode.date,
+        dueDate: DateTime(2020, 1, 1),
+        recurEvery: 1,
+        recurUnit: RecurUnit.year,
+        linkedExpenseCategoryId: bolloCategory.id,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: ScadenzeScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Completa'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Importo (€)'), findsOneWidget);
+    expect(find.text('942,27'), findsOneWidget);
   });
 }

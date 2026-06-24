@@ -93,11 +93,14 @@ void main() {
     expect(result.match, isNull);
   });
 
-  test('detect() with GPS but no nearby history returns position, null match', () async {
-    final result = await _detector(at: const GeoPoint(45.07, 7.68)).detect();
-    expect(result.position, isNotNull);
-    expect(result.match, isNull);
-  });
+  test(
+    'detect() with GPS but no nearby history returns position, null match',
+    () async {
+      final result = await _detector(at: const GeoPoint(45.07, 7.68)).detect();
+      expect(result.position, isNotNull);
+      expect(result.match, isNull);
+    },
+  );
 
   test('readReceipt() pipes OCR lines through the parser', () async {
     final d = _detector(ocrLines: ['ENI', 'IMPORTO EURO 50,99']);

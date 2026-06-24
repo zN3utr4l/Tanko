@@ -9,9 +9,9 @@ import '../add_vehicle_wizard_screen.dart';
 class EmptyVehiclePrompt extends StatelessWidget {
   const EmptyVehiclePrompt({super.key});
 
-  void _open(BuildContext context) => Navigator.of(context).push(
-    MaterialPageRoute(builder: (_) => const AddVehicleWizardScreen()),
-  );
+  void _open(BuildContext context) => Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const AddVehicleWizardScreen()));
 
   @override
   Widget build(BuildContext context) {

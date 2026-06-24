@@ -23,16 +23,18 @@ void main() {
 
   test('non-200 response yields empty list', () async {
     final client = _MockClient();
-    when(() => client.post(any(), body: any(named: 'body')))
-        .thenAnswer((_) async => http.Response('error', 503));
+    when(
+      () => client.post(any(), body: any(named: 'body')),
+    ).thenAnswer((_) async => http.Response('error', 503));
     final lookup = OverpassStationLookup(client: client);
     expect(await lookup.nearby(45.07, 7.68), isEmpty);
   });
 
   test('network exception yields empty list (never throws)', () async {
     final client = _MockClient();
-    when(() => client.post(any(), body: any(named: 'body')))
-        .thenThrow(Exception('offline'));
+    when(
+      () => client.post(any(), body: any(named: 'body')),
+    ).thenThrow(Exception('offline'));
     final lookup = OverpassStationLookup(client: client);
     expect(await lookup.nearby(45.07, 7.68), isEmpty);
   });

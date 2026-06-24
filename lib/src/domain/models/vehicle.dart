@@ -29,6 +29,7 @@ abstract class Vehicle with _$Vehicle {
     String? trim,
     required FuelType fuelType,
     String? plate,
+    EuroClass? euroClass,
     @Default(0) int colorTag,
     @Default(false) bool isDefault,
     @Default(VehicleSpecs()) VehicleSpecs specs,

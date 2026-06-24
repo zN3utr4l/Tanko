@@ -70,13 +70,11 @@ void main() {
     ],
   );
 
-  test(
-    'JSON export -> import round-trips losslessly (v2 with expenses+reminders)',
-    () {
-      final restored = service.fromJson(service.toJson(data));
-      expect(restored, data);
-    },
-  );
+  test('JSON export -> import round-trips losslessly (v3 with Euro class)', () {
+    final restored = service.fromJson(service.toJson(data));
+    expect(restored.copyWith(schemaVersion: data.schemaVersion), data);
+    expect(restored.schemaVersion, BackupService.currentSchemaVersion);
+  });
 
   test('fromJson accepts a legacy v1 backup (no expenses/reminders)', () {
     final restored = service.fromJson(
@@ -85,6 +83,13 @@ void main() {
     expect(restored.schemaVersion, 1);
     expect(restored.expenses, isEmpty);
     expect(restored.reminders, isEmpty);
+  });
+
+  test('fromJson accepts a v2 backup without vehicle Euro class', () {
+    final restored = service.fromJson(
+      '{"schemaVersion": 2, "vehicles": [], "categories": [], "fillUps": [], "expenses": [], "reminders": []}',
+    );
+    expect(restored.schemaVersion, 2);
   });
 
   test('fromJson rejects an unsupported schema version', () {

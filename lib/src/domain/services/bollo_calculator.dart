@@ -1,6 +1,5 @@
-/// Italian emission class — libretto (carta di circolazione) field **V.9**.
-/// Drives the per-kW bollo rate.
-enum EuroClass { euro0, euro1, euro2, euro3, euro4, euro5, euro6 }
+import '../models/enums.dart';
+import '../models/vehicle.dart';
 
 /// Result of a bollo (car tax) calculation. Amounts are euro per year.
 class BolloResult {
@@ -52,6 +51,22 @@ class BolloCalculator {
     return BolloResult(
       ordinary: ordinary,
       superbollo: _superbollo(powerKw, vehicleAgeYears),
+    );
+  }
+
+  /// Computes bollo from the data snapshotted on a vehicle. Returns null when
+  /// the vehicle does not yet have enough data for an offline calculation.
+  BolloResult? computeForVehicle(Vehicle vehicle, {DateTime? asOf}) {
+    final powerPs = vehicle.specs.powerPs;
+    final euroClass = vehicle.euroClass;
+    if (powerPs == null || powerPs <= 0 || euroClass == null) return null;
+
+    final currentYear = (asOf ?? DateTime.now()).year;
+    final age = vehicle.year == null ? null : currentYear - vehicle.year!;
+    return compute(
+      powerKw: cvToKw(powerPs),
+      euroClass: euroClass,
+      vehicleAgeYears: age,
     );
   }
 

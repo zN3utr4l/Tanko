@@ -5,7 +5,8 @@ double haversineMeters(double lat1, double lng1, double lat2, double lng2) {
   const earthRadius = 6371000.0; // meters
   final dLat = _rad(lat2 - lat1);
   final dLng = _rad(lng2 - lng1);
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+  final a =
+      math.sin(dLat / 2) * math.sin(dLat / 2) +
       math.cos(_rad(lat1)) *
           math.cos(_rad(lat2)) *
           math.sin(dLng / 2) *

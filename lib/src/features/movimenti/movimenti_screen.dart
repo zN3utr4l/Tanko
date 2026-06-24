@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/formatters.dart';
 import '../../domain/models/expense.dart';
 import '../../domain/models/fill_up.dart';
+import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_form_screen.dart';
 import '../expenses/expense_providers.dart';
@@ -21,6 +22,38 @@ class MovimentiScreen extends ConsumerStatefulWidget {
 
 class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
   _Filter _filter = _Filter.all;
+  final _query = TextEditingController();
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirmDelete({
+    required String title,
+    required Future<void> Function() delete,
+  }) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: const Text('Operazione non reversibile.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Elimina'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +74,34 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: SegmentedButton<_Filter>(
-                  segments: const [
-                    ButtonSegment(value: _Filter.all, label: Text('Tutti')),
-                    ButtonSegment(
-                      value: _Filter.fuel,
-                      label: Text('Carburante'),
+                child: Column(
+                  children: [
+                    SegmentedButton<_Filter>(
+                      segments: const [
+                        ButtonSegment(value: _Filter.all, label: Text('Tutti')),
+                        ButtonSegment(
+                          value: _Filter.fuel,
+                          label: Text('Carburante'),
+                        ),
+                        ButtonSegment(
+                          value: _Filter.expense,
+                          label: Text('Spese'),
+                        ),
+                      ],
+                      selected: {_filter},
+                      onSelectionChanged: (s) =>
+                          setState(() => _filter = s.first),
                     ),
-                    ButtonSegment(value: _Filter.expense, label: Text('Spese')),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _query,
+                      decoration: const InputDecoration(
+                        labelText: 'Cerca',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
                   ],
-                  selected: {_filter},
-                  onSelectionChanged: (s) => setState(() => _filter = s.first),
                 ),
               ),
               Expanded(
@@ -59,6 +109,7 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : _list(
                         context,
+                        ref,
                         vehicle.id,
                         fills.asData?.value ?? const [],
                         expenses.asData?.value ?? const [],
@@ -77,6 +128,7 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
 
   Widget _list(
     BuildContext context,
+    WidgetRef ref,
     int vehicleId,
     List<FillUp> fills,
     List<Expense> expenses,
@@ -98,6 +150,13 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
                     FillUpFormScreen(vehicleId: vehicleId, initial: f),
               ),
             ),
+            onDelete: () => _confirmDelete(
+              title: 'Eliminare il rifornimento?',
+              delete: () async {
+                await ref.read(fillUpRepositoryProvider).delete(f.id);
+                ref.invalidate(fillUpsProvider(vehicleId));
+              },
+            ),
           ),
       if (_filter != _Filter.fuel)
         for (final e in expenses)
@@ -114,15 +173,32 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
                     ExpenseFormScreen(vehicleId: vehicleId, initial: e),
               ),
             ),
+            onDelete: () => _confirmDelete(
+              title: 'Eliminare la spesa?',
+              delete: () async {
+                await ref.read(expenseRepositoryProvider).delete(e.id);
+                ref.invalidate(expensesForVehicleProvider(vehicleId));
+              },
+            ),
           ),
     ]..sort((a, b) => b.date.compareTo(a.date));
+    final q = _query.text.trim().toLowerCase();
+    final filtered = q.isEmpty
+        ? rows
+        : rows
+              .where(
+                (r) =>
+                    r.title.toLowerCase().contains(q) ||
+                    (r.subtitle?.toLowerCase().contains(q) ?? false),
+              )
+              .toList();
 
-    if (rows.isEmpty) {
+    if (filtered.isEmpty) {
       return const Center(child: Text('Nessun movimento.'));
     }
     return ListView(
       children: [
-        for (final r in rows)
+        for (final r in filtered)
           ListTile(
             leading: Icon(r.icon, color: r.color),
             title: Text(r.title),
@@ -132,10 +208,21 @@ class _MovimentiScreenState extends ConsumerState<MovimentiScreen> {
                 if (r.subtitle != null) r.subtitle!,
               ].join(' · '),
             ),
-            trailing: Text(
-              fmtEuro(r.amount),
-              style: Theme.of(context).textTheme.titleMedium,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  fmtEuro(r.amount),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                IconButton(
+                  tooltip: 'Elimina',
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: r.onDelete,
+                ),
+              ],
             ),
+            onLongPress: r.onDelete,
             onTap: r.onTap,
           ),
       ],
@@ -151,6 +238,7 @@ class _Row {
     required this.title,
     required this.amount,
     required this.onTap,
+    required this.onDelete,
     this.subtitle,
   });
   final DateTime date;
@@ -160,4 +248,5 @@ class _Row {
   final String? subtitle;
   final double amount;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 }

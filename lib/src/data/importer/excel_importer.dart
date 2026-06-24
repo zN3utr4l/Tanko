@@ -44,11 +44,17 @@ class ExcelImporter {
     List<List<Object?>> rows, {
     required int vehicleId,
     required int categoryId,
+    List<FillUp> existing = const [],
   }) {
     final out = <FillUp>[];
     final warnings = <String>[];
     var skipped = 0;
+    var duplicates = 0;
     final now = DateTime.now();
+    final seen = {
+      for (final f in existing)
+        _duplicateKey(f.date, f.amount, f.odometer): true,
+    };
 
     for (var i = 2; i < rows.length; i++) {
       final r = rows[i];
@@ -70,6 +76,14 @@ class ExcelImporter {
           'Riga ${i + 1}: odometro 0 (anomalia) — importata comunque.',
         );
       }
+      final key = _duplicateKey(date, amount, odometer);
+      if (seen.containsKey(key)) {
+        skipped++;
+        duplicates++;
+        warnings.add('Riga ${i + 1}: rifornimento duplicato, saltato.');
+        continue;
+      }
+      seen[key] = true;
 
       out.add(
         FillUp(
@@ -85,19 +99,34 @@ class ExcelImporter {
         ),
       );
     }
-    return ImportResult(rows: out, skipped: skipped, warnings: warnings);
+    return ImportResult(
+      rows: out,
+      skipped: skipped,
+      duplicates: duplicates,
+      warnings: warnings,
+    );
   }
+
+  String _duplicateKey(DateTime date, double amount, double odometer) =>
+      '${DateTime(date.year, date.month, date.day).toIso8601String()}|'
+      '${amount.toStringAsFixed(2)}|${odometer.toStringAsFixed(1)}';
 
   ImportResult parseBytes(
     Uint8List bytes, {
     required int vehicleId,
     required int categoryId,
+    List<FillUp> existing = const [],
   }) {
     final book = Excel.decodeBytes(bytes);
     final sheet = book.tables[book.tables.keys.first]!;
     final rows = sheet.rows
         .map((row) => row.map((cell) => _raw(cell?.value)).toList())
         .toList();
-    return mapRows(rows, vehicleId: vehicleId, categoryId: categoryId);
+    return mapRows(
+      rows,
+      vehicleId: vehicleId,
+      categoryId: categoryId,
+      existing: existing,
+    );
   }
 }

@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -44,6 +44,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(reminders);
         await m.createTable(expenses);
         await _seedExpenseCategories();
+      }
+      if (from < 3) {
+        // Store the Euro emission class on the vehicle (for the bollo calc).
+        await m.addColumn(vehicles, vehicles.euroClass);
       }
     },
     beforeOpen: (details) async {

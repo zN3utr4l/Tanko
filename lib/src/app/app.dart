@@ -50,6 +50,8 @@ class _AppState extends ConsumerState<App> {
 
   Future<void> _checkForUpdate() async {
     try {
+      final settings = await ref.read(lookupSettingsProvider.future);
+      if (!settings.updateChecksEnabled) return;
       await startupUpdateCheck(ref);
     } catch (_) {
       /* best-effort */

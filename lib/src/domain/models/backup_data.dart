@@ -11,7 +11,7 @@ part 'backup_data.g.dart';
 @freezed
 abstract class BackupData with _$BackupData {
   const factory BackupData({
-    @Default(2) int schemaVersion,
+    @Default(3) int schemaVersion,
     @Default(<Vehicle>[]) List<Vehicle> vehicles,
     @Default(<Category>[]) List<Category> categories,
     @Default(<FillUp>[]) List<FillUp> fillUps,

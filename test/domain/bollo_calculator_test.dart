@@ -1,3 +1,5 @@
+import 'package:carburo/src/domain/models/enums.dart';
+import 'package:carburo/src/domain/models/vehicle.dart';
 import 'package:carburo/src/domain/services/bollo_calculator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -56,5 +58,45 @@ void main() {
   test('cvToKw converts horsepower to kW', () {
     expect(cvToKw(190), 140); // 190 * 0.7355 = 139.745 -> 140
     expect(cvToKw(0), 0);
+  });
+
+  test('computes annual bollo from stored vehicle data', () {
+    final vehicle = Vehicle(
+      id: 1,
+      make: 'Alfa Romeo',
+      model: 'Giulia',
+      year: 2015,
+      fuelType: FuelType.petrol,
+      euroClass: EuroClass.euro6,
+      specs: const VehicleSpecs(powerPs: 300),
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+    );
+
+    final r = calc.computeForVehicle(vehicle, asOf: DateTime(2026, 6, 24));
+
+    expect(r, isNotNull);
+    expect(r!.ordinary, closeTo(726.27, 0.01));
+    expect(r.superbollo, 216);
+    expect(r.total, closeTo(942.27, 0.01));
+  });
+
+  test('vehicle bollo is unavailable without power or Euro class', () {
+    final missingPower = Vehicle(
+      id: 1,
+      make: 'Fiat',
+      model: 'Panda',
+      fuelType: FuelType.petrol,
+      euroClass: EuroClass.euro6,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+    );
+    final missingEuro = missingPower.copyWith(
+      euroClass: null,
+      specs: const VehicleSpecs(powerPs: 70),
+    );
+
+    expect(calc.computeForVehicle(missingPower), isNull);
+    expect(calc.computeForVehicle(missingEuro), isNull);
   });
 }

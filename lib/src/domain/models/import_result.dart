@@ -8,6 +8,7 @@ abstract class ImportResult with _$ImportResult {
   const factory ImportResult({
     @Default(<FillUp>[]) List<FillUp> rows,
     @Default(0) int skipped,
+    @Default(0) int duplicates,
     @Default(<String>[]) List<String> warnings,
   }) = _ImportResult;
 }

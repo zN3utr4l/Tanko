@@ -3,25 +3,21 @@ import 'package:carburo/src/domain/models/enums.dart';
 import 'package:carburo/src/domain/models/fill_up.dart';
 import 'package:carburo/src/domain/services/station_matcher.dart';
 
-FillUp fill({
-  required int id,
-  double? lat,
-  double? lng,
-  String? station,
-}) => FillUp(
-  id: id,
-  vehicleId: 1,
-  date: DateTime(2026, 1, id),
-  amount: 50,
-  liters: 30,
-  odometer: 1000.0 * id,
-  categoryId: 1,
-  latitude: lat,
-  longitude: lng,
-  station: station,
-  createdAt: DateTime(2026),
-  updatedAt: DateTime(2026),
-);
+FillUp fill({required int id, double? lat, double? lng, String? station}) =>
+    FillUp(
+      id: id,
+      vehicleId: 1,
+      date: DateTime(2026, 1, id),
+      amount: 50,
+      liters: 30,
+      odometer: 1000.0 * id,
+      categoryId: 1,
+      latitude: lat,
+      longitude: lng,
+      station: station,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+    );
 
 void main() {
   const matcher = StationMatcher();
@@ -30,7 +26,9 @@ void main() {
     final m = matcher.match(
       latitude: 45.07,
       longitude: 7.68,
-      history: [fill(id: 1, lat: 45.07, lng: 7.68, station: 'Eni Corso Francia')],
+      history: [
+        fill(id: 1, lat: 45.07, lng: 7.68, station: 'Eni Corso Francia'),
+      ],
     );
     expect(m, isNotNull);
     expect(m!.name, 'Eni Corso Francia');
@@ -82,6 +80,9 @@ void main() {
   });
 
   test('empty history returns null', () {
-    expect(matcher.match(latitude: 45.07, longitude: 7.68, history: []), isNull);
+    expect(
+      matcher.match(latitude: 45.07, longitude: 7.68, history: []),
+      isNull,
+    );
   });
 }

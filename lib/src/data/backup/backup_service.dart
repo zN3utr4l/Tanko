@@ -8,8 +8,8 @@ import '../../domain/models/fill_up.dart';
 class BackupService {
   const BackupService();
 
-  static const currentSchemaVersion = 2;
-  static const _supportedVersions = {1, 2};
+  static const currentSchemaVersion = 3;
+  static const _supportedVersions = {1, 2, 3};
 
   String toJson(BackupData data) =>
       const JsonEncoder.withIndent('  ').convert(data.toJson());
