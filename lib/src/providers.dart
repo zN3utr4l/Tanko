@@ -3,7 +3,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'data/catalog/offline_catalog.dart';
 import 'data/database/database.dart';
 import 'data/location/geolocator_location_service.dart';
+import 'data/lookup/car_api_catalog_lookup.dart';
+import 'data/lookup/mimit_fuel_price_lookup.dart';
+import 'data/lookup/openapi_vehicle_lookup.dart';
 import 'data/lookup/overpass_station_lookup.dart';
+import 'data/notifications/reminder_notification_scheduler.dart';
 import 'data/notifications/notification_service.dart';
 import 'data/ocr/mlkit_ocr_service.dart';
 import 'data/repositories/category_repository_impl.dart';
@@ -90,6 +94,22 @@ OcrService ocrService(Ref ref) => MlKitOcrService();
 
 @Riverpod(keepAlive: true)
 StationLookupService stationLookupService(Ref ref) => OverpassStationLookup();
+
+@Riverpod(keepAlive: true)
+MimitFuelPriceLookup mimitFuelPriceLookup(Ref ref) => MimitFuelPriceLookup();
+
+@Riverpod(keepAlive: true)
+OpenApiVehicleLookup openapiVehicleLookup(Ref ref) => OpenApiVehicleLookup();
+
+@Riverpod(keepAlive: true)
+CarApiCatalogLookup carApiCatalogLookup(Ref ref) => CarApiCatalogLookup();
+
+@Riverpod(keepAlive: true)
+ReminderNotificationScheduler reminderNotificationScheduler(Ref ref) =>
+    ReminderNotificationScheduler(
+      reminders: ref.watch(reminderRepositoryProvider),
+      notifications: ref.watch(notificationServiceProvider),
+    );
 
 @Riverpod(keepAlive: true)
 UpdateService updateService(Ref ref) => GitHubUpdateService();

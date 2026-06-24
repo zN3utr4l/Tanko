@@ -735,6 +735,201 @@ final class StationLookupServiceProvider
 String _$stationLookupServiceHash() =>
     r'afb4d69836a0eb0f3122a29d7fe179b5a2a4e2e9';
 
+@ProviderFor(mimitFuelPriceLookup)
+final mimitFuelPriceLookupProvider = MimitFuelPriceLookupProvider._();
+
+final class MimitFuelPriceLookupProvider
+    extends
+        $FunctionalProvider<
+          MimitFuelPriceLookup,
+          MimitFuelPriceLookup,
+          MimitFuelPriceLookup
+        >
+    with $Provider<MimitFuelPriceLookup> {
+  MimitFuelPriceLookupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mimitFuelPriceLookupProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mimitFuelPriceLookupHash();
+
+  @$internal
+  @override
+  $ProviderElement<MimitFuelPriceLookup> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  MimitFuelPriceLookup create(Ref ref) {
+    return mimitFuelPriceLookup(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MimitFuelPriceLookup value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MimitFuelPriceLookup>(value),
+    );
+  }
+}
+
+String _$mimitFuelPriceLookupHash() =>
+    r'b39baddf5530ca23e0b1866eb086ad60daf381e5';
+
+@ProviderFor(openapiVehicleLookup)
+final openapiVehicleLookupProvider = OpenapiVehicleLookupProvider._();
+
+final class OpenapiVehicleLookupProvider
+    extends
+        $FunctionalProvider<
+          OpenApiVehicleLookup,
+          OpenApiVehicleLookup,
+          OpenApiVehicleLookup
+        >
+    with $Provider<OpenApiVehicleLookup> {
+  OpenapiVehicleLookupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'openapiVehicleLookupProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$openapiVehicleLookupHash();
+
+  @$internal
+  @override
+  $ProviderElement<OpenApiVehicleLookup> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OpenApiVehicleLookup create(Ref ref) {
+    return openapiVehicleLookup(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OpenApiVehicleLookup value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OpenApiVehicleLookup>(value),
+    );
+  }
+}
+
+String _$openapiVehicleLookupHash() =>
+    r'7d472dcccfb018d2531e45b0563bf9e544608de4';
+
+@ProviderFor(carApiCatalogLookup)
+final carApiCatalogLookupProvider = CarApiCatalogLookupProvider._();
+
+final class CarApiCatalogLookupProvider
+    extends
+        $FunctionalProvider<
+          CarApiCatalogLookup,
+          CarApiCatalogLookup,
+          CarApiCatalogLookup
+        >
+    with $Provider<CarApiCatalogLookup> {
+  CarApiCatalogLookupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'carApiCatalogLookupProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$carApiCatalogLookupHash();
+
+  @$internal
+  @override
+  $ProviderElement<CarApiCatalogLookup> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CarApiCatalogLookup create(Ref ref) {
+    return carApiCatalogLookup(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CarApiCatalogLookup value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CarApiCatalogLookup>(value),
+    );
+  }
+}
+
+String _$carApiCatalogLookupHash() =>
+    r'7121fa5a2617a510798c4a1d2dc5ea36c8a0aa14';
+
+@ProviderFor(reminderNotificationScheduler)
+final reminderNotificationSchedulerProvider =
+    ReminderNotificationSchedulerProvider._();
+
+final class ReminderNotificationSchedulerProvider
+    extends
+        $FunctionalProvider<
+          ReminderNotificationScheduler,
+          ReminderNotificationScheduler,
+          ReminderNotificationScheduler
+        >
+    with $Provider<ReminderNotificationScheduler> {
+  ReminderNotificationSchedulerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'reminderNotificationSchedulerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$reminderNotificationSchedulerHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReminderNotificationScheduler> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ReminderNotificationScheduler create(Ref ref) {
+    return reminderNotificationScheduler(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReminderNotificationScheduler value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReminderNotificationScheduler>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$reminderNotificationSchedulerHash() =>
+    r'c4b885423b52551e7af97251335a30835452b5a7';
+
 @ProviderFor(updateService)
 final updateServiceProvider = UpdateServiceProvider._();
 

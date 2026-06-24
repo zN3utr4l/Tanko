@@ -55,6 +55,8 @@ class _AddVehicleWizardScreenState
   /// Trims (allestimenti) of the currently-selected catalog model. Empty when
   /// no catalog model is picked or the model has no curated trims.
   List<CatalogTrim> _trims = const [];
+  List<CatalogTrim> _onlineTrims = const [];
+  bool _loadingOnlineTrims = false;
 
   @override
   void dispose() {
@@ -101,6 +103,7 @@ class _AddVehicleWizardScreenState
       _tank.text = m.tankCapacityL?.toString() ?? '';
       _consumption.text = m.consumptionL100?.toString() ?? '';
       _power.text = m.powerPs?.toString() ?? '';
+      _onlineTrims = const [];
     });
   }
 
@@ -129,6 +132,9 @@ class _AddVehicleWizardScreenState
     }
 
     for (final trim in _trims) {
+      add(trim);
+    }
+    for (final trim in _onlineTrims) {
       add(trim);
     }
 
@@ -210,6 +216,36 @@ class _AddVehicleWizardScreenState
     if (pasted == null) return;
     final data = ref.read(vehicleLookupServiceProvider).parsePastedText(pasted);
     if (!mounted) return;
+    await _applyLookupData(data);
+  }
+
+  Future<void> _lookupViaOpenApi() async {
+    final settings = await ref.read(lookupSettingsProvider.future);
+    if (!mounted) return;
+    if (!settings.vehicleOnlineLookupEnabled) {
+      _showMessage('Lookup veicoli online disattivato');
+      return;
+    }
+    if (settings.openApiKey.trim().isEmpty) {
+      _showMessage('Inserisci una API key Openapi nelle impostazioni');
+      return;
+    }
+    final plate = ref
+        .read(vehicleLookupServiceProvider)
+        .normalizePlate(_plate.text);
+    if (plate.isEmpty) {
+      _showMessage('Inserisci prima la targa');
+      return;
+    }
+    _showMessage('Lookup targa in corso...');
+    final data = await ref
+        .read(openapiVehicleLookupProvider)
+        .lookupItalianPlate(plate: plate, apiKey: settings.openApiKey);
+    if (!mounted) return;
+    await _applyLookupData(data);
+  }
+
+  Future<void> _applyLookupData(VehicleLookupData data) async {
     if (!data.hasRecognizedFields) {
       _showLookupPasteFeedback(data);
       return;
@@ -240,11 +276,56 @@ class _AddVehicleWizardScreenState
     _showLookupPasteFeedback(data);
   }
 
+  Future<void> _loadOnlineTrims() async {
+    final settings = await ref.read(lookupSettingsProvider.future);
+    if (!mounted) return;
+    if (!settings.vehicleOnlineLookupEnabled) {
+      _showMessage('Lookup veicoli online disattivato');
+      return;
+    }
+    final make = _make.text.trim();
+    final model = _model.text.trim();
+    if (make.isEmpty || model.isEmpty) {
+      _showMessage('Inserisci prima marca e modello');
+      return;
+    }
+    setState(() => _loadingOnlineTrims = true);
+    try {
+      final trims = await ref
+          .read(carApiCatalogLookupProvider)
+          .trims(make: make, model: model, year: _year);
+      if (!mounted) return;
+      setState(() {
+        _onlineTrims = trims;
+        if (trims.isNotEmpty) _specSource = SpecSource.online;
+      });
+      _showMessage(
+        trims.isEmpty
+            ? 'Nessun allestimento online trovato'
+            : 'Allestimenti online caricati: ${trims.length}',
+      );
+    } finally {
+      if (mounted) setState(() => _loadingOnlineTrims = false);
+    }
+  }
+
   void _showLookupPasteFeedback(VehicleLookupData data) {
     final labels = data.recognizedFieldLabels;
     final message = labels.isEmpty
         ? 'Nessun dato riconosciuto. Incolla campi come Marca: Fiat, Modello: Panda, Allestimento: Lounge, Classe ambientale: Euro 6.'
         : 'Importati: ${labels.join(', ')}';
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 88),
+        ),
+      );
+  }
+
+  void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -289,25 +370,27 @@ class _AddVehicleWizardScreenState
     );
     final vehicleId = await ref.read(vehicleRepositoryProvider).upsert(vehicle);
     if (_insuranceExpiry != null) {
-      await ref
+      final insuranceReminder = Reminder(
+        id: 0,
+        vehicleId: vehicleId,
+        type: ReminderType.assicurazione,
+        title: _insuranceCompany == null
+            ? 'Assicurazione'
+            : 'Assicurazione - $_insuranceCompany',
+        triggerMode: TriggerMode.date,
+        dueDate: _insuranceExpiry,
+        recurEvery: 1,
+        recurUnit: RecurUnit.year,
+        leadDays: 30,
+        createdAt: now,
+        updatedAt: now,
+      );
+      final reminderId = await ref
           .read(reminderRepositoryProvider)
-          .upsert(
-            Reminder(
-              id: 0,
-              vehicleId: vehicleId,
-              type: ReminderType.assicurazione,
-              title: _insuranceCompany == null
-                  ? 'Assicurazione'
-                  : 'Assicurazione - $_insuranceCompany',
-              triggerMode: TriggerMode.date,
-              dueDate: _insuranceExpiry,
-              recurEvery: 1,
-              recurUnit: RecurUnit.year,
-              leadDays: 30,
-              createdAt: now,
-              updatedAt: now,
-            ),
-          );
+          .upsert(insuranceReminder);
+      await ref
+          .read(reminderNotificationSchedulerProvider)
+          .sync(insuranceReminder.copyWith(id: reminderId));
       ref.invalidate(reminderEvaluationsProvider(vehicleId));
     }
     ref.invalidate(vehiclesProvider);
@@ -317,13 +400,12 @@ class _AddVehicleWizardScreenState
   @override
   Widget build(BuildContext context) {
     final makes = ref.watch(catalogMakesProvider).asData?.value ?? const [];
+    final lookupSettings = ref.watch(lookupSettingsProvider).asData?.value;
     final onlineLookupEnabled =
-        ref
-            .watch(lookupSettingsProvider)
-            .asData
-            ?.value
-            .vehicleOnlineLookupEnabled ??
-        false;
+        lookupSettings?.vehicleOnlineLookupEnabled ?? false;
+    final apiLookupEnabled =
+        onlineLookupEnabled &&
+        (lookupSettings?.openApiKey.trim().isNotEmpty ?? false);
     final vehicles = ref.watch(vehiclesProvider).asData?.value ?? const [];
     final trimSuggestions = _trimSuggestions(vehicles);
     final thisYear = DateTime.now().year;
@@ -346,7 +428,9 @@ class _AddVehicleWizardScreenState
             const SizedBox(height: 8),
             _LookupAssistCard(
               onlineEnabled: onlineLookupEnabled,
+              apiEnabled: apiLookupEnabled,
               onPaste: _pasteLookupData,
+              onApiLookup: _lookupViaOpenApi,
               onInsurance: () {
                 final service = ref.read(vehicleLookupServiceProvider);
                 _openLookup(
@@ -378,7 +462,10 @@ class _AddVehicleWizardScreenState
               key: ValueKey('model-$_fieldVersion'),
               controller: _model,
               models: _models,
-              onSelected: _applyModel,
+              onSelected: (model) {
+                _applyModel(model);
+                _loadOnlineTrims();
+              },
               onChanged: (_) => _markManual(),
             ),
             Row(
@@ -411,6 +498,22 @@ class _AddVehicleWizardScreenState
                   ),
                 ),
               ],
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: onlineLookupEnabled && !_loadingOnlineTrims
+                    ? _loadOnlineTrims
+                    : null,
+                icon: _loadingOnlineTrims
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.cloud_sync_outlined),
+                label: const Text('Cerca allestimenti online'),
+              ),
             ),
             DropdownButtonFormField<FuelType>(
               initialValue: _fuel,
@@ -486,13 +589,17 @@ class _AddVehicleWizardScreenState
 class _LookupAssistCard extends StatelessWidget {
   const _LookupAssistCard({
     required this.onlineEnabled,
+    required this.apiEnabled,
     required this.onPaste,
+    required this.onApiLookup,
     required this.onInsurance,
     required this.onEuroClass,
   });
 
   final bool onlineEnabled;
+  final bool apiEnabled;
   final VoidCallback onPaste;
+  final VoidCallback onApiLookup;
   final VoidCallback onInsurance;
   final VoidCallback onEuroClass;
 
@@ -511,6 +618,11 @@ class _LookupAssistCard extends StatelessWidget {
           onPressed: onlineEnabled ? onEuroClass : null,
           icon: const Icon(Icons.eco_outlined),
           label: const Text('Classe Euro'),
+        ),
+        OutlinedButton.icon(
+          onPressed: apiEnabled ? onApiLookup : null,
+          icon: const Icon(Icons.manage_search),
+          label: const Text('Lookup targa API'),
         ),
         FilledButton.tonalIcon(
           onPressed: onPaste,

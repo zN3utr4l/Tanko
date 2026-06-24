@@ -28,6 +28,15 @@ class BackupService {
     return BackupData.fromJson(decoded);
   }
 
+  BackupPreview preview(BackupData data) => BackupPreview(
+    schemaVersion: data.schemaVersion,
+    vehicles: data.vehicles.length,
+    categories: data.categories.length,
+    fillUps: data.fillUps.length,
+    expenses: data.expenses.length,
+    reminders: data.reminders.length,
+  );
+
   String toCsv(List<FillUp> fills) {
     final rows = <List<Object?>>[
       [
@@ -77,4 +86,36 @@ class BackupService {
     ];
     return Csv(lineDelimiter: '\n').encode(rows);
   }
+}
+
+class BackupPreview {
+  const BackupPreview({
+    required this.schemaVersion,
+    required this.vehicles,
+    required this.categories,
+    required this.fillUps,
+    required this.expenses,
+    required this.reminders,
+  });
+
+  final int schemaVersion;
+  final int vehicles;
+  final int categories;
+  final int fillUps;
+  final int expenses;
+  final int reminders;
+
+  String get summary {
+    return [
+      'Schema backup v$schemaVersion',
+      _line(vehicles, 'veicolo', 'veicoli'),
+      _line(categories, 'categoria', 'categorie'),
+      _line(fillUps, 'rifornimento', 'rifornimenti'),
+      _line(expenses, 'spesa', 'spese'),
+      _line(reminders, 'scadenza', 'scadenze'),
+    ].join('\n');
+  }
+
+  String _line(int count, String singular, String plural) =>
+      '$count ${count == 1 ? singular : plural}';
 }

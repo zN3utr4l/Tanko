@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../core/formatters.dart';
@@ -63,7 +64,9 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
 
   Future<void> _pickPhoto() async {
     try {
-      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final source = await _pickImageSource();
+      if (source == null || !mounted) return;
+      final picked = await ImagePicker().pickImage(source: source);
       if (picked == null) return;
       final dir = await getApplicationDocumentsDirectory();
       final dest = p.join(dir.path, 'receipt_${picked.name}');
@@ -72,6 +75,30 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     } catch (_) {
       /* best-effort */
     }
+  }
+
+  Future<ImageSource?> _pickImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Scatta foto'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Scegli dalla galleria'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -204,6 +231,23 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     : 'Foto allegata ✓',
               ),
             ),
+            if (_photoPath != null)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => OpenFilex.open(_photoPath!),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Apri foto'),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => setState(() => _photoPath = null),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Rimuovi foto'),
+                  ),
+                ],
+              ),
             const SizedBox(height: 16),
             FilledButton(onPressed: _save, child: const Text('Salva')),
           ],

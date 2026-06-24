@@ -106,4 +106,18 @@ void main() {
     expect(lines.first, contains('odometer'));
     expect(lines, hasLength(2)); // header + 1 fill-up
   });
+
+  test('preview summarizes backup contents before restore', () {
+    final preview = service.preview(data);
+
+    expect(preview.schemaVersion, 3);
+    expect(preview.vehicles, 1);
+    expect(preview.fillUps, 1);
+    expect(preview.expenses, 1);
+    expect(preview.reminders, 1);
+    expect(preview.summary, contains('1 veicolo'));
+    expect(preview.summary, contains('1 rifornimento'));
+    expect(preview.summary, contains('1 spesa'));
+    expect(preview.summary, contains('1 scadenza'));
+  });
 }

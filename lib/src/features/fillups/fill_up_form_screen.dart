@@ -1,7 +1,11 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_filex/open_filex.dart';
 import '../../core/formatters.dart';
+import '../../data/lookup/mimit_fuel_price_lookup.dart';
+import '../../domain/models/enums.dart';
 import '../../domain/models/fill_up.dart';
 import '../../domain/models/geo_point.dart';
 import '../../providers.dart';
@@ -45,6 +49,8 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   late double? _latitude = widget.initial?.latitude;
   late double? _longitude = widget.initial?.longitude;
   late String? _receiptPhotoPath = widget.initial?.receiptPhotoPath;
+  String? _officialPriceNote;
+  bool _checkingOfficialPrice = false;
 
   @override
   void initState() {
@@ -227,9 +233,9 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   }
 
   Future<void> _useReceipt() async {
-    final XFile? file = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-    );
+    final source = await _pickImageSource();
+    if (source == null || !mounted) return;
+    final XFile? file = await ImagePicker().pickImage(source: source);
     if (file == null || !mounted) return;
     final data = await ref.read(stationDetectorProvider).readReceipt(file.path);
     if (!mounted) return;
@@ -239,6 +245,124 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
       if (data.amount != null) _amount.text = data.amount!.toString();
       if (data.liters != null) _liters.text = data.liters!.toString();
     });
+  }
+
+  Future<ImageSource?> _pickImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Scatta foto'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Scegli dalla galleria'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _checkOfficialPrice() async {
+    final liters = _parse(_liters.text);
+    final amount = _parse(_amount.text);
+    if (liters == null || liters <= 0 || amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Inserisci importo e litri prima')),
+      );
+      return;
+    }
+    final settings = await ref.read(lookupSettingsProvider.future);
+    if (!mounted) return;
+    if (!settings.stationOnlineLookupEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ricerca distributori online disattivata'),
+        ),
+      );
+      return;
+    }
+    setState(() => _checkingOfficialPrice = true);
+    final at = _latitude != null && _longitude != null
+        ? GeoPoint(_latitude!, _longitude!)
+        : await ref.read(locationServiceProvider).current();
+    if (!mounted) return;
+    if (at == null) {
+      setState(() => _checkingOfficialPrice = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Posizione non disponibile')),
+      );
+      return;
+    }
+    final candidates = await ref
+        .read(mimitFuelPriceLookupProvider)
+        .nearby(latitude: at.latitude, longitude: at.longitude);
+    if (!mounted) return;
+    setState(() => _checkingOfficialPrice = false);
+    if (candidates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nessun prezzo MIMIT vicino trovato')),
+      );
+      return;
+    }
+    final vehicle = await ref
+        .read(vehicleRepositoryProvider)
+        .getById(widget.vehicleId);
+    if (!mounted) return;
+    final priced = [
+      for (final c in candidates)
+        if (c.bestPriceFor(vehicle.fuelType) != null) c,
+    ];
+    if (priced.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nessun prezzo compatibile trovato')),
+      );
+      return;
+    }
+    final picked = await showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Prezzi ufficiali MIMIT'),
+        children: [
+          for (var i = 0; i < math.min(priced.length, 8); i++)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, i),
+              child: Text(_mimitCandidateLabel(priced[i], vehicle.fuelType)),
+            ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    final station = priced[picked];
+    final price = station.bestPriceFor(vehicle.fuelType)!;
+    final entered = amount / liters;
+    final delta = entered - price.price;
+    setState(() {
+      _station.text = station.name;
+      _latitude = station.latitude;
+      _longitude = station.longitude;
+      _officialPriceNote =
+          'MIMIT: ${price.price.toStringAsFixed(3).replaceAll('.', ',')} €/L '
+          '(${price.isSelf ? 'self' : 'servito'}) · differenza '
+          '${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(3).replaceAll('.', ',')} €/L';
+    });
+  }
+
+  String _mimitCandidateLabel(
+    MimitFuelStationPriceCandidate candidate,
+    FuelType fuelType,
+  ) {
+    final price = candidate.bestPriceFor(fuelType)!;
+    final euros = price.price.toStringAsFixed(3).replaceAll('.', ',');
+    return '${candidate.name} · $euros €/L · ${candidate.distanceMeters.round()} m';
   }
 
   Future<void> _save() async {
@@ -252,12 +376,35 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
     final existing = await ref
         .read(fillUpRepositoryProvider)
         .forVehicle(widget.vehicleId);
-    if (existing.isNotEmpty && odometer < existing.last.odometer && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Attenzione: odometro inferiore al precedente'),
-        ),
+    final comparable = existing
+        .where((f) => f.id != (widget.initial?.id ?? 0))
+        .toList();
+    final maxOdometer = comparable.isEmpty
+        ? null
+        : comparable.map((f) => f.odometer).reduce((a, b) => a > b ? a : b);
+    if (maxOdometer != null && odometer < maxOdometer && mounted) {
+      final confirmed = await _confirmSaveAnomaly(
+        title: 'Odometro inferiore',
+        message:
+            'L\'odometro inserito e inferiore al massimo registrato '
+            '(${maxOdometer.toStringAsFixed(0)} km).',
       );
+      if (!confirmed) return;
+    }
+    final amount = _parse(_amount.text)!;
+    final duplicate = comparable.any(
+      (f) =>
+          _sameDay(f.date, _date) &&
+          f.odometer == odometer &&
+          (f.amount - amount).abs() < 0.01,
+    );
+    if (duplicate && mounted) {
+      final confirmed = await _confirmSaveAnomaly(
+        title: 'Possibile duplicato',
+        message:
+            'Esiste gia un rifornimento con stessa data, importo e odometro.',
+      );
+      if (!confirmed) return;
     }
 
     final now = DateTime.now();
@@ -269,7 +416,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
             id: base?.id ?? 0,
             vehicleId: widget.vehicleId,
             date: _date,
-            amount: _parse(_amount.text)!,
+            amount: amount,
             liters: _parse(_liters.text),
             odometer: odometer,
             isFull: _isFull,
@@ -286,6 +433,33 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
     ref.invalidate(fillUpsProvider(widget.vehicleId));
     if (mounted) Navigator.of(context).pop();
   }
+
+  Future<bool> _confirmSaveAnomaly({
+    required String title,
+    required String message,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Correggi'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Salva comunque'),
+          ),
+        ],
+      ),
+    );
+    return result == true;
+  }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   @override
   Widget build(BuildContext context) {
@@ -346,6 +520,25 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
+            if (_officialPriceNote != null)
+              Text(
+                _officialPriceNote!,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _checkingOfficialPrice ? null : _checkOfficialPrice,
+                icon: _checkingOfficialPrice
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.price_check_outlined),
+                label: const Text('Confronta prezzo MIMIT'),
+              ),
+            ),
             TextFormField(
               key: const Key('odometer'),
               controller: _odometer,
@@ -380,6 +573,33 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
             TextFormField(
               controller: _station,
               decoration: const InputDecoration(labelText: 'Distributore'),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _useReceipt,
+                  icon: const Icon(Icons.document_scanner_outlined),
+                  label: Text(
+                    _receiptPhotoPath == null
+                        ? 'Leggi scontrino'
+                        : 'Rileggi scontrino',
+                  ),
+                ),
+                if (_receiptPhotoPath != null) ...[
+                  TextButton.icon(
+                    onPressed: () => OpenFilex.open(_receiptPhotoPath!),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Apri'),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => setState(() => _receiptPhotoPath = null),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Rimuovi'),
+                  ),
+                ],
+              ],
             ),
             TextFormField(
               controller: _note,

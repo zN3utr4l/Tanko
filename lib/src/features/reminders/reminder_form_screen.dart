@@ -108,7 +108,10 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
       linkedExpenseCategoryId: _linkedCategory,
       updatedAt: now,
     );
-    await ref.read(reminderRepositoryProvider).upsert(r);
+    final id = await ref.read(reminderRepositoryProvider).upsert(r);
+    await ref
+        .read(reminderNotificationSchedulerProvider)
+        .sync(r.copyWith(id: id));
     ref.invalidate(reminderEvaluationsProvider(r.vehicleId));
     ref.invalidate(calendarEventsProvider(r.vehicleId));
     if (mounted) Navigator.of(context).pop();
