@@ -74,6 +74,71 @@ class StatsService {
     return list;
   }
 
+  /// Cost per km over the odometer span. Null when fewer than 2 fills or no
+  /// distance. Needs no liters.
+  double? costPerKm(List<FillUp> fills) {
+    final stats = compute(fills);
+    return stats.totalKm > 0 ? stats.totalSpend / stats.totalKm : null;
+  }
+
+  /// Total fuel spend per calendar year, sorted ascending.
+  List<({int year, double total})> yearlySpend(List<FillUp> fills) {
+    final byYear = <int, double>{};
+    for (final f in fills) {
+      byYear.update(f.date.year, (v) => v + f.amount, ifAbsent: () => f.amount);
+    }
+    final years = byYear.keys.toList()..sort();
+    return [for (final y in years) (year: y, total: byYear[y]!)];
+  }
+
+  /// Distance driven between consecutive fill-ups (odometer deltas), ordered by
+  /// odometer. Skips non-positive deltas (duplicate/rolled-back odometer).
+  List<({FillUp from, FillUp to, double km})> kmPerFill(List<FillUp> fills) {
+    if (fills.length < 2) return const [];
+    final sorted = [...fills]..sort((a, b) => a.odometer.compareTo(b.odometer));
+    final out = <({FillUp from, FillUp to, double km})>[];
+    for (var i = 1; i < sorted.length; i++) {
+      final km = sorted[i].odometer - sorted[i - 1].odometer;
+      if (km > 0) out.add((from: sorted[i - 1], to: sorted[i], km: km));
+    }
+    return out;
+  }
+
+  /// Total fuel amount per fuel-category id (mirror of expenseByCategory).
+  Map<int, double> fuelByCategory(List<FillUp> fills) {
+    final m = <int, double>{};
+    for (final f in fills) {
+      m.update(f.categoryId, (v) => v + f.amount, ifAbsent: () => f.amount);
+    }
+    return m;
+  }
+
+  /// Most-used stations by fill-up count (then total spent), ignoring fills
+  /// without a station.
+  List<({String station, int count, double total})> topStations(
+    List<FillUp> fills, {
+    int limit = 5,
+  }) {
+    final count = <String, int>{};
+    final total = <String, double>{};
+    for (final f in fills) {
+      final st = f.station;
+      if (st == null || st.trim().isEmpty) continue;
+      count.update(st, (v) => v + 1, ifAbsent: () => 1);
+      total.update(st, (v) => v + f.amount, ifAbsent: () => f.amount);
+    }
+    final entries =
+        count.keys
+            .map((st) => (station: st, count: count[st]!, total: total[st]!))
+            .toList()
+          ..sort(
+            (a, b) => b.count != a.count
+                ? b.count - a.count
+                : b.total.compareTo(a.total),
+          );
+    return entries.take(limit).toList();
+  }
+
   /// Cost of ownership over fuel + general expenses.
   CostSummary costSummary(List<FillUp> fills, List<Expense> expenses) {
     final fuelCost = fills.fold(0.0, (s, f) => s + f.amount);
