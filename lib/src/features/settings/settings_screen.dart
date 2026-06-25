@@ -9,12 +9,37 @@ import '../../data/backup/backup_service.dart';
 import '../../data/importer/excel_importer.dart';
 import '../../data/settings/lookup_settings.dart';
 import '../../domain/models/backup_data.dart';
+import '../../domain/models/import_result.dart';
 import '../../domain/models/vehicle.dart';
 import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../updates/update_providers.dart';
 import '../vehicles/vehicle_providers.dart';
 import 'online_diagnostics_screen.dart';
+
+/// Shows the post-import summary. Kept top-level (and tested) because the import
+/// runs from a screen pushed onto a per-tab branch navigator: the OK button must
+/// pop the dialog's own route, not the branch navigator.
+Future<void> showImportResultDialog(BuildContext context, ImportResult result) {
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Import completato'),
+      content: Text(
+        'Importate: ${result.rows.length}\n'
+        'Saltate: ${result.skipped}\n'
+        'Duplicate: ${result.duplicates}\n'
+        'Avvisi: ${result.warnings.length}',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -207,24 +232,7 @@ class SettingsScreen extends ConsumerWidget {
     ref.invalidate(dashboardVehicleProvider);
 
     if (context.mounted) {
-      await showDialog<void>(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Import completato'),
-          content: Text(
-            'Importate: ${result.rows.length}\n'
-            'Saltate: ${result.skipped}\n'
-            'Duplicate: ${result.duplicates}\n'
-            'Avvisi: ${result.warnings.length}',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      await showImportResultDialog(context, result);
     }
   }
 

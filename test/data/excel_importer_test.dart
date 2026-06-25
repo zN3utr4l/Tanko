@@ -56,6 +56,22 @@ void main() {
     expect(result.rows.single.date, DateTime(2023, 8, 21));
   });
 
+  test('skips rows with an implausible date (corrupt serial)', () {
+    final rows = <List<Object?>>[
+      ['title', null, null, null, null],
+      ['Data', 'Importo', 'Km', 'Aut', 'Diff'],
+      [6686029, 40, 99999, 590, 4553], // corrupt serial -> year ~20205
+      [45174, 40, 3963, 590, 4553], // valid 2023 row
+    ];
+
+    final result = importer.mapRows(rows, vehicleId: 1, categoryId: 1);
+
+    expect(result.rows, hasLength(1));
+    expect(result.rows.single.date.year, lessThan(2100));
+    expect(result.skipped, 1);
+    expect(result.warnings.any((w) => w.contains('non valida')), isTrue);
+  });
+
   test('skips rows that duplicate existing fill-ups', () {
     final rows = <List<Object?>>[
       ['title', null, null, null, null],

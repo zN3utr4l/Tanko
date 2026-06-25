@@ -7,6 +7,13 @@ class ExcelImporter {
   const ExcelImporter();
 
   static final _epoch = DateTime(1899, 12, 30);
+  static final _minDate = DateTime(1990);
+
+  /// A fill-up can't predate fuel tracking nor lie in the future. Out-of-range
+  /// dates come from corrupt source cells (e.g. an odometer value typed into the
+  /// date column) and would otherwise poison the calendar and stats charts.
+  bool _isPlausibleDate(DateTime d, DateTime now) =>
+      !d.isBefore(_minDate) && !d.isAfter(now.add(const Duration(days: 1)));
 
   double? _num(Object? v) {
     if (v == null) return null;
@@ -69,6 +76,11 @@ class ExcelImporter {
       if (date == null || amount == null || odometer == null) {
         skipped++;
         warnings.add('Riga ${i + 1}: dati incompleti, saltata.');
+        continue;
+      }
+      if (!_isPlausibleDate(date, now)) {
+        skipped++;
+        warnings.add('Riga ${i + 1}: data ${date.year} non valida, saltata.');
         continue;
       }
       if (odometer == 0) {

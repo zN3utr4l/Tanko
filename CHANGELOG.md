@@ -5,6 +5,22 @@ All notable changes to Carburo are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Each release maps to
 a `v*` Git tag — the same tags the CD workflow attaches the APK to.
 
+## [0.5.7] — 2026-06-24
+
+### Fixed
+- **Excel import no longer silently corrupts the calendar and stats.** A single
+  garbage date cell in the source file (e.g. an odometer value typed into the
+  date column) was converted into an absurd far-future date (year 20205), which
+  dragged the stats chart's time axis across millennia — squashing every real
+  bar to invisibility — and made the row unreachable in the calendar. The
+  importer now skips rows whose date falls outside a plausible range (before
+  1990 or in the future) and reports them as a warning, instead of importing
+  them. The rest of the file imports normally.
+- **The "Import completato" dialog could not be dismissed.** Because Settings is
+  pushed onto a per-tab (branch) navigator, the OK button popped the branch
+  navigator instead of the dialog, so the dialog stayed up (and Settings closed
+  underneath). OK now pops the dialog's own route.
+
 ## [0.3.0] — 2026-06-22
 
 ### Changed
