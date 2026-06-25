@@ -60,11 +60,19 @@ class _HomeShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: Column(
-        children: [
-          const UpdateBanner(),
-          Expanded(child: shell),
-        ],
+      // The system status bar (clock, notifications, wifi) draws over the app in
+      // Android's edge-to-edge mode. This shell has no AppBar to reserve that
+      // inset, so wrap the body in a SafeArea: it applies the top inset once and
+      // strips it from descendants, so the banner and each tab's AppBar sit below
+      // the status bar without double-padding. Bottom is left to NavigationBar.
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            const UpdateBanner(),
+            Expanded(child: shell),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
