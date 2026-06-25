@@ -12,8 +12,10 @@ import '../../providers.dart';
 import '../dashboard/dashboard_providers.dart';
 import '../expenses/expense_providers.dart';
 import '../fillups/fillup_providers.dart';
+import '../../domain/services/stats_service.dart';
 import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'stats_providers.dart';
+import 'widgets/chart_axis.dart';
 
 enum _StatsRange { all, twelveMonths, currentYear }
 
@@ -276,6 +278,9 @@ class _InsightsCard extends StatelessWidget {
     final total = fills.fold(0.0, (sum, f) => sum + f.amount);
     final liters = fills.fold(0.0, (sum, f) => sum + (f.liters ?? 0));
     final price = liters > 0 ? total / liters : null;
+    const service = StatsService();
+    final stats = service.compute(fills);
+    final costPerKm = service.costPerKm(fills);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -285,9 +290,14 @@ class _InsightsCard extends StatelessWidget {
           children: [
             _Metric(label: 'Totale', value: fmtEuro(total)),
             _Metric(label: 'Rifornimenti', value: fills.length.toString()),
+            _Metric(label: 'Km totali', value: fmtKm(stats.totalKm)),
+            _Metric(
+              label: '€/km',
+              value: costPerKm == null ? '—' : fmtEuro(costPerKm),
+            ),
             _Metric(
               label: 'Prezzo medio',
-              value: price == null ? '-' : '${fmtEuro(price)}/L',
+              value: price == null ? '—' : '${fmtEuro(price)}/L',
             ),
           ],
         ),
@@ -324,8 +334,11 @@ class _StackedChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labels = [for (final r in rows) r.label];
+    final maxY = rows.fold(0.0, (mx, r) => r.total > mx ? r.total : mx);
     return BarChart(
       BarChartData(
+        maxY: maxY == 0 ? 1 : maxY * 1.15,
         barGroups: [
           for (var i = 0; i < rows.length; i++)
             BarChartGroupData(
@@ -333,7 +346,7 @@ class _StackedChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: rows[i].total,
-                  width: 14,
+                  width: rows.length > 24 ? 5 : 10,
                   rodStackItems: [
                     BarChartRodStackItem(0, rows[i].fuel, Colors.teal),
                     BarChartRodStackItem(
@@ -348,21 +361,8 @@ class _StackedChart extends StatelessWidget {
         ],
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(),
-          rightTitles: const AxisTitles(),
-          leftTitles: const AxisTitles(),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final i = value.toInt();
-                if (i < 0 || i >= rows.length) return const SizedBox.shrink();
-                return Text(rows[i].label, style: const TextStyle(fontSize: 9));
-              },
-            ),
-          ),
-        ),
+        barTouchData: currencyBarTouch(labels),
+        titlesData: barTitles(labels: labels, maxY: maxY),
       ),
     );
   }
@@ -381,7 +381,10 @@ class _ComparisonCard extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: Text('Dati insufficienti (servono litri e specifiche auto).'),
+          child: Text(
+            'Servono i litri per rifornimento per calcolare consumo e '
+            'autonomia reali. Aggiungili sui nuovi rifornimenti.',
+          ),
         ),
       );
     }
@@ -418,34 +421,28 @@ class _MonthlySpendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labels = [for (final m in months) m.label];
+    final maxY = months.fold(0.0, (mx, m) => m.total > mx ? m.total : mx);
     return BarChart(
       BarChartData(
+        maxY: maxY == 0 ? 1 : maxY * 1.15,
         barGroups: [
           for (var i = 0; i < months.length; i++)
             BarChartGroupData(
               x: i,
-              barRods: [BarChartRodData(toY: months[i].total)],
+              barRods: [
+                BarChartRodData(
+                  toY: months[i].total,
+                  width: months.length > 24 ? 5 : 10,
+                  color: Colors.teal,
+                ),
+              ],
             ),
         ],
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(),
-          rightTitles: const AxisTitles(),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final i = value.toInt();
-                if (i < 0 || i >= months.length) return const SizedBox.shrink();
-                return Text(
-                  months[i].label,
-                  style: const TextStyle(fontSize: 9),
-                );
-              },
-            ),
-          ),
-        ),
+        barTouchData: currencyBarTouch(labels),
+        titlesData: barTitles(labels: labels, maxY: maxY),
       ),
     );
   }
@@ -471,8 +468,12 @@ class _PriceTrendChart extends StatelessWidget {
         titlesData: const FlTitlesData(
           topTitles: AxisTitles(),
           rightTitles: AxisTitles(),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+          ),
           bottomTitles: AxisTitles(),
         ),
+        lineTouchData: const LineTouchData(),
       ),
     );
   }
