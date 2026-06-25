@@ -70,7 +70,8 @@ class ExcelImporter {
       final odometer = _num(r.length > 2 ? r[2] : null);
 
       if (date == null && amount == null && odometer == null) {
-        skipped++;
+        // Fully-empty row: a blank spacer, a section label (e.g. "SPESE MIE")
+        // or a totals row. Not a fill-up at all, so don't inflate `skipped`.
         continue;
       }
       if (date == null || amount == null || odometer == null) {

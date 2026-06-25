@@ -55,4 +55,46 @@ void main() {
       expect(find.text('import'), findsOneWidget); // settings screen still up
     },
   );
+
+  testWidgets('lists the per-row skip reasons so the user can fix the source', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => showImportResultDialog(
+                  context,
+                  const ImportResult(
+                    skipped: 2,
+                    duplicates: 1,
+                    warnings: [
+                      'Riga 5: data 20205 non valida, saltata.',
+                      'Riga 8: rifornimento duplicato, saltato.',
+                    ],
+                  ),
+                ),
+                child: const Text('import'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('import'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dettaglio (2):'), findsOneWidget);
+    expect(
+      find.text('• Riga 5: data 20205 non valida, saltata.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('• Riga 8: rifornimento duplicato, saltato.'),
+      findsOneWidget,
+    );
+  });
 }

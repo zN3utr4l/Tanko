@@ -25,11 +25,44 @@ Future<void> showImportResultDialog(BuildContext context, ImportResult result) {
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Import completato'),
-      content: Text(
-        'Importate: ${result.rows.length}\n'
-        'Saltate: ${result.skipped}\n'
-        'Duplicate: ${result.duplicates}\n'
-        'Avvisi: ${result.warnings.length}',
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Importate: ${result.rows.length}\n'
+              'Saltate: ${result.skipped}\n'
+              'Duplicate: ${result.duplicates}',
+            ),
+            if (result.warnings.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Dettaglio (${result.warnings.length}):',
+                style: Theme.of(dialogContext).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              // Per-row reasons (incomplete data / invalid date / duplicate) so
+              // the user can tell whether the source file needs fixing.
+              Flexible(
+                child: Scrollbar(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: result.warnings.length,
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        '• ${result.warnings[i]}',
+                        style: Theme.of(dialogContext).textTheme.bodySmall,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
       actions: [
         TextButton(

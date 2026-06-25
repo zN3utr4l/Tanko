@@ -19,13 +19,13 @@ void main() {
         ], // header
         [45146, 300, 0, 0, 3963], // anomaly: odometer 0
         [45174, 40, 3963, 590, 4553], // normal
-        [null, null, null, null, null], // empty -> skipped
+        [null, null, null, null, null], // empty -> ignored, not counted
       ];
 
       final result = importer.mapRows(rows, vehicleId: 7, categoryId: 1);
 
       expect(result.rows, hasLength(2));
-      expect(result.skipped, 1);
+      expect(result.skipped, 0); // blank rows are not "skipped" data
       expect(result.warnings, isNotEmpty); // zero-odometer anomaly flagged
 
       final anomaly = result.rows.first;
@@ -45,6 +45,22 @@ void main() {
       expect(normal.rangeKm, 590); // Autonomia column
     },
   );
+
+  test('section-label and totals rows are ignored, not counted as skipped', () {
+    final rows = <List<Object?>>[
+      ['title', null, null, null, null],
+      ['Data', 'Importo', 'Km', 'Aut', 'Diff'],
+      [DateTime(2023, 8, 21), 40, 3963, 590, 4553], // real fill-up
+      [null, null, null, null, null, null, 'SPESE MIE'], // section label
+      [null, null, null, null, null, null, 'SUM(B3:B7)'], // totals row
+    ];
+
+    final result = importer.mapRows(rows, vehicleId: 1, categoryId: 1);
+
+    expect(result.rows, hasLength(1));
+    expect(result.skipped, 0);
+    expect(result.warnings, isEmpty);
+  });
 
   test('accepts DateTime values in the date column', () {
     final rows = <List<Object?>>[
