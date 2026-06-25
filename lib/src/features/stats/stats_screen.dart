@@ -16,6 +16,8 @@ import '../../domain/services/stats_service.dart';
 import '../vehicles/widgets/empty_vehicle_prompt.dart';
 import 'stats_providers.dart';
 import 'widgets/chart_axis.dart';
+import 'widgets/extra_sections.dart';
+import 'widgets/km_per_fill_section.dart';
 
 enum _StatsRange { all, twelveMonths, currentYear }
 
@@ -118,6 +120,17 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                   orElse: () =>
                       const Center(child: CircularProgressIndicator()),
                 ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Km per pieno',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              fills.maybeWhen(
+                data: (list) =>
+                    KmPerFillSection(_filterByDate(list, (f) => f.date)),
+                orElse: () => const SizedBox.shrink(),
               ),
               const SizedBox(height: 24),
               Text(
@@ -244,6 +257,24 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             ),
           ],
         ),
+      const SizedBox(height: 24),
+      Text(
+        'Spese mie / non mie',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      const SizedBox(height: 8),
+      MieNonMieDonut(fills, catName, {for (final c in cats) c.id: c.color}),
+      const SizedBox(height: 24),
+      Text(
+        'Top distributori',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      const SizedBox(height: 8),
+      TopStationsList(fills),
+      const SizedBox(height: 24),
+      Text('Spesa per anno', style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 8),
+      YearlySpendChart(fills),
       const SizedBox(height: 24),
       Text(
         'Costo mensile (carburante vs spese)',
