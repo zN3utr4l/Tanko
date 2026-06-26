@@ -5,7 +5,7 @@ import '../../../domain/models/fill_up.dart';
 import '../../../domain/services/stats_service.dart';
 import 'chart_axis.dart';
 
-/// Fuel grouped by fuel-category (the seeded `Mine`/`Not mine`).
+/// Fuel grouped by fuel-category (the seeded `Mie`/`Non mie`).
 class MieNonMieDonut extends StatelessWidget {
   const MieNonMieDonut(this.fills, this.catName, this.catColor, {super.key});
   final List<FillUp> fills;

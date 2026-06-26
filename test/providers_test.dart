@@ -15,7 +15,7 @@ void main() {
     final cats = await container.read(categoryRepositoryProvider).all();
     // Seeded fuel categories + the expense categories.
     expect(
-      cats.where((c) => c.name == 'Mine' || c.name == 'Not mine'),
+      cats.where((c) => c.name == 'Mie' || c.name == 'Non mie'),
       hasLength(2),
     );
     expect(cats.length, greaterThan(2));

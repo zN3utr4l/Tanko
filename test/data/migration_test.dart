@@ -5,6 +5,17 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:carburo/src/data/database/database.dart';
 import '../helpers/test_db.dart';
 
+void _createCategoriesTableV2(Database raw) {
+  // categories at v2: kind/icon_code/ord were added on top of the v1 shape.
+  raw.execute(
+    'CREATE TABLE categories (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, '
+    'name TEXT NOT NULL, color INTEGER NOT NULL, '
+    'is_default INTEGER NOT NULL DEFAULT 0, '
+    "kind TEXT NOT NULL DEFAULT 'fuel', "
+    'icon_code INTEGER, ord INTEGER NOT NULL DEFAULT 0);',
+  );
+}
+
 void _createVehiclesTableWithoutEuro(Database raw) {
   raw.execute(
     'CREATE TABLE vehicles (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, '
@@ -27,7 +38,7 @@ void main() {
       final cats = await db.select(db.categories).get();
       final fuel = cats.where((c) => c.kind == 'fuel').toList();
       final expense = cats.where((c) => c.kind == 'expense').toList();
-      expect(fuel.map((c) => c.name), containsAll(['Mine', 'Not mine']));
+      expect(fuel.map((c) => c.name), containsAll(['Mie', 'Non mie']));
       expect(expense, hasLength(10));
       expect(expense.map((c) => c.name), contains('Assicurazione'));
       expect(expense.every((c) => c.iconCode != null), isTrue);
@@ -63,7 +74,8 @@ void main() {
       addTearDown(db.close);
 
       final cats = await db.select(db.categories).get();
-      final mine = cats.firstWhere((c) => c.name == 'Mine');
+      // Seeded as 'Mine' at v1; renamed to 'Mie' by the v3->v4 migration.
+      final mine = cats.firstWhere((c) => c.name == 'Mie');
       expect(mine.kind, 'fuel'); // backfilled
       expect(
         cats.where((c) => c.kind == 'expense'),
@@ -85,6 +97,7 @@ void main() {
       // store_date_time_values_as_text is on (see build.yaml).
       final raw = sqlite3.open(file.path);
       _createVehiclesTableWithoutEuro(raw);
+      _createCategoriesTableV2(raw); // a real v2 DB has this; v3->v4 touches it
       raw.execute(
         "INSERT INTO vehicles (make, model, fuel_type, power_ps, created_at, updated_at) "
         "VALUES ('Fiat', 'Panda', 'petrol', 70, "
@@ -101,6 +114,45 @@ void main() {
       expect(vehicles.single.make, 'Fiat');
       expect(vehicles.single.powerPs, 70);
       expect(vehicles.single.euroClass, isNull); // new nullable column
+    },
+  );
+
+  test(
+    'onUpgrade 3->4 renames English default fuel categories to Italian, '
+    'preserving user-renamed categories',
+    () async {
+      final dir = Directory.systemTemp.createTempSync('carburo_mig4');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/v3.sqlite');
+
+      // v3 categories table is the same shape as v2 (no further DDL at v3).
+      final raw = sqlite3.open(file.path);
+      _createCategoriesTableV2(raw);
+      raw.execute(
+        "INSERT INTO categories (name, color, is_default, kind) "
+        "VALUES ('Mine', 1, 1, 'fuel');",
+      );
+      raw.execute(
+        "INSERT INTO categories (name, color, is_default, kind) "
+        "VALUES ('Not mine', 2, 0, 'fuel');",
+      );
+      // A category the user renamed must NOT be touched by the migration.
+      raw.execute(
+        "INSERT INTO categories (name, color, is_default, kind) "
+        "VALUES ('Lavoro', 3, 0, 'fuel');",
+      );
+      raw.execute('PRAGMA user_version = 3;');
+      raw.close();
+
+      final db = AppDatabase.forTesting(NativeDatabase(file));
+      addTearDown(db.close);
+
+      final names = (await db.select(db.categories).get())
+          .map((c) => c.name)
+          .toList();
+      expect(names, containsAll(['Mie', 'Non mie', 'Lavoro']));
+      expect(names, isNot(contains('Mine')));
+      expect(names, isNot(contains('Not mine')));
     },
   );
 }

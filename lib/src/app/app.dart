@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/updates/update_providers.dart';
 import '../providers.dart';
@@ -48,6 +49,13 @@ class _AppState extends ConsumerState<App> {
       title: 'Carburo',
       theme: appTheme(Brightness.light),
       darkTheme: appTheme(Brightness.dark),
+      locale: const Locale('it', 'IT'),
+      supportedLocales: const [Locale('it', 'IT')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: appRouter,
     );
   }

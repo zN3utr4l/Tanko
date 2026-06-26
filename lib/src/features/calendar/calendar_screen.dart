@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../core/formatters.dart';
 import '../../providers.dart';
@@ -58,6 +59,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               return Column(
                 children: [
                   TableCalendar<CalendarEvent>(
+                    locale: 'it_IT',
                     firstDay: DateTime(2015),
                     lastDay: DateTime(2100),
                     focusedDay: _focusedDay,
@@ -68,7 +70,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     availableCalendarFormats: const {
                       CalendarFormat.month: 'Mese',
                     },
-                    headerStyle: const HeaderStyle(formatButtonVisible: false),
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      titleTextFormatter: (date, locale) =>
+                          _capitalize(DateFormat.yMMMM(locale).format(date)),
+                    ),
+                    onHeaderTapped: (_) => _openMonthPicker(context),
                     onDaySelected: (selected, focused) => setState(() {
                       _selectedDay = selected;
                       _focusedDay = focused;
@@ -150,6 +158,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         },
       ),
     );
+  }
+
+  /// Tapping the header opens a combined year/month picker to jump anywhere.
+  /// On pick, focus and selection both move to the 1st of the chosen month so
+  /// the day-events list below immediately reflects the new month.
+  Future<void> _openMonthPicker(BuildContext context) async {
+    final picked = await showDialog<DateTime>(
+      context: context,
+      builder: (_) => _MonthPickerDialog(initialMonth: _focusedDay),
+    );
+    if (picked == null) return;
+    setState(() {
+      _focusedDay = picked;
+      _selectedDay = picked;
+    });
   }
 
   void _addSheet(BuildContext context, int vehicleId) {
@@ -256,6 +279,124 @@ class _EmptyDay extends StatelessWidget {
             label: const Text('Aggiungi per questo giorno'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+String _capitalize(String s) =>
+    s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+/// "Vai al mese": a year stepper (‹ 2026 ›) over a 4×3 grid of months. Tapping
+/// a month returns the 1st of that month; the year is clamped to a sensible
+/// window (data never predates 2015; nothing useful past next year).
+class _MonthPickerDialog extends StatefulWidget {
+  const _MonthPickerDialog({required this.initialMonth});
+  final DateTime initialMonth;
+
+  @override
+  State<_MonthPickerDialog> createState() => _MonthPickerDialogState();
+}
+
+class _MonthPickerDialogState extends State<_MonthPickerDialog> {
+  static const _minYear = 2015;
+  late int _year = widget.initialMonth.year;
+  int get _maxYear => DateTime.now().year + 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: const Text('Vai al mese'),
+      content: SizedBox(
+        width: 320,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  tooltip: 'Anno precedente',
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: _year > _minYear
+                      ? () => setState(() => _year--)
+                      : null,
+                ),
+                Text('$_year', style: theme.textTheme.titleLarge),
+                IconButton(
+                  tooltip: 'Anno successivo',
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: _year < _maxYear
+                      ? () => setState(() => _year++)
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.6,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                for (var m = 1; m <= 12; m++)
+                  _MonthChip(
+                    label: _capitalize(
+                      DateFormat.MMM('it_IT').format(DateTime(2000, m)),
+                    ),
+                    selected:
+                        _year == widget.initialMonth.year &&
+                        m == widget.initialMonth.month,
+                    onTap: () => Navigator.of(context).pop(DateTime(_year, m)),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annulla'),
+        ),
+      ],
+    );
+  }
+}
+
+class _MonthChip extends StatelessWidget {
+  const _MonthChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: selected
+          ? scheme.primaryContainer
+          : scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              color: selected ? scheme.onPrimaryContainer : null,
+            ),
+          ),
+        ),
       ),
     );
   }

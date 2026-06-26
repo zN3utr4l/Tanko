@@ -29,7 +29,7 @@ Future<void> _seed(AppDatabase db) async {
         ),
       );
   // A past fill-up with coords + station -> the history match target.
-  // categoryId 1 = the seeded default fuel category 'Mine'.
+  // categoryId 1 = the seeded default fuel category 'Mie'.
   await db
       .into(db.fillUps)
       .insert(

@@ -32,7 +32,7 @@ fl_chart · intl.
 - **`lib/src/domain/`** — pure models (freezed) + services
   (`ConsumptionCalculator`, `StatsService`, `RangeComparator`,
   `ReminderEvaluator`) + repository interfaces. No I/O. Heavily unit-tested.
-- **`lib/src/data/`** — drift database (schemaVersion **2**) + tables + mappers,
+- **`lib/src/data/`** — drift database (schemaVersion **4**) + tables + mappers,
   repository impls, **offline vehicle catalog** (`OfflineCatalog`, backed by the
   bundled `assets/catalog/catalog.json`), Excel importer, backup service,
   `NotificationService` (flutter_local_notifications, best-effort). Station-

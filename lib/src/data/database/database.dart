@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -49,6 +49,19 @@ class AppDatabase extends _$AppDatabase {
         // Store the Euro emission class on the vehicle (for the bollo calc).
         await m.addColumn(vehicles, vehicles.euroClass);
       }
+      if (from < 4) {
+        // Localize the default fuel categories to Italian. Only rows still
+        // bearing the exact English seed names are renamed, so any user
+        // rename is preserved.
+        await customStatement(
+          "UPDATE categories SET name = 'Mie' "
+          "WHERE name = 'Mine' AND kind = 'fuel'",
+        );
+        await customStatement(
+          "UPDATE categories SET name = 'Non mie' "
+          "WHERE name = 'Not mine' AND kind = 'fuel'",
+        );
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -58,14 +71,14 @@ class AppDatabase extends _$AppDatabase {
   Future<void> _seedFuelCategories() async {
     await into(categories).insert(
       CategoriesCompanion.insert(
-        name: 'Mine',
+        name: 'Mie',
         color: 0xFF4CAF50,
         isDefault: const Value(true),
       ),
     );
     await into(
       categories,
-    ).insert(CategoriesCompanion.insert(name: 'Not mine', color: 0xFF9E9E9E));
+    ).insert(CategoriesCompanion.insert(name: 'Non mie', color: 0xFF9E9E9E));
   }
 
   Future<void> _seedExpenseCategories() async {
