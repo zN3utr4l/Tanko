@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:carburo/src/data/repositories/fill_up_repository_impl.dart';
 import 'package:carburo/src/data/repositories/vehicle_repository_impl.dart';
+import 'package:carburo/src/app/theme.dart';
 import 'package:carburo/src/domain/models/enums.dart';
 import 'package:carburo/src/domain/models/fill_up.dart';
 import 'package:carburo/src/domain/models/vehicle.dart';
@@ -46,10 +47,19 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: DashboardScreen()),
+        child: MaterialApp(
+          theme: appTheme(Brightness.light),
+          home: const DashboardScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
     expect(find.textContaining('100'), findsWidgets);
+    expect(find.byKey(const Key('dashboard-hero')), findsOneWidget);
+    expect(find.text('Garage'), findsOneWidget);
+    expect(find.text('Rifornimento'), findsWidgets);
+    expect(find.text('Spesa'), findsWidgets);
+    expect(find.byKey(const Key('metric-total-cost')), findsOneWidget);
+    expect(find.byKey(const Key('metric-cost-per-km')), findsOneWidget);
   });
 }
