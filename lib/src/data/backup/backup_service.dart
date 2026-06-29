@@ -64,12 +64,16 @@ class BackupService {
     return Csv(lineDelimiter: '\n').encode(rows);
   }
 
-  String expensesCsv(List<Expense> expenses) {
+  String expensesCsv(
+    List<Expense> expenses, {
+    Map<int, String> categoryNames = const {},
+  }) {
     final rows = <List<Object?>>[
       [
         'date',
         'amount',
         'categoryId',
+        'categoryName',
         'odometer',
         'description',
         'isRecurring',
@@ -79,6 +83,7 @@ class BackupService {
           e.date.toIso8601String(),
           e.amount,
           e.categoryId,
+          categoryNames[e.categoryId],
           e.odometer,
           e.description,
           e.isRecurring,

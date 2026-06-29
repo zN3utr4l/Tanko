@@ -9,8 +9,12 @@ const _expenseCategorySeed = <(String, int, int)>[
   ('Assicurazione', 0xFF1565C0, 0xe1a7), // shield
   ('Bollo', 0xFF6A1B9A, 0xe53b), // receipt_long
   ('Revisione', 0xFF00838F, 0xe8e8), // build
+  ('Tagliando', 0xFF2E7D32, 0xe869), // car_repair
+  ('Cambio gomme', 0xFF00897B, 0xe53f), // tire_repair fallback
+  ('Inversione gomme', 0xFF546E7A, 0xe863), // sync/rotate fallback
+  ('Manutenzione straordinaria', 0xFFD84315, 0xe8b8), // engineering
   ('Multe', 0xFFC62828, 0xe002), // warning
-  ('Pedaggi', 0xFF2E7D32, 0xe57f), // toll-ish (local_atm fallback)
+  ('Pedaggi', 0xFF4E342E, 0xe57f), // toll-ish (local_atm fallback)
   ('Parcheggio', 0xFF455A64, 0xe54f), // local_parking
   ('Autolavaggio', 0xFF0277BD, 0xe798), // local_car_wash
   ('Accessori', 0xFFEF6C00, 0xe8cc), // shopping
@@ -24,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +66,9 @@ class AppDatabase extends _$AppDatabase {
           "WHERE name = 'Not mine' AND kind = 'fuel'",
         );
       }
+      if (from < 5) {
+        await _seedExpenseCategories();
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -82,8 +89,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> _seedExpenseCategories() async {
+    final existing = await (select(
+      categories,
+    )..where((c) => c.kind.equals('expense'))).get();
+    final existingNames = existing.map((c) => c.name).toSet();
     for (var i = 0; i < _expenseCategorySeed.length; i++) {
       final (name, color, icon) = _expenseCategorySeed[i];
+      if (existingNames.contains(name)) continue;
       await into(categories).insert(
         CategoriesCompanion.insert(
           name: name,

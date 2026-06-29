@@ -13,6 +13,7 @@ void main() {
       expect(settings.vehicleOnlineLookupEnabled, isFalse);
       expect(settings.stationOnlineLookupEnabled, isTrue);
       expect(settings.updateChecksEnabled, isTrue);
+      expect(settings.reminderNotificationsEnabled, isFalse);
       expect(settings.openApiKey, isEmpty);
     },
   );
@@ -26,6 +27,7 @@ void main() {
         vehicleOnlineLookupEnabled: true,
         stationOnlineLookupEnabled: false,
         updateChecksEnabled: false,
+        reminderNotificationsEnabled: true,
         openApiKey: 'secret',
       ),
     );
@@ -34,6 +36,7 @@ void main() {
     expect(settings.vehicleOnlineLookupEnabled, isTrue);
     expect(settings.stationOnlineLookupEnabled, isFalse);
     expect(settings.updateChecksEnabled, isFalse);
+    expect(settings.reminderNotificationsEnabled, isTrue);
     expect(settings.openApiKey, 'secret');
   });
 }

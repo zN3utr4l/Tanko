@@ -113,7 +113,11 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _exportExpensesCsv(WidgetRef ref) async {
     final data = await _gather(ref);
-    await _share(_backup.expensesCsv(data.expenses), 'carburo_spese.csv');
+    final categoryNames = {for (final c in data.categories) c.id: c.name};
+    await _share(
+      _backup.expensesCsv(data.expenses, categoryNames: categoryNames),
+      'carburo_spese.csv',
+    );
   }
 
   Future<void> _restore(BuildContext context, WidgetRef ref) async {
@@ -367,6 +371,27 @@ class SettingsScreen extends ConsumerWidget {
                 await ref.read(lookupSettingsStoreProvider).save(next);
                 ref.invalidate(lookupSettingsProvider);
               },
+              onReminderNotificationsChanged: (enabled) async {
+                try {
+                  final scheduler = ref.read(
+                    reminderNotificationSchedulerProvider,
+                  );
+                  if (enabled) {
+                    final granted = await scheduler.enableAndRescheduleAll();
+                    if (!granted) return false;
+                  } else {
+                    await scheduler.cancelAll();
+                  }
+                  final next = settings.copyWith(
+                    reminderNotificationsEnabled: enabled,
+                  );
+                  await ref.read(lookupSettingsStoreProvider).save(next);
+                  ref.invalidate(lookupSettingsProvider);
+                  return true;
+                } catch (_) {
+                  return false;
+                }
+              },
             ),
             orElse: () => const LinearProgressIndicator(),
           ),
@@ -399,10 +424,12 @@ class _LookupSettingsSection extends StatefulWidget {
   const _LookupSettingsSection({
     required this.settings,
     required this.onChanged,
+    required this.onReminderNotificationsChanged,
   });
 
   final LookupSettings settings;
   final ValueChanged<LookupSettings> onChanged;
+  final Future<bool> Function(bool enabled) onReminderNotificationsChanged;
 
   @override
   State<_LookupSettingsSection> createState() => _LookupSettingsSectionState();
@@ -410,6 +437,8 @@ class _LookupSettingsSection extends StatefulWidget {
 
 class _LookupSettingsSectionState extends State<_LookupSettingsSection> {
   late final TextEditingController _openApiKey;
+  bool _reminderNotificationsBusy = false;
+  bool _reminderPermissionDenied = false;
 
   @override
   void initState() {
@@ -433,6 +462,19 @@ class _LookupSettingsSectionState extends State<_LookupSettingsSection> {
   }
 
   void _save(LookupSettings settings) => widget.onChanged(settings);
+
+  Future<void> _toggleReminderNotifications(bool enabled) async {
+    setState(() {
+      _reminderNotificationsBusy = true;
+      _reminderPermissionDenied = false;
+    });
+    final changed = await widget.onReminderNotificationsChanged(enabled);
+    if (!mounted) return;
+    setState(() {
+      _reminderNotificationsBusy = false;
+      _reminderPermissionDenied = enabled && !changed;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -459,6 +501,24 @@ class _LookupSettingsSectionState extends State<_LookupSettingsSection> {
           value: settings.updateChecksEnabled,
           onChanged: (value) =>
               _save(settings.copyWith(updateChecksEnabled: value)),
+        ),
+        SwitchListTile(
+          secondary: _reminderNotificationsBusy
+              ? const SizedBox.square(
+                  dimension: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.notifications_active_outlined),
+          title: const Text('Notifiche scadenze'),
+          subtitle: Text(
+            _reminderPermissionDenied
+                ? 'Permesso notifiche non concesso'
+                : 'Promemoria Android per bollo, tagliandi, gomme e scadenze.',
+          ),
+          value: settings.reminderNotificationsEnabled,
+          onChanged: _reminderNotificationsBusy
+              ? null
+              : _toggleReminderNotifications,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),

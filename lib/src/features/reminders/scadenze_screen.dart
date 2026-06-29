@@ -29,7 +29,7 @@ class ScadenzeScreen extends ConsumerWidget {
         data: (v) => v == null
             ? null
             : FloatingActionButton(
-                onPressed: () => _pickTemplate(context, v.id),
+                onPressed: () => _pickTemplate(context, ref, v.id),
                 child: const Icon(Icons.add),
               ),
         orElse: () => null,
@@ -60,7 +60,20 @@ class ScadenzeScreen extends ConsumerWidget {
     );
   }
 
-  void _pickTemplate(BuildContext context, int vehicleId) {
+  Future<int?> _linkedExpenseCategoryId(
+    WidgetRef ref,
+    ReminderTemplate template,
+  ) async {
+    final name = template.linkedExpenseCategoryName;
+    if (name == null) return null;
+    final categories = await ref.read(expenseCategoriesProvider.future);
+    for (final category in categories) {
+      if (category.name == name) return category.id;
+    }
+    return null;
+  }
+
+  void _pickTemplate(BuildContext context, WidgetRef ref, int vehicleId) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -72,12 +85,22 @@ class ScadenzeScreen extends ConsumerWidget {
               ListTile(
                 leading: Icon(t.icon),
                 title: Text(t.label),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                onTap: () async {
+                  final navigator = Navigator.of(context);
+                  navigator.pop();
+                  final linkedCategoryId = await _linkedExpenseCategoryId(
+                    ref,
+                    t,
+                  );
+                  if (!navigator.mounted) return;
+                  navigator.push(
                     MaterialPageRoute(
                       builder: (_) => ReminderFormScreen(
-                        initial: t.draft(vehicleId, DateTime.now()),
+                        initial: t.draft(
+                          vehicleId,
+                          DateTime.now(),
+                          linkedExpenseCategoryId: linkedCategoryId,
+                        ),
                       ),
                     ),
                   );
@@ -183,6 +206,7 @@ class _ReminderCard extends ConsumerWidget {
     }
     var createExpense = r.linkedExpenseCategoryId != null;
     var date = DateTime.now();
+    String? amountError;
     if (!context.mounted) {
       amount.dispose();
       odometer.dispose();
@@ -237,18 +261,37 @@ class _ReminderCard extends ConsumerWidget {
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Registra anche la spesa'),
                   value: createExpense,
-                  onChanged: (v) => setSheet(() => createExpense = v),
+                  onChanged: (v) => setSheet(() {
+                    createExpense = v;
+                    if (!v) amountError = null;
+                  }),
                 ),
                 if (createExpense)
                   TextField(
                     controller: amount,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Importo (€)'),
+                    decoration: InputDecoration(
+                      labelText: 'Importo (€)',
+                      errorText: amountError,
+                    ),
+                    onChanged: (_) {
+                      if (amountError != null) {
+                        setSheet(() => amountError = null);
+                      }
+                    },
                   ),
               ],
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () async {
+                  final expenseAmount = createExpense
+                      ? _parse(amount.text)
+                      : null;
+                  if (createExpense &&
+                      (expenseAmount == null || expenseAmount <= 0)) {
+                    setSheet(() => amountError = 'Inserisci un importo valido');
+                    return;
+                  }
                   await ref
                       .read(reminderRepositoryProvider)
                       .complete(
@@ -256,7 +299,7 @@ class _ReminderCard extends ConsumerWidget {
                         date: date,
                         odometer: _parse(odometer.text),
                         createExpense: createExpense,
-                        expenseAmount: _parse(amount.text),
+                        expenseAmount: expenseAmount,
                       );
                   await ref
                       .read(reminderNotificationSchedulerProvider)

@@ -45,7 +45,7 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
   late DateTime _date =
       widget.initial?.date ?? widget.initialDate ?? DateTime.now();
   late bool _isFull = widget.initial?.isFull ?? true;
-  int? _categoryId;
+  late int? _categoryId = widget.initial?.categoryId;
   late double? _latitude = widget.initial?.latitude;
   late double? _longitude = widget.initial?.longitude;
   late String? _receiptPhotoPath = widget.initial?.receiptPhotoPath;

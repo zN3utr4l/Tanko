@@ -1,8 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Online update checks, station lookup, and optional vehicle lookup. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Local reminder notifications (inexact scheduling — no exact-alarm). -->
+    <!-- Local reminder notifications (exact scheduling, enabled by user). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Detect the fuel station at fill-up time (when-in-use, on demand). -->

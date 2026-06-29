@@ -25,6 +25,8 @@ class _AppState extends ConsumerState<App> {
   /// Distance-based reminders are surfaced in-app on the Scadenze screen.
   Future<void> _initNotifications() async {
     try {
+      final settings = await ref.read(lookupSettingsProvider.future);
+      if (!settings.reminderNotificationsEnabled) return;
       await ref
           .read(reminderNotificationSchedulerProvider)
           .rescheduleAll(initialize: true);

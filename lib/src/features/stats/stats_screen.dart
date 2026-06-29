@@ -101,7 +101,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Spesa mensile',
+                'Carburante mensile',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -265,14 +265,14 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       const SizedBox(height: 8),
       MieNonMieDonut(fills, catName, {for (final c in cats) c.id: c.color}),
       const SizedBox(height: 24),
-      Text(
-        'Top distributori',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
+      Text('Top distributori', style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 8),
       TopStationsList(fills),
       const SizedBox(height: 24),
-      Text('Spesa per anno', style: Theme.of(context).textTheme.titleMedium),
+      Text(
+        'Carburante per anno',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
       const SizedBox(height: 8),
       YearlySpendChart(fills),
       const SizedBox(height: 24),
@@ -319,7 +319,7 @@ class _InsightsCard extends StatelessWidget {
           spacing: 24,
           runSpacing: 8,
           children: [
-            _Metric(label: 'Totale', value: fmtEuro(total)),
+            _Metric(label: 'Carburante', value: fmtEuro(total)),
             _Metric(label: 'Rifornimenti', value: fills.length.toString()),
             _Metric(label: 'Km totali', value: fmtKm(stats.totalKm)),
             _Metric(

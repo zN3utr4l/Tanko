@@ -28,6 +28,12 @@ void main() {
     ],
     categories: const [
       Category(id: 1, name: 'Mine', color: 0xFF4CAF50, isDefault: true),
+      Category(
+        id: 3,
+        name: 'Assicurazione',
+        color: 0xFF1565C0,
+        kind: CategoryKind.expense,
+      ),
     ],
     fillUps: [
       FillUp(
@@ -105,6 +111,20 @@ void main() {
     expect(lines.first, contains('date'));
     expect(lines.first, contains('odometer'));
     expect(lines, hasLength(2)); // header + 1 fill-up
+  });
+
+  test('expenses CSV can include category names', () {
+    final csv = service.expensesCsv(
+      data.expenses,
+      categoryNames: {for (final c in data.categories) c.id: c.name},
+    );
+    final lines = csv.trim().split('\n');
+
+    expect(lines.first, contains('categoryName'));
+    expect(
+      lines.singleWhere((line) => line.contains('RCA')),
+      contains('Assicurazione'),
+    );
   });
 
   test('preview summarizes backup contents before restore', () {

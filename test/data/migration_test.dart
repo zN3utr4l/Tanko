@@ -39,8 +39,18 @@ void main() {
       final fuel = cats.where((c) => c.kind == 'fuel').toList();
       final expense = cats.where((c) => c.kind == 'expense').toList();
       expect(fuel.map((c) => c.name), containsAll(['Mie', 'Non mie']));
-      expect(expense, hasLength(10));
-      expect(expense.map((c) => c.name), contains('Assicurazione'));
+      expect(expense, hasLength(14));
+      expect(
+        expense.map((c) => c.name),
+        containsAll([
+          'Assicurazione',
+          'Tagliando',
+          'Cambio gomme',
+          'Inversione gomme',
+          'Manutenzione straordinaria',
+          'Autolavaggio',
+        ]),
+      );
       expect(expense.every((c) => c.iconCode != null), isTrue);
 
       // New tables exist and are empty.
@@ -79,7 +89,7 @@ void main() {
       expect(mine.kind, 'fuel'); // backfilled
       expect(
         cats.where((c) => c.kind == 'expense'),
-        hasLength(10),
+        hasLength(14),
       ); // seeded on upgrade
       expect(await db.select(db.reminders).get(), isEmpty); // table created
       expect(await db.select(db.expenses).get(), isEmpty); // table created
@@ -155,4 +165,33 @@ void main() {
       expect(names, isNot(contains('Not mine')));
     },
   );
+
+  test('onUpgrade 4->5 adds missing canonical expense categories once', () async {
+    final dir = Directory.systemTemp.createTempSync('carburo_mig5');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/v4.sqlite');
+
+    final raw = sqlite3.open(file.path);
+    _createCategoriesTableV2(raw);
+    raw.execute(
+      "INSERT INTO categories (name, color, is_default, kind, icon_code, ord) "
+      "VALUES ('Autolavaggio', 1, 0, 'expense', 1, 0);",
+    );
+    raw.execute(
+      "INSERT INTO categories (name, color, is_default, kind, icon_code, ord) "
+      "VALUES ('Tagliando', 2, 0, 'expense', 2, 1);",
+    );
+    raw.execute('PRAGMA user_version = 4;');
+    raw.close();
+
+    final db = AppDatabase.forTesting(NativeDatabase(file));
+    addTearDown(db.close);
+
+    final expenses = (await db.select(
+      db.categories,
+    ).get()).where((c) => c.kind == 'expense').toList();
+    final names = expenses.map((c) => c.name).toList();
+    expect(names.where((name) => name == 'Tagliando'), hasLength(1));
+    expect(names, containsAll(['Cambio gomme', 'Inversione gomme']));
+  });
 }

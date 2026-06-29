@@ -17,6 +17,7 @@ class ReminderTemplate {
     this.leadKm,
     this.fixedMonth,
     this.fixedDay,
+    this.linkedExpenseCategoryName,
   });
 
   final String label;
@@ -30,9 +31,10 @@ class ReminderTemplate {
   final int? leadKm;
   final int? fixedMonth;
   final int? fixedDay;
+  final String? linkedExpenseCategoryName;
 
   /// Builds an editable draft anchored to [now] (id 0 = new).
-  Reminder draft(int vehicleId, DateTime now) {
+  Reminder draft(int vehicleId, DateTime now, {int? linkedExpenseCategoryId}) {
     DateTime? due;
     if (recurUnit == RecurUnit.fixedDate &&
         fixedMonth != null &&
@@ -63,6 +65,7 @@ class ReminderTemplate {
       recurKmEvery: recurKmEvery,
       leadDays: leadDays,
       leadKm: leadKm,
+      linkedExpenseCategoryId: linkedExpenseCategoryId,
       createdAt: now,
       updatedAt: now,
     );
@@ -78,6 +81,7 @@ const reminderTemplates = <ReminderTemplate>[
     recurEvery: 2,
     recurUnit: RecurUnit.year,
     leadDays: 30,
+    linkedExpenseCategoryName: 'Revisione',
   ),
   ReminderTemplate(
     label: 'Bollo auto',
@@ -87,6 +91,7 @@ const reminderTemplates = <ReminderTemplate>[
     recurEvery: 1,
     recurUnit: RecurUnit.year,
     leadDays: 30,
+    linkedExpenseCategoryName: 'Bollo',
   ),
   ReminderTemplate(
     label: 'Assicurazione RCA',
@@ -96,6 +101,7 @@ const reminderTemplates = <ReminderTemplate>[
     recurEvery: 1,
     recurUnit: RecurUnit.year,
     leadDays: 45,
+    linkedExpenseCategoryName: 'Assicurazione',
   ),
   ReminderTemplate(
     label: 'Tagliando',
@@ -107,6 +113,7 @@ const reminderTemplates = <ReminderTemplate>[
     recurKmEvery: 20000,
     leadDays: 30,
     leadKm: 1000,
+    linkedExpenseCategoryName: 'Tagliando',
   ),
   ReminderTemplate(
     label: 'Cambio gomme estive',
@@ -117,6 +124,7 @@ const reminderTemplates = <ReminderTemplate>[
     fixedMonth: 4,
     fixedDay: 15,
     leadDays: 14,
+    linkedExpenseCategoryName: 'Cambio gomme',
   ),
   ReminderTemplate(
     label: 'Cambio gomme invernali',
@@ -127,6 +135,7 @@ const reminderTemplates = <ReminderTemplate>[
     fixedMonth: 11,
     fixedDay: 15,
     leadDays: 14,
+    linkedExpenseCategoryName: 'Cambio gomme',
   ),
   ReminderTemplate(
     label: 'Personalizzata',

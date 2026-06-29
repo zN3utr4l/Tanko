@@ -3,6 +3,11 @@ import '../../domain/models/reminder.dart';
 import '../../domain/repositories/reminder_repository.dart';
 import 'notification_service.dart';
 
+const int reminderNotificationBaseId = 100000;
+
+int reminderNotificationId(int reminderId) =>
+    reminderNotificationBaseId + reminderId;
+
 class ScheduledReminderNotification {
   const ScheduledReminderNotification({
     required this.id,
@@ -25,7 +30,7 @@ class ReminderNotificationPlanner {
     if (reminder.dueDate == null) return null;
     if (reminder.triggerMode == TriggerMode.distance) return null;
     return ScheduledReminderNotification(
-      id: reminder.id,
+      id: reminderNotificationId(reminder.id),
       title: reminder.title,
       body: 'Scadenza in arrivo',
       when: reminder.dueDate!.subtract(Duration(days: reminder.leadDays ?? 0)),
@@ -52,8 +57,17 @@ class ReminderNotificationScheduler {
     }
   }
 
+  Future<bool> enableAndRescheduleAll() async {
+    await notifications.init();
+    final granted = await notifications.requestNotificationPermission();
+    if (!granted) return false;
+    await notifications.requestExactAlarmsPermission();
+    await rescheduleAll();
+    return true;
+  }
+
   Future<void> sync(Reminder reminder) async {
-    await notifications.cancel(reminder.id);
+    await notifications.cancel(reminderNotificationId(reminder.id));
     final plan = planner.plan(reminder);
     if (plan == null) return;
     await notifications.scheduleAt(
@@ -64,5 +78,8 @@ class ReminderNotificationScheduler {
     );
   }
 
-  Future<void> cancel(int reminderId) => notifications.cancel(reminderId);
+  Future<void> cancel(int reminderId) =>
+      notifications.cancel(reminderNotificationId(reminderId));
+
+  Future<void> cancelAll() => notifications.cancelAll();
 }

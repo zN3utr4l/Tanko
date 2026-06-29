@@ -138,4 +138,47 @@ void main() {
     expect(find.widgetWithText(TextField, 'Importo (€)'), findsOneWidget);
     expect(find.text('942,27'), findsOneWidget);
   });
+
+  testWidgets('completion with linked expense requires a valid amount', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+    final vid = await _defaultVehicle(db);
+    final category = (await CategoryRepositoryImpl(
+      db,
+    ).all()).firstWhere((c) => c.name == 'Tagliando');
+    await ReminderRepositoryImpl(db).upsert(
+      Reminder(
+        id: 0,
+        vehicleId: vid,
+        type: ReminderType.tagliando,
+        title: 'Tagliando',
+        triggerMode: TriggerMode.date,
+        dueDate: DateTime(2020, 1, 1),
+        linkedExpenseCategoryId: category.id,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: ScadenzeScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Completa'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Conferma'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Inserisci un importo valido'), findsOneWidget);
+    expect(await ExpenseRepositoryImpl(db).forVehicle(vid), isEmpty);
+    expect((await ReminderRepositoryImpl(db).forVehicle(vid)).single.active, isTrue);
+  });
 }

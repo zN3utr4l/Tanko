@@ -29,18 +29,39 @@ class NotificationService {
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       );
       await _plugin.initialize(settings: settings);
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission();
       _ready = true;
     } catch (_) {
       _ready = false;
     }
   }
 
-  /// Schedules a future-dated notification (inexact, no exact-alarm permission).
+  Future<bool> requestNotificationPermission() async {
+    try {
+      final granted = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestNotificationsPermission();
+      return granted ?? true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestExactAlarmsPermission() async {
+    try {
+      final granted = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestExactAlarmsPermission();
+      return granted ?? true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Schedules a future-dated notification with exact allow-while-idle delivery.
   /// No-op for past dates (those are surfaced immediately via [showNow]).
   Future<void> scheduleAt({
     required int id,
@@ -58,7 +79,7 @@ class NotificationService {
         body: body,
         scheduledDate: scheduled,
         notificationDetails: _details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } catch (_) {
       /* best-effort */

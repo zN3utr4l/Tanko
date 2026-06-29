@@ -172,4 +172,61 @@ void main() {
     expect(find.text('Possibile duplicato'), findsOneWidget);
     expect(await fills.forVehicle(vehicleId), hasLength(1));
   });
+
+  testWidgets('editing a fill-up preserves its existing category', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+    final cats = CategoryRepositoryImpl(db);
+    final vehicles = VehicleRepositoryImpl(db);
+    final fills = FillUpRepositoryImpl(db);
+    final fuelCats = (await cats.all())
+        .where((c) => c.kind == CategoryKind.fuel)
+        .toList();
+    final nonDefaultCat = fuelCats.firstWhere((c) => !c.isDefault);
+    final vehicleId = await vehicles.upsert(
+      Vehicle(
+        id: 0,
+        make: 'Fiat',
+        model: 'Panda',
+        fuelType: FuelType.petrol,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+    final fillId = await fills.upsert(
+      FillUp(
+        id: 0,
+        vehicleId: vehicleId,
+        date: DateTime(2026, 1, 2),
+        amount: 35,
+        liters: 28,
+        odometer: 900,
+        categoryId: nonDefaultCat.id,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      ),
+    );
+    final initial = (await fills.forVehicle(vehicleId)).single;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: FillUpFormScreen(vehicleId: vehicleId, initial: initial),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('amount')), '36');
+    await tester.tap(find.text('Salva'));
+    await tester.pumpAndSettle();
+
+    final saved = (await fills.forVehicle(vehicleId))
+        .singleWhere((f) => f.id == fillId);
+    expect(saved.amount, 36);
+    expect(saved.categoryId, nonDefaultCat.id);
+  });
 }
