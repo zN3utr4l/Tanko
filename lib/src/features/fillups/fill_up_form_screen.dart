@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import '../../core/formatters.dart';
+import '../../core/widgets/category_icon.dart';
 import '../../core/widgets/form_section_card.dart';
 import '../../data/lookup/mimit_fuel_price_lookup.dart';
+import '../../domain/models/category.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/fill_up.dart';
 import '../../domain/models/geo_point.dart';
@@ -14,6 +16,15 @@ import 'fillup_providers.dart';
 import 'station_detector.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
+
+/// The category in [list] with [id], or null. Drives the picker's leading icon.
+Category? _categoryById(List<Category> list, int? id) {
+  if (id == null) return null;
+  for (final c in list) {
+    if (c.id == id) return c;
+  }
+  return null;
+}
 
 class FillUpFormScreen extends ConsumerStatefulWidget {
   const FillUpFormScreen({
@@ -573,22 +584,49 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
                 ),
                 const SizedBox(height: 8),
                 cats.maybeWhen(
-                  data: (list) => DropdownButtonFormField<int>(
-                    initialValue:
+                  data: (list) {
+                    final selectedId =
                         _categoryId ??
-                        list
-                            .firstWhere(
-                              (c) => c.isDefault,
-                              orElse: () => list.first,
-                            )
-                            .id,
-                    decoration: const InputDecoration(labelText: 'Categoria'),
-                    items: [
-                      for (final c in list)
-                        DropdownMenuItem(value: c.id, child: Text(c.name)),
-                    ],
-                    onChanged: (v) => setState(() => _categoryId = v),
-                  ),
+                        (list.isEmpty
+                            ? null
+                            : list
+                                  .firstWhere(
+                                    (c) => c.isDefault,
+                                    orElse: () => list.first,
+                                  )
+                                  .id);
+                    final selected = _categoryById(list, selectedId);
+                    return DropdownButtonFormField<int>(
+                      initialValue: selectedId,
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        prefixIcon: Icon(
+                          selected == null
+                              ? Icons.category
+                              : categoryIcon(selected),
+                          color: selected == null ? null : Color(selected.color),
+                        ),
+                      ),
+                      items: [
+                        for (final c in list)
+                          DropdownMenuItem(
+                            value: c.id,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  categoryIcon(c),
+                                  color: Color(c.color),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(c.name),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => _categoryId = v),
+                    );
+                  },
                   orElse: () => const SizedBox.shrink(),
                 ),
                 const SizedBox(height: 14),
