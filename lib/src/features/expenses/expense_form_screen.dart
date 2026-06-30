@@ -6,6 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../core/formatters.dart';
+import '../../core/widgets/form_section_card.dart';
 import '../../domain/models/expense.dart';
 import '../../providers.dart';
 import 'expense_providers.dart';
@@ -138,118 +139,150 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       appBar: AppBar(
         title: Text(widget.initial == null ? 'Nuova spesa' : 'Modifica spesa'),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(onPressed: _save, child: const Text('Salva')),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              key: const Key('amount'),
-              controller: _amount,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Importo (€)',
-                prefixIcon: Icon(Icons.euro),
-              ),
-              validator: (v) {
-                final n = _parse(v ?? '');
-                if (v == null || v.trim().isEmpty) return 'Obbligatorio';
-                if (n == null || n <= 0) return 'Deve essere > 0';
-                return null;
-              },
-            ),
-            const SizedBox(height: 8),
-            cats.maybeWhen(
-              data: (list) => DropdownButtonFormField<int>(
-                initialValue:
-                    _categoryId ?? (list.isEmpty ? null : list.first.id),
-                decoration: const InputDecoration(
-                  labelText: 'Categoria',
-                  prefixIcon: Icon(Icons.category),
+            FormSectionCard(
+              key: const Key('expense-main-section'),
+              title: 'Spesa',
+              children: [
+                TextFormField(
+                  key: const Key('amount'),
+                  controller: _amount,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Importo (€)',
+                    prefixIcon: Icon(Icons.euro),
+                  ),
+                  validator: (v) {
+                    final n = _parse(v ?? '');
+                    if (v == null || v.trim().isEmpty) return 'Obbligatorio';
+                    if (n == null || n <= 0) return 'Deve essere > 0';
+                    return null;
+                  },
                 ),
-                items: [
-                  for (final c in list)
-                    DropdownMenuItem(
-                      value: c.id,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: Color(c.color),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(c.name),
-                        ],
-                      ),
+                const SizedBox(height: 14),
+                cats.maybeWhen(
+                  data: (list) => DropdownButtonFormField<int>(
+                    initialValue:
+                        _categoryId ?? (list.isEmpty ? null : list.first.id),
+                    decoration: const InputDecoration(
+                      labelText: 'Categoria',
+                      prefixIcon: Icon(Icons.category),
                     ),
-                ],
-                onChanged: (v) => setState(() => _categoryId = v),
-                validator: (v) => v == null ? 'Scegli una categoria' : null,
-              ),
-              orElse: () => const LinearProgressIndicator(),
-            ),
-            const SizedBox(height: 8),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Data'),
-              subtitle: Text(fmtDate(_date)),
-              trailing: const Icon(Icons.edit),
-              onTap: _pickDate,
-            ),
-            TextFormField(
-              controller: _odometer,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Odometro (km, opzionale)',
-                prefixIcon: Icon(Icons.speed),
-              ),
-            ),
-            TextFormField(
-              controller: _description,
-              decoration: const InputDecoration(
-                labelText: 'Descrizione',
-                prefixIcon: Icon(Icons.notes),
-              ),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Ricorrente'),
-              value: _isRecurring,
-              onChanged: (v) => setState(() => _isRecurring = v),
-            ),
-            OutlinedButton.icon(
-              onPressed: _pickPhoto,
-              icon: const Icon(Icons.photo_camera),
-              label: Text(
-                _photoPath == null
-                    ? 'Aggiungi foto scontrino'
-                    : 'Foto allegata ✓',
-              ),
-            ),
-            if (_photoPath != null)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => OpenFilex.open(_photoPath!),
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Apri foto'),
+                    items: [
+                      for (final c in list)
+                        DropdownMenuItem(
+                          value: c.id,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 14,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: Color(c.color),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(c.name),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => _categoryId = v),
+                    validator: (v) => v == null ? 'Scegli una categoria' : null,
                   ),
-                  TextButton.icon(
-                    onPressed: () => setState(() => _photoPath = null),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Rimuovi foto'),
+                  orElse: () => const LinearProgressIndicator(),
+                ),
+                const SizedBox(height: 14),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today),
+                  title: const Text('Data'),
+                  subtitle: Text(fmtDate(_date)),
+                  trailing: const Icon(Icons.edit),
+                  onTap: _pickDate,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('expense-details-section'),
+              title: 'Dettagli',
+              children: [
+                TextFormField(
+                  controller: _odometer,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Odometro (km, opzionale)',
+                    prefixIcon: Icon(Icons.speed),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _description,
+                  decoration: const InputDecoration(
+                    labelText: 'Descrizione',
+                    prefixIcon: Icon(Icons.notes),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Ricorrente'),
+                  value: _isRecurring,
+                  onChanged: (v) => setState(() => _isRecurring = v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('expense-attachments-section'),
+              title: 'Scontrino',
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _pickPhoto,
+                    icon: const Icon(Icons.photo_camera),
+                    label: Text(
+                      _photoPath == null
+                          ? 'Aggiungi foto scontrino'
+                          : 'Foto allegata ✓',
+                    ),
+                  ),
+                ),
+                if (_photoPath != null) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => OpenFilex.open(_photoPath!),
+                        icon: const Icon(Icons.open_in_new),
+                        label: const Text('Apri foto'),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => setState(() => _photoPath = null),
+                        icon: const Icon(Icons.close),
+                        label: const Text('Rimuovi foto'),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Salva')),
+              ],
+            ),
+            const SizedBox(height: 96),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import '../../core/formatters.dart';
+import '../../core/widgets/form_section_card.dart';
 import '../../data/lookup/mimit_fuel_price_lookup.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/fill_up.dart';
@@ -479,131 +480,157 @@ class _FillUpFormScreenState extends ConsumerState<FillUpFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Data'),
-              subtitle: Text(fmtDate(_date)),
-              trailing: const Icon(Icons.edit),
-              onTap: _pickDate,
-            ),
-            TextFormField(
-              key: const Key('amount'),
-              controller: _amount,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Importo (€)'),
-              onChanged: (_) => setState(() {}),
-              validator: (v) {
-                final n = _parse(v ?? '');
-                if (v == null || v.trim().isEmpty) return 'Obbligatorio';
-                if (n == null || n <= 0) return 'Deve essere > 0';
-                return null;
-              },
-            ),
-            TextFormField(
-              key: const Key('liters'),
-              controller: _liters,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Litri'),
-              onChanged: (_) => setState(() {}),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return null;
-                final n = _parse(v);
-                if (n == null || n <= 0) return 'Deve essere > 0';
-                return null;
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                'Prezzo: $_pricePerLiter',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            if (_officialPriceNote != null)
-              Text(
-                _officialPriceNote!,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: _checkingOfficialPrice ? null : _checkOfficialPrice,
-                icon: _checkingOfficialPrice
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.price_check_outlined),
-                label: const Text('Confronta prezzo MIMIT'),
-              ),
-            ),
-            TextFormField(
-              key: const Key('odometer'),
-              controller: _odometer,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Odometro (km)'),
-              validator: (v) => _parse(v ?? '') == null ? 'Obbligatorio' : null,
-            ),
-            SwitchListTile(
-              title: const Text('Pieno'),
-              value: _isFull,
-              onChanged: (v) => setState(() => _isFull = v),
-            ),
-            cats.maybeWhen(
-              data: (list) => DropdownButtonFormField<int>(
-                initialValue:
-                    _categoryId ??
-                    list
-                        .firstWhere(
-                          (c) => c.isDefault,
-                          orElse: () => list.first,
-                        )
-                        .id,
-                decoration: const InputDecoration(labelText: 'Categoria'),
-                items: [
-                  for (final c in list)
-                    DropdownMenuItem(value: c.id, child: Text(c.name)),
-                ],
-                onChanged: (v) => setState(() => _categoryId = v),
-              ),
-              orElse: () => const SizedBox.shrink(),
-            ),
-            TextFormField(
-              controller: _station,
-              decoration: const InputDecoration(labelText: 'Distributore'),
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            FormSectionCard(
+              key: const Key('fillup-main-section'),
+              title: 'Rifornimento',
               children: [
-                OutlinedButton.icon(
-                  onPressed: _useReceipt,
-                  icon: const Icon(Icons.document_scanner_outlined),
-                  label: Text(
-                    _receiptPhotoPath == null
-                        ? 'Leggi scontrino'
-                        : 'Rileggi scontrino',
-                  ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today),
+                  title: const Text('Data'),
+                  subtitle: Text(fmtDate(_date)),
+                  trailing: const Icon(Icons.edit),
+                  onTap: _pickDate,
                 ),
-                if (_receiptPhotoPath != null) ...[
-                  TextButton.icon(
-                    onPressed: () => OpenFilex.open(_receiptPhotoPath!),
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Apri'),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => setState(() => _receiptPhotoPath = null),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Rimuovi'),
-                  ),
-                ],
+                const SizedBox(height: 14),
+                TextFormField(
+                  key: const Key('amount'),
+                  controller: _amount,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Importo (€)'),
+                  onChanged: (_) => setState(() {}),
+                  validator: (v) {
+                    final n = _parse(v ?? '');
+                    if (v == null || v.trim().isEmpty) return 'Obbligatorio';
+                    if (n == null || n <= 0) return 'Deve essere > 0';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  key: const Key('liters'),
+                  controller: _liters,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Litri'),
+                  onChanged: (_) => setState(() {}),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    final n = _parse(v);
+                    if (n == null || n <= 0) return 'Deve essere > 0';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Prezzo: $_pricePerLiter',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ],
             ),
-            TextFormField(
-              controller: _note,
-              decoration: const InputDecoration(labelText: 'Note'),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('fillup-details-section'),
+              title: 'Dettagli',
+              children: [
+                if (_officialPriceNote != null) ...[
+                  Text(
+                    _officialPriceNote!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: _checkingOfficialPrice
+                        ? null
+                        : _checkOfficialPrice,
+                    icon: _checkingOfficialPrice
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.price_check_outlined),
+                    label: const Text('Confronta prezzo MIMIT'),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  key: const Key('odometer'),
+                  controller: _odometer,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Odometro (km)'),
+                  validator: (v) =>
+                      _parse(v ?? '') == null ? 'Obbligatorio' : null,
+                ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Pieno'),
+                  value: _isFull,
+                  onChanged: (v) => setState(() => _isFull = v),
+                ),
+                const SizedBox(height: 8),
+                cats.maybeWhen(
+                  data: (list) => DropdownButtonFormField<int>(
+                    initialValue:
+                        _categoryId ??
+                        list
+                            .firstWhere(
+                              (c) => c.isDefault,
+                              orElse: () => list.first,
+                            )
+                            .id,
+                    decoration: const InputDecoration(labelText: 'Categoria'),
+                    items: [
+                      for (final c in list)
+                        DropdownMenuItem(value: c.id, child: Text(c.name)),
+                    ],
+                    onChanged: (v) => setState(() => _categoryId = v),
+                  ),
+                  orElse: () => const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _station,
+                  decoration: const InputDecoration(labelText: 'Distributore'),
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: _useReceipt,
+                      icon: const Icon(Icons.document_scanner_outlined),
+                      label: Text(
+                        _receiptPhotoPath == null
+                            ? 'Leggi scontrino'
+                            : 'Rileggi scontrino',
+                      ),
+                    ),
+                    if (_receiptPhotoPath != null) ...[
+                      TextButton.icon(
+                        onPressed: () => OpenFilex.open(_receiptPhotoPath!),
+                        icon: const Icon(Icons.open_in_new),
+                        label: const Text('Apri'),
+                      ),
+                      TextButton.icon(
+                        onPressed: () =>
+                            setState(() => _receiptPhotoPath = null),
+                        icon: const Icon(Icons.close),
+                        label: const Text('Rimuovi'),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _note,
+                  decoration: const InputDecoration(labelText: 'Note'),
+                ),
+              ],
             ),
             const SizedBox(height: 96),
           ],

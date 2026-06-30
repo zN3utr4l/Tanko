@@ -52,6 +52,30 @@ void main() {
     expect(find.text('Obbligatorio'), findsWidgets);
   });
 
+  testWidgets('fill-up form separates main fields from details', (
+    tester,
+  ) async {
+    final db = makeTestDb();
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: FillUpFormScreen(vehicleId: 1, initialDate: DateTime(2020)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('fillup-main-section')), findsOneWidget);
+    expect(find.byKey(const Key('fillup-details-section')), findsOneWidget);
+    final amountBottom = tester
+        .getBottomLeft(find.byKey(const Key('amount')))
+        .dy;
+    final litersTop = tester.getTopLeft(find.byKey(const Key('liters'))).dy;
+    expect(litersTop - amountBottom, greaterThanOrEqualTo(12));
+  });
+
   testWidgets('asks confirmation before saving a lower odometer', (
     tester,
   ) async {
@@ -224,8 +248,9 @@ void main() {
     await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
 
-    final saved = (await fills.forVehicle(vehicleId))
-        .singleWhere((f) => f.id == fillId);
+    final saved = (await fills.forVehicle(
+      vehicleId,
+    )).singleWhere((f) => f.id == fillId);
     expect(saved.amount, 36);
     expect(saved.categoryId, nonDefaultCat.id);
   });

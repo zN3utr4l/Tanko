@@ -43,8 +43,6 @@ class DashboardScreen extends ConsumerWidget {
                   orElse: () => '—',
                 ),
               ),
-              const SizedBox(height: 12),
-              _QuickActions(vehicle: vehicle),
               const SizedBox(height: 18),
               Text(
                 'Quadro costi',
@@ -300,35 +298,6 @@ class _HeroMeasure extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _QuickActions extends StatelessWidget {
-  const _QuickActions({required this.vehicle});
-
-  final Vehicle vehicle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: FilledButton.icon(
-            onPressed: () => _openFillUp(context, vehicle),
-            icon: const Icon(Icons.local_gas_station_outlined),
-            label: const Text('Rifornimento'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => _openExpense(context, vehicle),
-            icon: const Icon(Icons.payments_outlined),
-            label: const Text('Spesa'),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -57,8 +57,9 @@ void main() {
     expect(find.textContaining('100'), findsWidgets);
     expect(find.byKey(const Key('dashboard-hero')), findsOneWidget);
     expect(find.text('Garage'), findsOneWidget);
-    expect(find.text('Rifornimento'), findsWidgets);
-    expect(find.text('Spesa'), findsWidgets);
+    expect(find.widgetWithText(FilledButton, 'Rifornimento'), findsNothing);
+    expect(find.widgetWithText(OutlinedButton, 'Spesa'), findsNothing);
+    expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(find.byKey(const Key('metric-total-cost')), findsOneWidget);
     expect(find.byKey(const Key('metric-cost-per-km')), findsOneWidget);
   });
