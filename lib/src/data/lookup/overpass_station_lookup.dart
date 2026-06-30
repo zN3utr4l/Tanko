@@ -14,6 +14,13 @@ class OverpassStationLookup implements StationLookupService {
 
   static const _endpoint = 'https://overpass-api.de/api/interpreter';
 
+  // overpass-api.de sits behind a proxy that answers 406/429 to requests
+  // without an identifying User-Agent or a matching Accept — send both.
+  static const _headers = {
+    'Accept': 'application/json',
+    'User-Agent': 'Carburo (github.com/zN3utr4l/Carburo)',
+  };
+
   @override
   Future<List<DetectedStation>> nearby(
     double latitude,
@@ -24,7 +31,7 @@ class OverpassStationLookup implements StationLookupService {
       final query =
           '[out:json][timeout:10];node["amenity"="fuel"](around:$radiusMeters,$latitude,$longitude);out;';
       final resp = await _client
-          .post(Uri.parse(_endpoint), body: {'data': query})
+          .post(Uri.parse(_endpoint), headers: _headers, body: {'data': query})
           .timeout(const Duration(seconds: 12));
       if (resp.statusCode != 200) return const [];
       final json = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -50,7 +57,7 @@ class OverpassStationLookup implements StationLookupService {
         '[out:json][timeout:25];node["amenity"="fuel"](around:$radiusMeters,$latitude,$longitude);out;';
     try {
       final resp = await _client
-          .post(Uri.parse(_endpoint), body: {'data': query})
+          .post(Uri.parse(_endpoint), headers: _headers, body: {'data': query})
           .timeout(const Duration(seconds: 30));
       if (resp.statusCode != 200) {
         return StationProbeResult(count: 0, error: 'HTTP ${resp.statusCode}');
