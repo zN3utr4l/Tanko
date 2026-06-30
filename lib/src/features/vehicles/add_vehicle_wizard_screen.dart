@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/widgets/form_section_card.dart';
 import '../../domain/models/catalog.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/reminder.dart';
@@ -411,174 +412,214 @@ class _AddVehicleWizardScreenState
     final thisYear = DateTime.now().year;
     return Scaffold(
       appBar: AppBar(title: const Text('Nuovo veicolo')),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(onPressed: _save, child: const Text('Salva')),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              controller: _plate,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Targa',
-                hintText: 'AB123CD',
-                prefixIcon: Icon(Icons.pin),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _LookupAssistCard(
-              onlineEnabled: onlineLookupEnabled,
-              apiEnabled: apiLookupEnabled,
-              onPaste: _pasteLookupData,
-              onApiLookup: _lookupViaOpenApi,
-              onInsurance: () {
-                final service = ref.read(vehicleLookupServiceProvider);
-                _openLookup(
-                  'Verifica RCA',
-                  service.insuranceVerificationUri(_plate.text),
-                );
-              },
-              onEuroClass: () {
-                final service = ref.read(vehicleLookupServiceProvider);
-                _openLookup(
-                  'Classe ambientale',
-                  service.environmentalClassVerificationUri(_plate.text),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            _MakeField(
-              key: ValueKey('make-$_fieldVersion'),
-              controller: _make,
-              makes: makes,
-              onChanged: (text) {
-                _loadModels(text);
-                // typing a new make invalidates a catalog-prefilled model
-                _markManual();
-              },
-            ),
-            const SizedBox(height: 4),
-            _ModelField(
-              key: ValueKey('model-$_fieldVersion'),
-              controller: _model,
-              models: _models,
-              onSelected: (model) {
-                _applyModel(model);
-                _loadOnlineTrims();
-              },
-              onChanged: (_) => _markManual(),
-            ),
-            Row(
+            FormSectionCard(
+              key: const Key('vehicle-plate-section'),
+              title: 'Targa e verifica',
               children: [
-                Expanded(
-                  child: DropdownButtonFormField<int?>(
-                    initialValue: _year,
-                    decoration: const InputDecoration(labelText: 'Anno'),
-                    items: [
-                      const DropdownMenuItem<int?>(child: Text('—')),
-                      for (var y = thisYear + 1; y >= 1980; y--)
-                        DropdownMenuItem<int?>(value: y, child: Text('$y')),
-                    ],
-                    onChanged: (y) => setState(() {
-                      _year = y;
-                      if (_specSource != SpecSource.manual) {
-                        _specSource = SpecSource.manual;
-                      }
-                    }),
+                TextFormField(
+                  controller: _plate,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'Targa',
+                    hintText: 'AB123CD',
+                    prefixIcon: Icon(Icons.pin),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _TrimField(
-                    key: ValueKey('trim-$_fieldVersion'),
-                    controller: _trimCtrl,
-                    trims: trimSuggestions,
-                    onSelected: _applyTrim,
-                    onChanged: (_) => _markManual(),
+                const SizedBox(height: 12),
+                _LookupAssistCard(
+                  onlineEnabled: onlineLookupEnabled,
+                  apiEnabled: apiLookupEnabled,
+                  onPaste: _pasteLookupData,
+                  onApiLookup: _lookupViaOpenApi,
+                  onInsurance: () {
+                    final service = ref.read(vehicleLookupServiceProvider);
+                    _openLookup(
+                      'Verifica RCA',
+                      service.insuranceVerificationUri(_plate.text),
+                    );
+                  },
+                  onEuroClass: () {
+                    final service = ref.read(vehicleLookupServiceProvider);
+                    _openLookup(
+                      'Classe ambientale',
+                      service.environmentalClassVerificationUri(_plate.text),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('vehicle-identity-section'),
+              title: 'Veicolo',
+              children: [
+                _MakeField(
+                  key: ValueKey('make-$_fieldVersion'),
+                  controller: _make,
+                  makes: makes,
+                  onChanged: (text) {
+                    _loadModels(text);
+                    // typing a new make invalidates a catalog-prefilled model
+                    _markManual();
+                  },
+                ),
+                const SizedBox(height: 14),
+                _ModelField(
+                  key: ValueKey('model-$_fieldVersion'),
+                  controller: _model,
+                  models: _models,
+                  onSelected: (model) {
+                    _applyModel(model);
+                    _loadOnlineTrims();
+                  },
+                  onChanged: (_) => _markManual(),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int?>(
+                        initialValue: _year,
+                        decoration: const InputDecoration(labelText: 'Anno'),
+                        items: [
+                          const DropdownMenuItem<int?>(child: Text('—')),
+                          for (var y = thisYear + 1; y >= 1980; y--)
+                            DropdownMenuItem<int?>(value: y, child: Text('$y')),
+                        ],
+                        onChanged: (y) => setState(() {
+                          _year = y;
+                          if (_specSource != SpecSource.manual) {
+                            _specSource = SpecSource.manual;
+                          }
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _TrimField(
+                        key: ValueKey('trim-$_fieldVersion'),
+                        controller: _trimCtrl,
+                        trims: trimSuggestions,
+                        onSelected: _applyTrim,
+                        onChanged: (_) => _markManual(),
+                      ),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: onlineLookupEnabled && !_loadingOnlineTrims
+                        ? _loadOnlineTrims
+                        : null,
+                    icon: _loadingOnlineTrims
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.cloud_sync_outlined),
+                    label: const Text('Cerca allestimenti online'),
                   ),
                 ),
               ],
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: onlineLookupEnabled && !_loadingOnlineTrims
-                    ? _loadOnlineTrims
-                    : null,
-                icon: _loadingOnlineTrims
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.cloud_sync_outlined),
-                label: const Text('Cerca allestimenti online'),
-              ),
-            ),
-            DropdownButtonFormField<FuelType>(
-              initialValue: _fuel,
-              decoration: const InputDecoration(labelText: 'Carburante'),
-              items: [
-                for (final f in FuelType.values)
-                  DropdownMenuItem(value: f, child: Text(f.name)),
-              ],
-              onChanged: (f) => setState(() {
-                _fuel = f ?? _fuel;
-                if (_specSource != SpecSource.manual) {
-                  _specSource = SpecSource.manual;
-                }
-              }),
-            ),
-            DropdownButtonFormField<EuroClass?>(
-              initialValue: _euroClass,
-              decoration: const InputDecoration(
-                labelText: 'Classe ambientale (Euro)',
-                helperText: 'Per il calcolo del bollo · libretto V.9',
-              ),
-              items: [
-                const DropdownMenuItem<EuroClass?>(child: Text('—')),
-                for (final e in EuroClass.values)
-                  DropdownMenuItem<EuroClass?>(
-                    value: e,
-                    child: Text('Euro ${e.index}'),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('vehicle-engine-section'),
+              title: 'Motorizzazione',
+              children: [
+                DropdownButtonFormField<FuelType>(
+                  initialValue: _fuel,
+                  decoration: const InputDecoration(
+                    labelText: 'Carburante',
+                    prefixIcon: Icon(Icons.local_gas_station),
                   ),
+                  items: [
+                    for (final f in FuelType.values)
+                      DropdownMenuItem(value: f, child: Text(f.name)),
+                  ],
+                  onChanged: (f) => setState(() {
+                    _fuel = f ?? _fuel;
+                    if (_specSource != SpecSource.manual) {
+                      _specSource = SpecSource.manual;
+                    }
+                  }),
+                ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<EuroClass?>(
+                  initialValue: _euroClass,
+                  decoration: const InputDecoration(
+                    labelText: 'Classe ambientale (Euro)',
+                    helperText: 'Per il calcolo del bollo · libretto V.9',
+                  ),
+                  items: [
+                    const DropdownMenuItem<EuroClass?>(child: Text('—')),
+                    for (final e in EuroClass.values)
+                      DropdownMenuItem<EuroClass?>(
+                        value: e,
+                        child: Text('Euro ${e.index}'),
+                      ),
+                  ],
+                  onChanged: (e) => setState(() {
+                    _euroClass = e;
+                    if (_specSource != SpecSource.manual) {
+                      _specSource = SpecSource.manual;
+                    }
+                  }),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _tank,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Capacità serbatoio (L)',
+                  ),
+                  onChanged: (_) => _markManual(),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _consumption,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Consumo dichiarato (L/100km)',
+                  ),
+                  onChanged: (_) => _markManual(),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _power,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Potenza (CV)'),
+                  onChanged: (_) => _markManual(),
+                ),
               ],
-              onChanged: (e) => setState(() {
-                _euroClass = e;
-                if (_specSource != SpecSource.manual) {
-                  _specSource = SpecSource.manual;
-                }
-              }),
             ),
-            TextFormField(
-              controller: _tank,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Capacità serbatoio (L)',
-              ),
-              onChanged: (_) => _markManual(),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('vehicle-settings-section'),
+              title: 'Impostazioni',
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Veicolo predefinito'),
+                  value: _isDefault,
+                  onChanged: (v) => setState(() => _isDefault = v),
+                ),
+              ],
             ),
-            TextFormField(
-              controller: _consumption,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Consumo dichiarato (L/100km)',
-              ),
-              onChanged: (_) => _markManual(),
-            ),
-            TextFormField(
-              controller: _power,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Potenza (CV)'),
-              onChanged: (_) => _markManual(),
-            ),
-            SwitchListTile(
-              title: const Text('Veicolo predefinito'),
-              value: _isDefault,
-              onChanged: (v) => setState(() => _isDefault = v),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Salva')),
+            const SizedBox(height: 96),
           ],
         ),
       ),
