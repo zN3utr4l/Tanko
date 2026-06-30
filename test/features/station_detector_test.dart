@@ -40,7 +40,7 @@ class _FakeOcr implements OcrService {
   Future<List<String>> readLines(String imagePath) async => _lines;
 }
 
-class _EmptyLookup implements StationLookupService {
+class _EmptyLookup extends StationLookupService {
   @override
   Future<List<DetectedStation>> nearby(
     double lat,

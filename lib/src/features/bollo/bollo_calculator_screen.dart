@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/form_section_card.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/vehicle.dart';
 import '../../domain/services/bollo_calculator.dart';
@@ -96,68 +97,73 @@ class _BolloCalculatorScreenState extends ConsumerState<BolloCalculatorScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (vehicles.isNotEmpty) ...[
-            DropdownButtonFormField<int?>(
-              initialValue: _vehicleId,
-              decoration: const InputDecoration(
-                labelText: 'Veicolo (opz.)',
-                helperText: 'Pre-compila kW, classe Euro e anno',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<int?>(child: Text('—')),
-                for (final v in vehicles)
-                  DropdownMenuItem<int?>(
-                    value: v.id,
-                    child: Text('${v.make} ${v.model}'),
+          FormSectionCard(
+            key: const Key('bollo-input-section'),
+            title: 'Dati',
+            children: [
+              if (vehicles.isNotEmpty) ...[
+                DropdownButtonFormField<int?>(
+                  initialValue: _vehicleId,
+                  decoration: const InputDecoration(
+                    labelText: 'Veicolo (opz.)',
+                    helperText: 'Pre-compila kW, classe Euro e anno',
+                    prefixIcon: Icon(Icons.directions_car),
                   ),
+                  items: [
+                    const DropdownMenuItem<int?>(child: Text('—')),
+                    for (final v in vehicles)
+                      DropdownMenuItem<int?>(
+                        value: v.id,
+                        child: Text('${v.make} ${v.model}'),
+                      ),
+                  ],
+                  onChanged: (id) => _selectVehicle(id, vehicles),
+                ),
+                const SizedBox(height: 14),
               ],
-              onChanged: (id) => _selectVehicle(id, vehicles),
-            ),
-            const SizedBox(height: 16),
-          ],
-          TextField(
-            controller: _kw,
-            keyboardType: TextInputType.number,
-            onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
-              labelText: 'Potenza (kW)',
-              helperText: 'Libretto, campo P.2 · se hai i CV: kW ≈ CV × 0,735',
-              border: OutlineInputBorder(),
-            ),
+              TextField(
+                controller: _kw,
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  labelText: 'Potenza (kW)',
+                  helperText:
+                      'Libretto, campo P.2 · se hai i CV: kW ≈ CV × 0,735',
+                  prefixIcon: Icon(Icons.bolt),
+                ),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<EuroClass>(
+                key: ValueKey(_euro),
+                initialValue: _euro,
+                decoration: const InputDecoration(
+                  labelText: 'Classe ambientale',
+                  helperText: 'Libretto, campo V.9',
+                ),
+                items: [
+                  for (final e in EuroClass.values)
+                    DropdownMenuItem(value: e, child: Text('Euro ${e.index}')),
+                ],
+                onChanged: (e) => setState(() => _euro = e ?? _euro),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<int?>(
+                key: ValueKey(_year),
+                initialValue: _year,
+                decoration: const InputDecoration(
+                  labelText: 'Anno immatricolazione (opz.)',
+                  helperText: 'Solo per lo sconto superbollo (auto > 185 kW)',
+                ),
+                items: [
+                  const DropdownMenuItem<int?>(child: Text('—')),
+                  for (var y = thisYear; y >= 1980; y--)
+                    DropdownMenuItem<int?>(value: y, child: Text('$y')),
+                ],
+                onChanged: (y) => setState(() => _year = y),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<EuroClass>(
-            key: ValueKey(_euro),
-            initialValue: _euro,
-            decoration: const InputDecoration(
-              labelText: 'Classe ambientale',
-              helperText: 'Libretto, campo V.9',
-              border: OutlineInputBorder(),
-            ),
-            items: [
-              for (final e in EuroClass.values)
-                DropdownMenuItem(value: e, child: Text('Euro ${e.index}')),
-            ],
-            onChanged: (e) => setState(() => _euro = e ?? _euro),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<int?>(
-            key: ValueKey(_year),
-            initialValue: _year,
-            decoration: const InputDecoration(
-              labelText: 'Anno immatricolazione (opz.)',
-              helperText: 'Solo per lo sconto superbollo (auto > 185 kW)',
-              border: OutlineInputBorder(),
-            ),
-            items: [
-              const DropdownMenuItem<int?>(child: Text('—')),
-              for (var y = thisYear; y >= 1980; y--)
-                DropdownMenuItem<int?>(value: y, child: Text('$y')),
-            ],
-            onChanged: (y) => setState(() => _year = y),
-          ),
-          const SizedBox(height: 24),
           if (result != null) ...[
             Card(
               child: Padding(

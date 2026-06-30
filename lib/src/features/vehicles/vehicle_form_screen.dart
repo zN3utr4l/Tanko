@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/widgets/form_section_card.dart';
 import '../../domain/models/enums.dart';
 import '../../domain/models/vehicle.dart';
 import '../../providers.dart';
@@ -106,108 +107,147 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
           widget.initial == null ? 'Nuovo veicolo' : 'Modifica veicolo',
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(onPressed: _save, child: const Text('Salva')),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              controller: _make,
-              decoration: const InputDecoration(labelText: 'Marca'),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
-            ),
-            TextFormField(
-              controller: _model,
-              decoration: const InputDecoration(labelText: 'Modello'),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
-            ),
-            TextFormField(
-              controller: _plate,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Targa',
-                hintText: 'AB123CD',
-                prefixIcon: Icon(Icons.pin),
-              ),
-            ),
-            Row(
+            FormSectionCard(
+              key: const Key('vehicle-identity-section'),
+              title: 'Veicolo',
               children: [
-                Expanded(
-                  child: DropdownButtonFormField<int?>(
-                    initialValue: _year,
-                    decoration: const InputDecoration(labelText: 'Anno'),
-                    items: [
-                      const DropdownMenuItem<int?>(child: Text('—')),
-                      for (var y = thisYear + 1; y >= 1980; y--)
-                        DropdownMenuItem<int?>(value: y, child: Text('$y')),
-                    ],
-                    onChanged: (y) => setState(() => _year = y),
+                TextFormField(
+                  controller: _make,
+                  decoration: const InputDecoration(
+                    labelText: 'Marca',
+                    prefixIcon: Icon(Icons.directions_car),
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _model,
+                  decoration: const InputDecoration(labelText: 'Modello'),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _plate,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'Targa',
+                    hintText: 'AB123CD',
+                    prefixIcon: Icon(Icons.pin),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _trim,
-                    decoration: const InputDecoration(
-                      labelText: 'Allestimento',
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int?>(
+                        initialValue: _year,
+                        decoration: const InputDecoration(labelText: 'Anno'),
+                        items: [
+                          const DropdownMenuItem<int?>(child: Text('—')),
+                          for (var y = thisYear + 1; y >= 1980; y--)
+                            DropdownMenuItem<int?>(value: y, child: Text('$y')),
+                        ],
+                        onChanged: (y) => setState(() => _year = y),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _trim,
+                        decoration: const InputDecoration(
+                          labelText: 'Allestimento',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            DropdownButtonFormField<FuelType>(
-              initialValue: _fuel,
-              decoration: const InputDecoration(labelText: 'Carburante'),
-              items: [
-                for (final f in FuelType.values)
-                  DropdownMenuItem(value: f, child: Text(f.name)),
-              ],
-              onChanged: (f) => setState(() => _fuel = f ?? _fuel),
-            ),
-            DropdownButtonFormField<EuroClass?>(
-              initialValue: _euroClass,
-              decoration: const InputDecoration(
-                labelText: 'Classe ambientale (Euro)',
-                helperText: 'Per il calcolo del bollo · libretto V.9',
-              ),
-              items: [
-                const DropdownMenuItem<EuroClass?>(child: Text('—')),
-                for (final e in EuroClass.values)
-                  DropdownMenuItem<EuroClass?>(
-                    value: e,
-                    child: Text('Euro ${e.index}'),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('vehicle-engine-section'),
+              title: 'Motorizzazione',
+              children: [
+                DropdownButtonFormField<FuelType>(
+                  initialValue: _fuel,
+                  decoration: const InputDecoration(
+                    labelText: 'Carburante',
+                    prefixIcon: Icon(Icons.local_gas_station),
                   ),
+                  items: [
+                    for (final f in FuelType.values)
+                      DropdownMenuItem(value: f, child: Text(f.name)),
+                  ],
+                  onChanged: (f) => setState(() => _fuel = f ?? _fuel),
+                ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<EuroClass?>(
+                  initialValue: _euroClass,
+                  decoration: const InputDecoration(
+                    labelText: 'Classe ambientale (Euro)',
+                    helperText: 'Per il calcolo del bollo · libretto V.9',
+                  ),
+                  items: [
+                    const DropdownMenuItem<EuroClass?>(child: Text('—')),
+                    for (final e in EuroClass.values)
+                      DropdownMenuItem<EuroClass?>(
+                        value: e,
+                        child: Text('Euro ${e.index}'),
+                      ),
+                  ],
+                  onChanged: (e) => setState(() => _euroClass = e),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _tank,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Capacità serbatoio (L)',
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _consumption,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Consumo dichiarato (L/100km)',
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _power,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Potenza (CV)'),
+                ),
               ],
-              onChanged: (e) => setState(() => _euroClass = e),
             ),
-            TextFormField(
-              controller: _tank,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Capacità serbatoio (L)',
-              ),
+            const SizedBox(height: 14),
+            FormSectionCard(
+              key: const Key('vehicle-settings-section'),
+              title: 'Impostazioni',
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Veicolo predefinito'),
+                  value: _isDefault,
+                  onChanged: (v) => setState(() => _isDefault = v),
+                ),
+              ],
             ),
-            TextFormField(
-              controller: _consumption,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Consumo dichiarato (L/100km)',
-              ),
-            ),
-            TextFormField(
-              controller: _power,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Potenza (CV)'),
-            ),
-            SwitchListTile(
-              title: const Text('Veicolo predefinito'),
-              value: _isDefault,
-              onChanged: (v) => setState(() => _isDefault = v),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Salva')),
+            const SizedBox(height: 96),
           ],
         ),
       ),

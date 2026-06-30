@@ -6,12 +6,24 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../core/formatters.dart';
+import '../../core/widgets/category_icon.dart';
 import '../../core/widgets/form_section_card.dart';
+import '../../domain/models/category.dart';
 import '../../domain/models/expense.dart';
 import '../../providers.dart';
 import 'expense_providers.dart';
 
 double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
+
+/// The category in [list] with [id], or null. Used to drive the selected
+/// category's leading icon in the picker.
+Category? _categoryById(List<Category> list, int? id) {
+  if (id == null) return null;
+  for (final c in list) {
+    if (c.id == id) return c;
+  }
+  return null;
+}
 
 class ExpenseFormScreen extends ConsumerStatefulWidget {
   const ExpenseFormScreen({
@@ -171,36 +183,43 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                 ),
                 const SizedBox(height: 14),
                 cats.maybeWhen(
-                  data: (list) => DropdownButtonFormField<int>(
-                    initialValue:
-                        _categoryId ?? (list.isEmpty ? null : list.first.id),
-                    decoration: const InputDecoration(
-                      labelText: 'Categoria',
-                      prefixIcon: Icon(Icons.category),
-                    ),
-                    items: [
-                      for (final c in list)
-                        DropdownMenuItem(
-                          value: c.id,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 14,
-                                height: 14,
-                                decoration: BoxDecoration(
-                                  color: Color(c.color),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(c.name),
-                            ],
-                          ),
+                  data: (list) {
+                    final selectedId =
+                        _categoryId ?? (list.isEmpty ? null : list.first.id);
+                    final selected = _categoryById(list, selectedId);
+                    return DropdownButtonFormField<int>(
+                      initialValue: selectedId,
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        prefixIcon: Icon(
+                          selected == null
+                              ? Icons.category
+                              : categoryIcon(selected),
+                          color: selected == null ? null : Color(selected.color),
                         ),
-                    ],
-                    onChanged: (v) => setState(() => _categoryId = v),
-                    validator: (v) => v == null ? 'Scegli una categoria' : null,
-                  ),
+                      ),
+                      items: [
+                        for (final c in list)
+                          DropdownMenuItem(
+                            value: c.id,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  categoryIcon(c),
+                                  color: Color(c.color),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(c.name),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => _categoryId = v),
+                      validator: (v) =>
+                          v == null ? 'Scegli una categoria' : null,
+                    );
+                  },
                   orElse: () => const LinearProgressIndicator(),
                 ),
                 const SizedBox(height: 14),
